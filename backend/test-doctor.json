@@ -1,0 +1,20 @@
+{
+  "nomeCompleto": "Dr. João Silva",
+  "cpf": "12345678901",
+  "rg": "1234567",
+  "dataNascimento": "1980-01-01",
+  "telefone": "11999999999",
+  "email": "joao@teste.com",
+  "crm": "123456",
+  "especialidade": "Cardiologia",
+  "usuario": "drjoao",
+  "senha": "123456",
+  "cep": "01234567",
+  "logradouro": "Rua Teste",
+  "numero": "123",
+  "bairro": "Centro",
+  "cidade": "São Paulo",
+  "estado": "SP",
+  "instituicaoFormacao": "USP",
+  "anoFormacao": "2005"
+}

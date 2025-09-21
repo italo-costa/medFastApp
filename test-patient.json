@@ -1,0 +1,9 @@
+{
+  "nomeCompleto": "João Silva Teste",
+  "cpf": "12345678901",
+  "dataNascimento": "1990-01-01",
+  "telefone": "11999999999",
+  "email": "joao.teste@email.com",
+  "tipoSanguineo": "O+",
+  "observacoes": "Paciente de teste"
+}

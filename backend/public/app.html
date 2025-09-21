@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 MediApp - Sistema Médico</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Navigation */
+        .nav {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0 2rem;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-item {
+            padding: 1rem 0;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: #3182ce;
+            border-bottom-color: #3182ce;
+        }
+
+        /* Main Content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: #3182ce;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2c5282;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-success {
+            background: #38a169;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #2f855a;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c53030;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3182ce;
+        }
+
+        /* Tables */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .table tbody tr:hover {
+            background: #f7fafc;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .stat-icon.blue { background: #3182ce; }
+        .stat-icon.green { background: #38a169; }
+        .stat-icon.purple { background: #805ad5; }
+        .stat-icon.orange { background: #dd6b20; }
+
+        .stat-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .stat-content p {
+            color: #718096;
+            font-size: 0.875rem;
+        }
+
+        /* Search */
+        .search-box {
+            position: relative;
+            max-width: 400px;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            z-index: 10;
+            pointer-events: auto;
+        }
+
+        .action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-color: #3182ce;
+        }
+
+        /* Ações médicas disponíveis */
+        .action-card.available {
+            background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+            border: 2px solid #10b981;
+        }
+
+        .action-card.available .action-icon {
+            color: #10b981;
+        }
+
+        .action-card.available .action-title {
+            color: #065f46;
+        }
+
+        /* Módulos futuros */
+        .action-card.coming-soon {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 2px solid #cbd5e0;
+            opacity: 0.8;
+            cursor: not-allowed;
+        }
+
+        .action-card.coming-soon::after {
+            content: 'Em Breve';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #64748b;
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .action-card.coming-soon .action-icon {
+            color: #64748b;
+        }
+
+        .action-card.coming-soon .action-title {
+            color: #475569;
+        }
+
+        /* Status de conexão */
+        .action-card.connected {
+            background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+            border: 2px solid #10b981;
+            cursor: pointer;
+        }
+
+        .action-card.connected .action-icon {
+            color: #10b981;
+        }
+
+        .action-card.connected .action-title {
+            color: #065f46;
+        }
+
+        .action-card.disconnected {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+            border: 2px solid #ef4444;
+            cursor: not-allowed;
+        }
+
+        .action-card.disconnected .action-icon {
+            color: #ef4444;
+        }
+
+        .action-card.disconnected .action-title {
+            color: #7f1d1d;
+        }
+
+        .connection-status {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .connection-status.checking {
+            color: #6b7280;
+        }
+
+        .connection-status.connected {
+            color: #10b981;
+        }
+
+        .connection-status.error {
+            color: #ef4444;
+        }
+
+        .action-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #3182ce;
+        }
+
+        .action-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-desc {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content,
+            .nav-content,
+            .main {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .nav-content {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-hospital"></i>
+                <span>MediApp</span>
+            </div>
+            <div class="user-info">
+                <span>Dr. João Silva - Cardiologia</span>
+                <button class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-content">
+            <div class="nav-item active" onclick="showPage('dashboard')">
+                <i class="fas fa-chart-line"></i>
+                Painel Médico
+            </div>
+            <div class="nav-item" onclick="showPage('patients')">
+                <i class="fas fa-users"></i>
+                Pacientes
+            </div>
+            <div class="nav-item" onclick="showPage('records')">
+                <i class="fas fa-file-medical"></i>
+                Prontuários
+            </div>
+            <div class="nav-item" onclick="showPage('exams')">
+                <i class="fas fa-x-ray"></i>
+                Exames
+            </div>
+            <div class="nav-item" onclick="showPage('allergies')">
+                <i class="fas fa-exclamation-triangle"></i>
+                Alergias
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Dashboard Page -->
+        <div id="dashboard" class="page active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>1,247</h3>
+                        <p>Pacientes Cadastrados</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-file-medical"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>3,492</h3>
+                        <p>Prontuários Criados</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-x-ray"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>856</h3>
+                        <p>Exames Registrados</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>24</h3>
+                        <p>Médicos Ativos</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <a href="/cadastro-medico.html" class="action-card available" id="cadastrar-medico-btn" style="text-decoration: none; color: inherit;">
+                    <div class="action-icon">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="action-title">Cadastrar Médico</div>
+                    <div class="action-desc">Registrar novo médico no sistema</div>
+                </a>
+                <a href="/lista-medicos.html" class="action-card available" style="text-decoration: none; color: inherit;">
+                    <div class="action-icon">
+                        <i class="fas fa-stethoscope"></i>
+                    </div>
+                    <div class="action-title">Lista de Médicos</div>
+                    <div class="action-desc">Visualizar todos os médicos cadastrados</div>
+                </a>
+                <a href="/gestao-pacientes.html" class="action-card available" style="text-decoration: none; color: inherit;">
+                    <div class="action-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="action-title">Gestão de Pacientes</div>
+                    <div class="action-desc">Cadastrar e gerenciar pacientes</div>
+                </a>
+                <a href="/prontuarios.html" class="action-card available" style="text-decoration: none; color: inherit;">
+                    <div class="action-icon">
+                        <i class="fas fa-notes-medical"></i>
+                    </div>
+                    <div class="action-title">Prontuários Médicos</div>
+                    <div class="action-desc">Criar e gerenciar prontuários</div>
+                </a>
+                <div class="action-card coming-soon" onclick="showComingSoon('Exames')">
+                    <div class="action-icon">
+                        <i class="fas fa-file-medical"></i>
+                    </div>
+                    <div class="action-title">Exames Médicos</div>
+                    <div class="action-desc">Upload e gestão de exames</div>
+                </div>
+                <div class="action-card coming-soon" onclick="showComingSoon('Alergias')">
+                    <div class="action-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="action-title">Alergias e Contraindicações</div>
+                    <div class="action-desc">Registrar alergias dos pacientes</div>
+                </div>
+                <div class="action-card coming-soon" onclick="showComingSoon('Relatórios')">
+                    <div class="action-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="action-title">Relatórios Médicos</div>
+                    <div class="action-desc">Gerar relatórios e estatísticas</div>
+                </div>
+            </div>
+
+
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-calendar-alt"></i>
+                        Consultas Recentes
+                    </h2>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Data</th>
+                            <th>Diagnóstico</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Maria Silva</td>
+                            <td>21/09/2025</td>
+                            <td>Hipertensão</td>
+                            <td><span style="color: #38a169;">Concluído</span></td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>João Santos</td>
+                            <td>20/09/2025</td>
+                            <td>Diabetes Tipo 2</td>
+                            <td><span style="color: #dd6b20;">Em Tratamento</span></td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Ana Costa</td>
+                            <td>19/09/2025</td>
+                            <td>Consulta Preventiva</td>
+                            <td><span style="color: #38a169;">Concluído</span></td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Patients Page -->
+        <div id="patients" class="page">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-users"></i>
+                        Gestão de Pacientes
+                    </h2>
+                    <button class="btn btn-primary" onclick="openModal('patientModal')">
+                        <i class="fas fa-plus"></i>
+                        Novo Paciente
+                    </button>
+                </div>
+
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Buscar paciente por nome ou CPF...">
+                </div>
+
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Nascimento</th>
+                            <th>Telefone</th>
+                            <th>Último Atendimento</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Maria Silva</td>
+                            <td>123.456.789-00</td>
+                            <td>15/05/1985</td>
+                            <td>(11) 99999-9999</td>
+                            <td>21/09/2025</td>
+                            <td>
+                                <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem; margin-right: 0.25rem;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.875rem; margin-right: 0.25rem;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Mais linhas seriam adicionadas dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Records Page -->
+        <div id="records" class="page">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-file-medical"></i>
+                        Prontuários Médicos
+                    </h2>
+                    <button class="btn btn-primary" onclick="openModal('recordModal')">
+                        <i class="fas fa-plus"></i>
+                        Novo Prontuário
+                    </button>
+                </div>
+                <p>Módulo de prontuários será disponibilizado em breve</p>
+            </div>
+        </div>
+
+        <!-- Exams Page -->
+        <div id="exams" class="page">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-x-ray"></i>
+                        Gestão de Exames
+                    </h2>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-upload"></i>
+                        Upload Exame
+                    </button>
+                </div>
+                <p>Módulo de exames será disponibilizado em breve</p>
+            </div>
+        </div>
+
+        <!-- Allergies Page -->
+        <div id="allergies" class="page">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Alergias e Contraindicações
+                    </h2>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Nova Alergia
+                    </button>
+                </div>
+                <p>Módulo de alergias será disponibilizado em breve</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Patient Modal -->
+    <div id="patientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Novo Paciente</h3>
+                <button class="modal-close" onclick="closeModal('patientModal')">&times;</button>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label class="form-label">Nome Completo</label>
+                    <input type="text" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">CPF</label>
+                    <input type="text" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Data de Nascimento</label>
+                    <input type="date" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Telefone</label>
+                    <input type="tel" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Endereço</label>
+                    <input type="text" class="form-input" required>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('patientModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Paciente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Remove active from nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Add active to clicked nav item
+            event.target.classList.add('active');
+        }
+
+        // Function to navigate to external pages
+        function navigateTo(url) {
+            try {
+
+                window.location.href = url;
+            } catch (error) {
+                console.error('Erro na navegação:', error);
+                alert('Erro ao navegar para a página. Tente novamente.');
+            }
+        }
+
+
+
+        // Function for coming soon features
+        function showComingSoon(feature) {
+            alert(`A funcionalidade "${feature}" estará disponível em breve!\n\nEstamos trabalhando para trazer esta funcionalidade o mais rápido possível.`);
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Simulate real data loading
+        window.addEventListener('load', function() {
+            // Setup click handler for cadastrar medico button
+            const cadastrarMedicoBtn = document.getElementById('cadastrar-medico-btn');
+            if (cadastrarMedicoBtn) {
+                cadastrarMedicoBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Botão Cadastrar Médico clicado!');
+                    try {
+                        window.location.assign('/cadastro-medico.html');
+                    } catch (error) {
+                        console.error('Erro na navegação:', error);
+                        // Fallback
+                        window.open('/cadastro-medico.html', '_self');
+                    }
+                });
+            }
+            
+            // Here you would normally load real data from the API
+            // loadPatients();
+            // loadRecentRecords();
+            // updateStats();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+// Prisma Schema for MediApp
+// PostgreSQL Database
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String   @id @default(cuid())
+  email                String   @unique
+  username             String   @unique
+  name                 String
+  password             String
+  role                 Role     @default(DOCTOR)
+  cpf                  String   @unique
+  rg                   String?
+  birthDate            DateTime
+  phone                String
+  crm                  String   @unique
+  specialty            String
+  rqe                  String?
+  formationInstitution String
+  formationYear        Int
+  address              Json?
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // Relacionamentos
+  medicalRecords MedicalRecord[]
+  patientAccess  PatientAccess[]
+  auditLogs      AuditLog[]
+  anamnesis      Anamnesis[]
+
+  @@map("users")
+}
+
+enum Role {
+  DOCTOR
+  ADMIN
+  NURSE
+}
+
+model Patient {
+  id               Int      @id @default(autoincrement())
+  name             String
+  cpf              String   @unique
+  rg               String?
+  birthDate        DateTime
+  gender           String?
+  phone            String
+  email            String?
+  bloodType        String?
+  address          Json?
+  emergencyContact String?
+  observations     String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relacionamentos
+  medicalRecords MedicalRecord[]
+  allergies      Allergy[]
+  medications    PatientMedication[]
+  patientAccess  PatientAccess[]
+  exams          Exam[]
+  examFiles      ExamFile[]
+  anamnesis      Anamnesis[]
+
+  @@map("patients")
+}
+
+model Exam {
+  id          Int      @id @default(autoincrement())
+  patientId   Int
+  examType    String
+  examDate    DateTime
+  description String?
+  result      String?
+  status      ExamStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relacionamentos
+  patient     Patient  @relation(fields: [patientId], references: [id])
+
+  @@map("exams")
+}
+
+enum ExamStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+model MedicalRecord {
+  id           String   @id @default(cuid())
+  patientId    Int
+  doctorId     String
+  date         DateTime @default(now())
+  chiefComplaint String? // Queixa principal
+  historyOfPresentIllness String? // História da doença atual
+  physicalExamination String? // Exame físico
+  diagnosis    String
+  treatment    String?
+  medications  String?
+  observations String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relacionamentos
+  patient      Patient    @relation(fields: [patientId], references: [id])
+  doctor       User       @relation(fields: [doctorId], references: [id])
+  examFiles    ExamFile[]
+  auditLogs    AuditLog[]
+
+  @@map("medical_records")
+}
+
+model Allergy {
+  id          String   @id @default(cuid())
+  patientId   Int
+  allergen    String   // Alérgeno
+  reaction    String   // Tipo de reação
+  severity    String   // Leve, Moderada, Grave
+  dateDiscovered DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relacionamentos
+  patient     Patient  @relation(fields: [patientId], references: [id])
+
+  @@map("allergies")
+}
+
+model Medication {
+  id             String   @id @default(cuid())
+  name           String
+  genericName    String?
+  category       String?
+  contraindications String?
+  sideEffects    String?
+  dosageInfo     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relacionamentos
+  patientMedications PatientMedication[]
+
+  @@map("medications")
+}
+
+model PatientMedication {
+  id           String   @id @default(cuid())
+  patientId    Int
+  medicationId String
+  dosage       String
+  frequency    String
+  startDate    DateTime
+  endDate      DateTime?
+  isActive     Boolean  @default(true)
+  prescribedBy String?  // ID do médico que prescreveu
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relacionamentos
+  patient      Patient    @relation(fields: [patientId], references: [id])
+  medication   Medication @relation(fields: [medicationId], references: [id])
+
+  @@map("patient_medications")
+}
+
+model ExamFile {
+  id             String   @id @default(cuid())
+  patientId      Int
+  recordId       String?
+  filename       String
+  originalName   String
+  mimeType       String
+  fileSize       Int
+  filePath       String   // Caminho no S3 ou storage local
+  examType       String   // Raio-X, Ressonância, Exame de Sangue, etc.
+  examDate       DateTime
+  description    String?
+  uploadedBy     String   // ID do usuário que fez upload
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relacionamentos
+  patient        Patient        @relation(fields: [patientId], references: [id])
+  medicalRecord  MedicalRecord? @relation(fields: [recordId], references: [id])
+
+  @@map("exam_files")
+}
+
+model PatientAccess {
+  id        String   @id @default(cuid())
+  patientId Int
+  userId    String
+  canRead   Boolean  @default(true)
+  canWrite  Boolean  @default(false)
+  canDelete Boolean  @default(false)
+  grantedBy String?  // ID do usuário que concedeu acesso
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  patient   Patient @relation(fields: [patientId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
+
+  @@unique([patientId, userId])
+  @@map("patient_access")
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  userId       String
+  action       String   // CREATE, READ, UPDATE, DELETE
+  entityType   String   // PATIENT, RECORD, EXAM, etc.
+  entityId     String
+  recordId     String?  // Para logs relacionados a prontuários
+  oldData      Json?    // Dados antes da alteração
+  newData      Json?    // Dados após a alteração
+  ipAddress    String?
+  userAgent    String?
+  timestamp    DateTime @default(now())
+
+  // Relacionamentos
+  user         User           @relation(fields: [userId], references: [id])
+  medicalRecord MedicalRecord? @relation(fields: [recordId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model Anamnesis {
+  id                    String   @id @default(cuid())
+  patientId             Int
+  doctorId              String
+  consultationDate      DateTime @default(now())
+  
+  // Dados pessoais e sociais
+  profession            String?
+  maritalStatus         String?
+  education             String?
+  lifestyle             String?
+  
+  // Motivo da consulta
+  chiefComplaint        String   // Queixa principal
+  historyPresentIllness String   // História da doença atual (HDA)
+  
+  // História patológica pregressa
+  previousIllnesses     String?  // Doenças anteriores
+  surgeries             String?  // Cirurgias
+  hospitalizations      String?  // Internações
+  allergies             String?  // Alergias conhecidas
+  currentMedications    String?  // Medicações em uso
+  
+  // História familiar
+  familyHistory         String?  // Histórico familiar
+  
+  // História social
+  smoking               String?  // Tabagismo
+  alcohol               String?  // Etilismo
+  drugs                 String?  // Uso de drogas
+  physicalActivity      String?  // Atividade física
+  
+  // Revisão de sistemas
+  generalSymptoms       String?  // Sintomas gerais
+  cardiovascular        String?  // Sistema cardiovascular
+  respiratory           String?  // Sistema respiratório
+  gastrointestinal      String?  // Sistema gastrointestinal
+  genitourinary         String?  // Sistema geniturinário
+  neurological          String?  // Sistema neurológico
+  musculoskeletal       String?  // Sistema musculoesquelético
+  dermatological        String?  // Sistema dermatológico
+  
+  // Exame físico
+  vitalSigns            Json?    // Sinais vitais (PA, FC, FR, Temp, etc.)
+  physicalExamination   String?  // Exame físico completo
+  
+  // Observações gerais
+  observations          String?
+  
+  isComplete            Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relacionamentos
+  patient               Patient  @relation(fields: [patientId], references: [id])
+  doctor                User     @relation(fields: [doctorId], references: [id])
+
+  @@map("anamnesis")
+}
+
+model SystemConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  category  String?  // SECURITY, FEATURES, etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_config")
+}

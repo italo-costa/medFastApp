@@ -1,0 +1,46 @@
+{
+  "name": "mediapp",
+  "version": "1.0.0",
+  "description": "Sistema de Prontuários Médicos - App móvel para gestão completa de pacientes",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run backend:dev\" \"npm run mobile:start\"",
+    "backend:dev": "cd backend && npm run dev",
+    "mobile:start": "cd mobile && npm start",
+    "mobile:android": "cd mobile && npm run android",
+    "mobile:ios": "cd mobile && npm run ios",
+    "setup": "npm run setup:backend && npm run setup:mobile",
+    "setup:backend": "cd backend && npm install && npm run db:migrate",
+    "setup:mobile": "cd mobile && npm install",
+    "test": "npm run test:backend && npm run test:mobile",
+    "test:backend": "cd backend && npm test",
+    "test:mobile": "cd mobile && npm test",
+    "build:mobile": "cd mobile && npm run build",
+    "lint": "npm run lint:backend && npm run lint:mobile",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:mobile": "cd mobile && npm run lint"
+  },
+  "keywords": [
+    "react-native",
+    "medical",
+    "healthcare",
+    "prontuario",
+    "mobile-app",
+    "typescript",
+    "nodejs",
+    "postgresql"
+  ],
+  "author": "MediApp Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "workspaces": [
+    "backend",
+    "mobile"
+  ]
+}
