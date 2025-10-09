@@ -313,7 +313,129 @@ app.get('/api/pacientes', async (req, res) => {
     }
 });
 
-// Criar paciente
+// Buscar paciente por ID
+app.get('/api/pacientes/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const paciente = await prisma.paciente.findUnique({
+            where: { id },
+            include: {
+                _count: {
+                    select: {
+                        prontuarios: true,
+                        consultas: true,
+                        exames: true
+                    }
+                }
+            }
+        });
+
+        if (!paciente) {
+            return res.status(404).json({ error: 'Paciente não encontrado' });
+        }
+
+        res.json({
+            success: true,
+            data: {
+                id: paciente.id,
+                nome: paciente.nome,
+                cpf: paciente.cpf,
+                idade: Math.floor((new Date() - new Date(paciente.data_nascimento)) / (365.25 * 24 * 60 * 60 * 1000)),
+                dataNascimento: paciente.data_nascimento.toISOString().split('T')[0],
+                sexo: paciente.sexo,
+                telefone: paciente.telefone,
+                celular: paciente.celular,
+                email: paciente.email,
+                endereco: paciente.endereco,
+                profissao: paciente.profissao,
+                estadoCivil: paciente.estado_civil,
+                nomeContato: paciente.nome_contato,
+                telefoneContato: paciente.telefone_contato,
+                convenio: paciente.convenio,
+                numeroConvenio: paciente.numero_convenio,
+                observacoes: paciente.observacoes,
+                stats: {
+                    prontuarios: paciente._count.prontuarios,
+                    consultas: paciente._count.consultas,
+                    exames: paciente._count.exames
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao buscar paciente:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// Buscar paciente por CPF
+app.get('/api/pacientes/buscar/:cpf', authenticateToken, async (req, res) => {
+    try {
+        const { cpf } = req.params;
+        
+        const paciente = await prisma.paciente.findUnique({
+            where: { cpf }
+        });
+
+        if (!paciente) {
+            return res.status(404).json({ error: 'Paciente não encontrado' });
+        }
+
+        res.json({
+            success: true,
+            data: {
+                id: paciente.id,
+                nome: paciente.nome,
+                cpf: paciente.cpf,
+                idade: Math.floor((new Date() - new Date(paciente.data_nascimento)) / (365.25 * 24 * 60 * 60 * 1000)),
+                dataNascimento: paciente.data_nascimento.toISOString().split('T')[0],
+                sexo: paciente.sexo,
+                telefone: paciente.telefone,
+                email: paciente.email
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao buscar paciente por CPF:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// Histórico de consultas do paciente
+app.get('/api/pacientes/:id/consultas', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const consultas = await prisma.consulta.findMany({
+            where: { paciente_id: id },
+            include: {
+                medico: {
+                    include: {
+                        usuario: {
+                            select: { nome: true }
+                        }
+                    }
+                }
+            },
+            orderBy: { data_hora: 'desc' }
+        });
+
+        res.json({
+            success: true,
+            data: consultas.map(consulta => ({
+                id: consulta.id,
+                data_hora: consulta.data_hora,
+                tipo: consulta.tipo,
+                status: consulta.status,
+                observacoes: consulta.observacoes,
+                medico: consulta.medico.usuario.nome,
+                valor: consulta.valor
+            }))
+        });
+    } catch (error) {
+        console.error('Erro ao buscar histórico de consultas:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
 app.post('/api/pacientes', async (req, res) => {
     try {
         const pacienteData = req.body;
@@ -349,8 +471,178 @@ app.post('/api/pacientes', async (req, res) => {
 });
 
 // ========================================
-// PRONTUÁRIOS ROUTES
+// CONSULTAS ROUTES
 // ========================================
+
+// Listar consultas
+app.get('/api/consultas', authenticateToken, async (req, res) => {
+    try {
+        const consultas = await prisma.consulta.findMany({
+            include: {
+                paciente: {
+                    select: { nome: true, cpf: true }
+                },
+                medico: {
+                    include: {
+                        usuario: {
+                            select: { nome: true }
+                        }
+                    }
+                }
+            },
+            orderBy: { data_hora: 'desc' }
+        });
+
+        res.json({
+            success: true,
+            data: consultas.map(consulta => ({
+                id: consulta.id,
+                paciente_id: consulta.paciente_id,
+                medico_id: consulta.medico_id,
+                data_hora: consulta.data_hora,
+                tipo: consulta.tipo,
+                status: consulta.status,
+                observacoes: consulta.observacoes,
+                valor: consulta.valor,
+                paciente: consulta.paciente.nome,
+                medico: consulta.medico.usuario.nome
+            })),
+            total: consultas.length
+        });
+    } catch (error) {
+        console.error('Erro ao listar consultas:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// Criar consulta
+app.post('/api/consultas', authenticateToken, async (req, res) => {
+    try {
+        const { paciente_id, data_hora, tipo, observacoes, valor } = req.body;
+
+        const consulta = await prisma.consulta.create({
+            data: {
+                paciente_id,
+                medico_id: req.user.medico?.id || req.user.id,
+                data_hora: new Date(data_hora),
+                tipo: tipo || 'CONSULTA_ROTINA',
+                status: 'AGENDADA',
+                observacoes,
+                valor: valor ? parseFloat(valor) : null
+            },
+            include: {
+                paciente: {
+                    select: { nome: true }
+                },
+                medico: {
+                    include: {
+                        usuario: {
+                            select: { nome: true }
+                        }
+                    }
+                }
+            }
+        });
+
+        res.status(201).json({
+            success: true,
+            data: {
+                id: consulta.id,
+                paciente_id: consulta.paciente_id,
+                medico_id: consulta.medico_id,
+                data_hora: consulta.data_hora,
+                tipo: consulta.tipo,
+                status: consulta.status,
+                observacoes: consulta.observacoes,
+                valor: consulta.valor,
+                paciente: consulta.paciente.nome,
+                medico: consulta.medico.usuario.nome
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao criar consulta:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// Atualizar consulta
+app.put('/api/consultas/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updateData = req.body;
+
+        if (updateData.data_hora) {
+            updateData.data_hora = new Date(updateData.data_hora);
+        }
+
+        if (updateData.valor) {
+            updateData.valor = parseFloat(updateData.valor);
+        }
+
+        const consulta = await prisma.consulta.update({
+            where: { id },
+            data: updateData,
+            include: {
+                paciente: {
+                    select: { nome: true }
+                },
+                medico: {
+                    include: {
+                        usuario: {
+                            select: { nome: true }
+                        }
+                    }
+                }
+            }
+        });
+
+        res.json({
+            success: true,
+            data: {
+                id: consulta.id,
+                paciente_id: consulta.paciente_id,
+                medico_id: consulta.medico_id,
+                data_hora: consulta.data_hora,
+                tipo: consulta.tipo,
+                status: consulta.status,
+                observacoes: consulta.observacoes,
+                valor: consulta.valor,
+                paciente: consulta.paciente.nome,
+                medico: consulta.medico.usuario.nome
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao atualizar consulta:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// ========================================
+// ESTATÍSTICAS ROUTES  
+// ========================================
+
+app.get('/api/estatisticas/resumo', authenticateToken, async (req, res) => {
+    try {
+        const [totalMedicos, totalPacientes, totalConsultas] = await Promise.all([
+            prisma.medico.count(),
+            prisma.paciente.count({ where: { ativo: true } }),
+            prisma.consulta.count()
+        ]);
+
+        res.json({
+            success: true,
+            data: {
+                total_medicos: totalMedicos,
+                total_pacientes: totalPacientes,
+                total_consultas: totalConsultas,
+                timestamp: new Date().toISOString()
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao buscar estatísticas:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
 
 // Listar prontuários
 app.get('/api/prontuarios', async (req, res) => {
@@ -458,6 +750,7 @@ app.get('/health', async (req, res) => {
         await prisma.$queryRaw`SELECT 1`;
         res.json({
             status: 'OK',
+            message: 'MediApp Prisma Server is running',
             timestamp: new Date().toISOString(),
             server: 'MediApp Prisma Server',
             database: 'Connected',
@@ -468,6 +761,7 @@ app.get('/health', async (req, res) => {
     } catch (error) {
         res.status(500).json({
             status: 'ERROR',
+            message: 'Database connection failed',
             database: 'Disconnected',
             error: error.message
         });
@@ -511,39 +805,45 @@ app.use((error, req, res, next) => {
 // SERVER START
 // ========================================
 
-const server = app.listen(PORT, '0.0.0.0', async () => {
-    console.log('==========================================');
-    console.log('🏥 MediApp Prisma Server - Port ' + PORT);
-    console.log('📊 Database: PostgreSQL + Prisma');
-    console.log('🔐 Auth: JWT + Sessions');
-    console.log('📱 Mobile/Desktop Ready');
-    console.log('🌐 URL: http://localhost:' + PORT);
-    console.log('❤️  Health: http://localhost:' + PORT + '/health');
-    console.log('==========================================');
-    
-    try {
-        await prisma.$connect();
-        console.log('✅ Database connected successfully!');
-    } catch (error) {
-        console.error('❌ Database connection failed:', error);
-    }
-});
-
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-    console.log('🛑 SIGTERM received - Shutting down gracefully...');
-    await prisma.$disconnect();
-    server.close(() => {
-        console.log('✅ Server closed');
-        process.exit(0);
+// Só iniciar servidor se não estiver em modo de teste
+if (require.main === module) {
+    const server = app.listen(PORT, '0.0.0.0', async () => {
+        console.log('==========================================');
+        console.log('🏥 MediApp Prisma Server - Port ' + PORT);
+        console.log('📊 Database: PostgreSQL + Prisma');
+        console.log('🔐 Auth: JWT + Sessions');
+        console.log('📱 Mobile/Desktop Ready');
+        console.log('🌐 URL: http://localhost:' + PORT);
+        console.log('❤️  Health: http://localhost:' + PORT + '/health');
+        console.log('==========================================');
+        
+        try {
+            await prisma.$connect();
+            console.log('✅ Database connected successfully!');
+        } catch (error) {
+            console.error('❌ Database connection failed:', error);
+        }
     });
-});
 
-process.on('SIGINT', async () => {
-    console.log('🛑 SIGINT received - Shutting down gracefully...');
-    await prisma.$disconnect();
-    server.close(() => {
-        console.log('✅ Server closed');
-        process.exit(0);
+    // Graceful shutdown
+    process.on('SIGTERM', async () => {
+        console.log('🛑 SIGTERM received - Shutting down gracefully...');
+        await prisma.$disconnect();
+        server.close(() => {
+            console.log('✅ Server closed');
+            process.exit(0);
+        });
     });
-});
+
+    process.on('SIGINT', async () => {
+        console.log('🛑 SIGINT received - Shutting down gracefully...');
+        await prisma.$disconnect();
+        server.close(() => {
+            console.log('✅ Server closed');
+            process.exit(0);
+        });
+    });
+}
+
+// Export para testes
+module.exports = app;
