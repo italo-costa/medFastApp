@@ -363,10 +363,10 @@
         // Função para atualizar estatísticas
         function updateStats() {
             const totalMedicos = allDoctors.length;
-            const medicosAtivos = allDoctors.filter(doctor => doctor.isActive !== false).length;
-            // Normalizar especialidades para contar corretamente (case-insensitive)
+            const medicosAtivos = allDoctors.filter(doctor => doctor.ativo !== false).length;
+            // Contar especialidades únicas
             const especialidadesUnicas = [...new Set(allDoctors.map(doctor => 
-                doctor.specialty ? doctor.specialty.toLowerCase().trim() : ''
+                doctor.especialidade ? doctor.especialidade.toLowerCase().trim() : ''
             ).filter(specialty => specialty !== ''))];
             const especialidades = especialidadesUnicas.length;
 
@@ -377,26 +377,37 @@
 
         // Função para exibir médicos
         function displayDoctors() {
+            console.log('📋 Exibindo médicos... Total:', filteredDoctors.length);
+            
             const grid = document.getElementById('doctorsGrid');
             
             if (filteredDoctors.length === 0) {
+                console.log('⚠️ Nenhum médico para exibir');
                 document.getElementById('emptyState').style.display = 'block';
                 grid.style.display = 'none';
                 return;
             }
 
+            console.log('✅ Criando cards para', filteredDoctors.length, 'médicos');
             document.getElementById('emptyState').style.display = 'none';
             grid.style.display = 'grid';
             
             grid.innerHTML = filteredDoctors.map(doctor => createDoctorCard(doctor)).join('');
+            
+            // Adicionar event listeners para os botões
+            addDoctorButtonListeners();
+            
+            console.log('🎯 Cards criados e inseridos no DOM');
         }
 
         // Função para criar card de médico
         function createDoctorCard(doctor) {
-            const initials = doctor.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-            const createdDate = new Date().toLocaleDateString('pt-BR'); // Data atual já que não temos createdAt
+            console.log('📋 Criando card para médico:', doctor.nome, 'ID:', doctor.id);
             
-            return `
+            const initials = doctor.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            const createdDate = new Date(doctor.criado_em).toLocaleDateString('pt-BR');
+            
+            const cardHTML = `
                 <div class="doctor-card">
                     <div class="doctor-header">
                         <div class="doctor-avatar">${initials}</div>
@@ -409,7 +420,7 @@
                     <div class="doctor-details">
                         <div class="detail-item">
                             <i class="fas fa-id-card"></i>
-                            <span>CRM: ${doctor.crm}</span>
+                            <span>CRM: ${doctor.crm}/${doctor.crm_uf}</span>
                         </div>
                         <div class="detail-item">
                             <i class="fas fa-envelope"></i>
@@ -420,8 +431,12 @@
                             <span>${doctor.telefone || 'Não informado'}</span>
                         </div>
                         <div class="detail-item">
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>${doctor.celular || 'Não informado'}</span>
+                        </div>
+                        <div class="detail-item">
                             <i class="fas fa-calendar"></i>
-                            <span>Experiência: ${doctor.experiencia || 'Não informado'}</span>
+                            <span>Cadastrado em: ${createdDate}</span>
                         </div>
                         ${doctor.formacao ? `
                         <div class="detail-item">
@@ -432,15 +447,39 @@
                     </div>
 
                     <div class="doctor-actions">
-                        <button class="btn btn-primary" onclick="viewDoctorDetails('${doctor.id}')">
+                        <button class="btn btn-primary" data-action="view-details" data-doctor-id="${doctor.id}">
                             <i class="fas fa-eye"></i> Ver Detalhes
                         </button>
-                        <button class="btn btn-secondary" onclick="editDoctor('${doctor.id}')">
+                        <button class="btn btn-secondary" data-action="edit-doctor" data-doctor-id="${doctor.id}" title="Editar dados do médico">
                             <i class="fas fa-edit"></i> Editar
                         </button>
                     </div>
                 </div>
             `;
+            
+            console.log('✅ Card criado com botão Editar para ID:', doctor.id);
+            return cardHTML;
+        }
+
+        // Função para adicionar event listeners aos botões dos médicos
+        function addDoctorButtonListeners() {
+            // Event listeners para botões "Ver Detalhes"
+            document.querySelectorAll('[data-action="view-details"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const doctorId = this.getAttribute('data-doctor-id');
+                    viewDoctorDetails(doctorId);
+                });
+            });
+
+            // Event listeners para botões "Editar"
+            document.querySelectorAll('[data-action="edit-doctor"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const doctorId = this.getAttribute('data-doctor-id');
+                    editDoctor(doctorId);
+                });
+            });
+            
+            console.log('✅ Event listeners adicionados aos botões dos médicos');
         }
 
         // Função para filtrar médicos
@@ -457,16 +496,46 @@
 
         // Função para ver detalhes do médico
         function viewDoctorDetails(doctorId) {
-            alert('Funcionalidade de detalhes será implementada em breve');
+            console.log('👁️ Visualizando detalhes do médico ID:', doctorId);
+            
+            if (!doctorId) {
+                console.error('❌ ID do médico não fornecido');
+                alert('Erro: ID do médico não encontrado');
+                return;
+            }
+            
+            // Redirecionar para página de detalhes
+            const url = `/detalhes-medico.html?id=${doctorId}`;
+            console.log('🌐 URL de destino:', url);
+            
+            window.location.href = url;
         }
 
         // Função para editar médico
         function editDoctor(doctorId) {
-            alert('Funcionalidade de edição será implementada em breve');
+            console.log('🔧 Função editDoctor chamada com ID:', doctorId);
+            
+            if (!doctorId) {
+                console.error('❌ ID do médico não fornecido');
+                alert('Erro: ID do médico não encontrado');
+                return;
+            }
+            
+            // Mostrar feedback visual
+            console.log('🔄 Redirecionando para edição...');
+            
+            // Redirecionar para página de edição com o ID do médico
+            const url = `/editar-medico.html?id=${doctorId}`;
+            console.log('🌐 URL de destino:', url);
+            
+            window.location.href = url;
         }
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Página de lista de médicos carregada');
+            console.log('🔧 Função editDoctor disponível:', typeof editDoctor === 'function');
+            
             // Buscar médicos ao carregar a página
             fetchDoctors();
 
@@ -477,8 +546,11 @@
 
             // Event listener para voltar ao dashboard
             document.getElementById('voltar-dashboard').addEventListener('click', function() {
+                console.log('🔙 Voltando ao dashboard');
                 window.location.href = '/app.html';
             });
+            
+            console.log('✅ Todos os event listeners configurados');
         });
     </script>
 </body>

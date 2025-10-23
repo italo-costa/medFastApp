@@ -16,6 +16,7 @@ const patientRoutes = require('./routes/patients');
 const recordRoutes = require('./routes/records');
 const examRoutes = require('./routes/exams');
 const allergyRoutes = require('./routes/allergies');
+const medicoRoutes = require('./routes/medicos');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -88,6 +89,7 @@ app.use('/api/patients', patientRoutes);
 app.use('/api/records', recordRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/allergies', allergyRoutes);
+app.use('/api/medicos', medicoRoutes);
 
 // Middleware de erro 404
 app.use(notFound);

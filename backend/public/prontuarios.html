@@ -598,7 +598,7 @@
             recordsList.style.display = 'block';
 
             recordsList.innerHTML = records.map(record => `
-                <div class="record-card" onclick="viewRecord('${record.id}')">
+                <div class="record-card" data-action="view-record" data-record-id="${record.id}">
                     <div class="record-header">
                         <div class="record-date">
                             <i class="fas fa-calendar"></i>
@@ -626,11 +626,11 @@
                     </div>
 
                     <div class="record-actions">
-                        <button class="btn btn-primary" onclick="viewRecord('${record.id}'); event.stopPropagation();">
+                        <button class="btn btn-primary" data-action="view-record-button" data-record-id="${record.id}">
                             <i class="fas fa-eye"></i>
                             Visualizar
                         </button>
-                        <button class="btn btn-secondary" onclick="editRecord('${record.id}'); event.stopPropagation();">
+                        <button class="btn btn-secondary" data-action="edit-record-button" data-record-id="${record.id}">
                             <i class="fas fa-edit"></i>
                             Editar
                         </button>
@@ -663,11 +663,11 @@
 
             paginationElement.style.display = 'flex';
             paginationElement.innerHTML = `
-                <button onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                <button data-action="change-page" data-page="${currentPage - 1}" ${currentPage === 1 ? 'disabled' : ''}>
                     <i class="fas fa-chevron-left"></i>
                 </button>
                 <button class="active">${currentPage} de ${totalPages}</button>
-                <button onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                <button data-action="change-page" data-page="${currentPage + 1}" ${currentPage === totalPages ? 'disabled' : ''}>
                     <i class="fas fa-chevron-right"></i>
                 </button>
             `;
@@ -745,6 +745,44 @@
                 alert.style.display = 'none';
             }, 5000);
         }
+
+        // Initialize Event Listeners for CSP compliance
+        function initializeEventListeners() {
+            // Event delegation para ações dinâmicas de registros
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('[data-action]');
+                if (!target) return;
+
+                const action = target.getAttribute('data-action');
+                const recordId = target.getAttribute('data-record-id');
+                const page = target.getAttribute('data-page');
+
+                switch(action) {
+                    case 'view-record':
+                        viewRecord(recordId);
+                        break;
+                    case 'view-record-button':
+                        e.stopPropagation();
+                        viewRecord(recordId);
+                        break;
+                    case 'edit-record-button':
+                        e.stopPropagation();
+                        editRecord(recordId);
+                        break;
+                    case 'change-page':
+                        if (!target.disabled) {
+                            changePage(parseInt(page));
+                        }
+                        break;
+                }
+            });
+        }
+
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            // Outras inicializações aqui
+        });
     </script>
 </body>
 </html>

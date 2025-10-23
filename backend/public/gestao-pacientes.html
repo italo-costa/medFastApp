@@ -597,12 +597,12 @@
         <div class="toolbar">
             <div class="search-container">
                 <input type="text" class="search-input" id="searchInput" placeholder="Buscar paciente por nome, CPF ou código...">
-                <button class="btn btn-primary" onclick="buscarPaciente()">
+                <button class="btn btn-primary" data-action="buscar-paciente">
                     <i class="fas fa-search"></i>
                     Buscar
                 </button>
             </div>
-            <button class="btn btn-success" onclick="abrirModalNovoPaciente()">
+            <button class="btn btn-success" data-action="abrir-modal-novo-paciente">
                 <i class="fas fa-user-plus"></i>
                 Novo Paciente
             </button>
@@ -611,19 +611,19 @@
         <div class="content-grid">
             <div class="main-content">
                 <div class="tabs">
-                    <button class="tab active" onclick="trocarTab('lista')">
+                    <button class="tab active" data-action="trocar-tab" data-tab="lista">
                         <i class="fas fa-list"></i>
                         Lista de Pacientes
                     </button>
-                    <button class="tab" onclick="trocarTab('historico')">
+                    <button class="tab" data-action="trocar-tab" data-tab="historico">
                         <i class="fas fa-history"></i>
                         Histórico Selecionado
                     </button>
-                    <button class="tab" onclick="trocarTab('medicamentos')">
+                    <button class="tab" data-action="trocar-tab" data-tab="medicamentos">
                         <i class="fas fa-pills"></i>
                         Medicamentos
                     </button>
-                    <button class="tab" onclick="trocarTab('alergias')">
+                    <button class="tab" data-action="trocar-tab" data-tab="alergias">
                         <i class="fas fa-exclamation-triangle"></i>
                         Alergias
                     </button>
@@ -692,15 +692,15 @@
                         <i class="fas fa-bolt"></i>
                         Ações Rápidas
                     </h3>
-                    <button class="btn btn-info" style="width: 100%; margin-bottom: 10px;" onclick="exportarRelatorio()">
+                    <button class="btn btn-info" style="width: 100%; margin-bottom: 10px;" data-action="exportar-relatorio">
                         <i class="fas fa-file-export"></i>
                         Exportar Relatório
                     </button>
-                    <button class="btn btn-warning" style="width: 100%; margin-bottom: 10px;" onclick="backupDados()">
+                    <button class="btn btn-warning" style="width: 100%; margin-bottom: 10px;" data-action="backup-dados">
                         <i class="fas fa-database"></i>
                         Backup de Dados
                     </button>
-                    <button class="btn btn-secondary" style="width: 100%;" onclick="configuracoes()">
+                    <button class="btn btn-secondary" style="width: 100%;" data-action="configuracoes">
                         <i class="fas fa-cog"></i>
                         Configurações
                     </button>
@@ -714,7 +714,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2><i class="fas fa-user-plus"></i> Cadastrar Novo Paciente</h2>
-                <button class="close" onclick="fecharModal('modalNovoPaciente')">&times;</button>
+                <button class="close" data-action="fechar-modal" data-modal="modalNovoPaciente">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="formNovoPaciente">
@@ -781,7 +781,7 @@
                     </div>
 
                     <div style="display: flex; gap: 15px; justify-content: flex-end; margin-top: 30px;">
-                        <button type="button" class="btn btn-secondary" onclick="fecharModal('modalNovoPaciente')">
+                        <button type="button" class="btn btn-secondary" data-action="fechar-modal" data-modal="modalNovoPaciente">
                             <i class="fas fa-times"></i>
                             Cancelar
                         </button>
@@ -918,22 +918,22 @@
                                 </div>
                             </div>
                             <div class="patient-actions">
-                                <button class="btn btn-primary" onclick="selecionarPaciente(${paciente.id})">
+                                <button class="btn btn-primary" data-action="selecionar-paciente" data-paciente-id="${paciente.id}">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="btn btn-warning" onclick="editarPaciente(${paciente.id})">
+                                <button class="btn btn-warning" data-action="editar-paciente" data-paciente-id="${paciente.id}">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-secondary" onclick="verProntuarios(${paciente.id})" title="Prontuários Médicos">
+                                <button class="btn btn-secondary" data-action="ver-prontuarios" data-paciente-id="${paciente.id}" title="Prontuários Médicos">
                                     <i class="fas fa-file-medical"></i>
                                 </button>
-                                <button class="btn btn-success" onclick="iniciarAnamnese(${paciente.id})" title="Nova Anamnese">
+                                <button class="btn btn-success" data-action="iniciar-anamnese" data-paciente-id="${paciente.id}" title="Nova Anamnese">
                                     <i class="fas fa-clipboard-list"></i>
                                 </button>
-                                <button class="btn btn-info" onclick="adicionarConsulta(${paciente.id})">
+                                <button class="btn btn-info" data-action="adicionar-consulta" data-paciente-id="${paciente.id}">
                                     <i class="fas fa-notes-medical"></i>
                                 </button>
-                                <button class="btn btn-danger" onclick="excluirPaciente(${paciente.id})">
+                                <button class="btn btn-danger" data-action="excluir-paciente" data-paciente-id="${paciente.id}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -1060,7 +1060,7 @@
                         </div>
                     `).join('')}
                 </div>
-                <button class="btn btn-primary" style="margin-top: 20px;" onclick="adicionarMedicamento()">
+                <button class="btn btn-primary" style="margin-top: 20px;" data-action="adicionar-medicamento">
                     <i class="fas fa-plus"></i>
                     Prescrever Novo Medicamento
                 </button>
@@ -1094,7 +1094,7 @@
                         </div>
                     `).join('')}
                 </div>
-                <button class="btn btn-warning" style="margin-top: 20px;" onclick="adicionarAlergia()">
+                <button class="btn btn-warning" style="margin-top: 20px;" data-action="adicionar-alergia">
                     <i class="fas fa-plus"></i>
                     Adicionar Alergia
                 </button>
@@ -1306,6 +1306,87 @@
                 }
             });
         }
+
+        // Initialize Event Listeners for CSP compliance
+        function initializeEventListeners() {
+            // Buscar paciente
+            document.querySelectorAll('[data-action="buscar-paciente"]').forEach(btn => {
+                btn.addEventListener('click', buscarPaciente);
+            });
+
+            // Abrir modal novo paciente
+            document.querySelectorAll('[data-action="abrir-modal-novo-paciente"]').forEach(btn => {
+                btn.addEventListener('click', abrirModalNovoPaciente);
+            });
+
+            // Trocar tabs
+            document.querySelectorAll('[data-action="trocar-tab"]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tab = this.getAttribute('data-tab');
+                    trocarTab(tab);
+                });
+            });
+
+            // Ações rápidas
+            document.querySelectorAll('[data-action="exportar-relatorio"]').forEach(btn => {
+                btn.addEventListener('click', exportarRelatorio);
+            });
+
+            document.querySelectorAll('[data-action="backup-dados"]').forEach(btn => {
+                btn.addEventListener('click', backupDados);
+            });
+
+            document.querySelectorAll('[data-action="configuracoes"]').forEach(btn => {
+                btn.addEventListener('click', configuracoes);
+            });
+
+            // Fechar modal
+            document.querySelectorAll('[data-action="fechar-modal"]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modal = this.getAttribute('data-modal');
+                    fecharModal(modal);
+                });
+            });
+
+            // Event delegation para ações dinâmicas de pacientes
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('[data-action]');
+                if (!target) return;
+
+                const action = target.getAttribute('data-action');
+                const pacienteId = target.getAttribute('data-paciente-id');
+
+                switch(action) {
+                    case 'selecionar-paciente':
+                        selecionarPaciente(pacienteId);
+                        break;
+                    case 'editar-paciente':
+                        editarPaciente(pacienteId);
+                        break;
+                    case 'ver-prontuarios':
+                        verProntuarios(pacienteId);
+                        break;
+                    case 'iniciar-anamnese':
+                        iniciarAnamnese(pacienteId);
+                        break;
+                    case 'adicionar-consulta':
+                        adicionarConsulta(pacienteId);
+                        break;
+                    case 'excluir-paciente':
+                        excluirPaciente(pacienteId);
+                        break;
+                    case 'adicionar-medicamento':
+                        adicionarMedicamento();
+                        break;
+                    case 'adicionar-alergia':
+                        adicionarAlergia();
+                        break;
+                }
+            });
+        }
+
+        // Inicializar event listeners quando a página carregar
+        document.addEventListener('DOMContentLoaded', initializeEventListeners);
 
         // Event listener para botão de voltar ao dashboard
         document.getElementById('voltar-dashboard').addEventListener('click', function() {

@@ -384,7 +384,7 @@
                             <input type="text" id="cep" name="cep" placeholder="00000-000" required>
                         </div>
                         <div class="form-group">
-                            <button type="button" class="btn btn-secondary" onclick="buscarCEP()" style="margin-top: 28px;">
+                            <button type="button" class="btn btn-secondary" data-action="buscar-cep" style="margin-top: 28px;">
                                 <i class="fas fa-search"></i>
                                 Buscar CEP
                             </button>
@@ -467,7 +467,7 @@
                             <input type="text" id="usuario" name="usuario" required>
                         </div>
                         <div class="form-group">
-                            <button type="button" class="btn btn-secondary" onclick="verificarUsuario()" style="margin-top: 28px;">
+                            <button type="button" class="btn btn-secondary" data-action="verificar-usuario" style="margin-top: 28px;">
                                 <i class="fas fa-check"></i>
                                 Verificar
                             </button>
@@ -487,7 +487,7 @@
                 </div>
 
                 <div class="buttons">
-                    <button type="button" class="btn btn-secondary" onclick="limparFormulario()">
+                    <button type="button" class="btn btn-secondary" data-action="limpar-formulario">
                         <i class="fas fa-eraser"></i>
                         Limpar
                     </button>
@@ -662,6 +662,27 @@
         document.getElementById('voltar-dashboard').addEventListener('click', function() {
             window.location.href = '/app.html';
         });
+
+        // Initialize Event Listeners for CSP compliance
+        function initializeEventListeners() {
+            // Buscar CEP
+            document.querySelectorAll('[data-action="buscar-cep"]').forEach(btn => {
+                btn.addEventListener('click', buscarCEP);
+            });
+
+            // Verificar usuário
+            document.querySelectorAll('[data-action="verificar-usuario"]').forEach(btn => {
+                btn.addEventListener('click', verificarUsuario);
+            });
+
+            // Limpar formulário
+            document.querySelectorAll('[data-action="limpar-formulario"]').forEach(btn => {
+                btn.addEventListener('click', limparFormulario);
+            });
+        }
+
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', initializeEventListeners);
     </script>
 </body>
 </html>

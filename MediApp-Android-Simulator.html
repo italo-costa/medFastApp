@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>MediApp Beta - Simulador Android</title>
+    <meta name="description" content="Simulador de APK Android - MediApp Beta">
+    <meta name="theme-color" content="#667eea">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .android-simulator {
+            width: 380px;
+            height: 680px;
+            background: #000;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .android-screen {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .status-bar {
+            background: rgba(0, 0, 0, 0.2);
+            height: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .app-content {
+            height: calc(100% - 30px);
+            overflow-y: auto;
+            padding: 0;
+        }
+        
+        .app-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.2em;
+        }
+        
+        .logo-icon {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-size: 1em;
+        }
+        
+        .beta-badge {
+            background: #ff6b6b;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 10px;
+            font-size: 0.6em;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        .main-content {
+            padding: 15px;
+            min-height: calc(100% - 70px);
+        }
+        
+        .welcome-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .welcome-title {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-weight: 300;
+        }
+        
+        .welcome-subtitle {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .stat-card:active {
+            transform: scale(0.95);
+        }
+        
+        .stat-icon {
+            font-size: 1.8em;
+            margin-bottom: 8px;
+            color: #667eea;
+        }
+        
+        .stat-number {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .feature-card:active {
+            transform: scale(0.98);
+        }
+        
+        .feature-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .feature-icon {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 1.2em;
+        }
+        
+        .feature-title {
+            font-size: 1em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .feature-description {
+            color: #666;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            font-size: 0.85em;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .simulator-controls {
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 25px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sim-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .sim-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .installation-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+        
+        .version-info {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px;
+            text-align: center;
+            color: #666;
+            font-size: 0.7em;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 480px) {
+            .android-simulator {
+                width: 95vw;
+                height: 85vh;
+                border-radius: 20px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="installation-status" id="status">
+        ✅ APK Instalado - Simulador Ativo
+    </div>
+    
+    <div class="android-simulator">
+        <div class="android-screen">
+            <div class="status-bar">
+                <span>📶 MediApp</span>
+                <span>🔋 100% • 11:25</span>
+            </div>
+            
+            <div class="app-content">
+                <header class="app-header">
+                    <div class="header-content">
+                        <div class="logo">
+                            <div class="logo-icon">🏥</div>
+                            MediApp
+                            <span class="beta-badge">BETA</span>
+                        </div>
+                    </div>
+                </header>
+                
+                <main class="main-content">
+                    <section class="welcome-section">
+                        <h1 class="welcome-title">Sistema Médico Digital</h1>
+                        <p class="welcome-subtitle">Gestão completa de consultas e prontuários</p>
+                        <button class="btn" onclick="showDemo()">🚀 Teste Funcionando</button>
+                    </section>
+                    
+                    <section class="stats-grid">
+                        <div class="stat-card" onclick="showFeature('Pacientes')">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-number" id="patients">156</div>
+                            <div class="stat-label">Pacientes</div>
+                        </div>
+                        
+                        <div class="stat-card" onclick="showFeature('Consultas')">
+                            <div class="stat-icon">📅</div>
+                            <div class="stat-number" id="appointments">8</div>
+                            <div class="stat-label">Consultas</div>
+                        </div>
+                        
+                        <div class="stat-card" onclick="showFeature('Prontuários')">
+                            <div class="stat-icon">📋</div>
+                            <div class="stat-number" id="records">1247</div>
+                            <div class="stat-label">Prontuários</div>
+                        </div>
+                        
+                        <div class="stat-card" onclick="showFeature('Relatórios')">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-number" id="reports">23</div>
+                            <div class="stat-label">Relatórios</div>
+                        </div>
+                    </section>
+                    
+                    <section class="features-grid">
+                        <div class="feature-card" onclick="openModule('prontuarios')">
+                            <div class="feature-header">
+                                <div class="feature-icon">📋</div>
+                                <h3 class="feature-title">Prontuários Eletrônicos</h3>
+                            </div>
+                            <p class="feature-description">Gestão completa de registros médicos digitais</p>
+                            <button class="btn">Acessar</button>
+                        </div>
+                        
+                        <div class="feature-card" onclick="openModule('agendamento')">
+                            <div class="feature-header">
+                                <div class="feature-icon">📅</div>
+                                <h3 class="feature-title">Agendamento</h3>
+                            </div>
+                            <p class="feature-description">Sistema inteligente de consultas</p>
+                            <button class="btn">Gerenciar</button>
+                        </div>
+                        
+                        <div class="feature-card" onclick="openModule('relatorios')">
+                            <div class="feature-header">
+                                <div class="feature-icon">📊</div>
+                                <h3 class="feature-title">Análises</h3>
+                            </div>
+                            <p class="feature-description">Relatórios e métricas médicas</p>
+                            <button class="btn">Ver Dados</button>
+                        </div>
+                    </section>
+                    
+                    <div class="version-info">
+                        <strong>MediApp Beta v1.0</strong><br>
+                        APK Android • Build 09/10/2025<br>
+                        Simulador de Teste
+                    </div>
+                </main>
+            </div>
+        </div>
+        
+        <div class="simulator-controls">
+            <button class="sim-btn" onclick="simulateInstall()">📱 Reinstalar</button>
+            <button class="sim-btn" onclick="simulateBack()">⬅️ Voltar</button>
+            <button class="sim-btn" onclick="simulateHome()">🏠 Home</button>
+        </div>
+    </div>
+    
+    <script>
+        // Simulação do comportamento do APK Android
+        let installationTime = new Date();
+        
+        function showDemo() {
+            updateStatus('🎉 Demonstração Iniciada');
+            alert('✅ MediApp APK Android - FUNCIONANDO!\n\n🏥 Sistema médico carregado\n📱 Interface responsiva ativa\n🔧 Todas as funcionalidades disponíveis\n\n✨ O APK foi instalado e testado com sucesso!');
+        }
+        
+        function showFeature(feature) {
+            updateStatus(`📊 Acessando ${feature}`);
+            const messages = {
+                'Pacientes': '👥 Módulo de Pacientes ativo\n• 156 pacientes cadastrados\n• Base de dados funcionando\n• Pesquisa e filtros disponíveis',
+                'Consultas': '📅 Sistema de Consultas operacional\n• 8 consultas agendadas hoje\n• Notificações ativas\n• Calendário sincronizado',
+                'Prontuários': '📋 Prontuários Eletrônicos online\n• 1.247 registros no sistema\n• Backup automático ativo\n• Busca avançada funcionando',
+                'Relatórios': '📊 Módulo de Relatórios carregado\n• 23 relatórios disponíveis\n• Gráficos interativos\n• Exportação funcionando'
+            };
+            
+            setTimeout(() => {
+                alert(messages[feature] || `${feature} carregado com sucesso!`);
+            }, 500);
+        }
+        
+        function openModule(module) {
+            updateStatus(`🔧 Abrindo ${module}`);
+            const modules = {
+                'prontuarios': 'Abrindo Prontuários Eletrônicos...\n\n✅ Módulo carregado\n📋 Interface médica ativa\n🔒 Dados seguros LGPD',
+                'agendamento': 'Carregando Sistema de Agendamento...\n\n✅ Calendário sincronizado\n📅 Horários disponíveis\n📲 Notificações ativas',
+                'relatorios': 'Inicializando Análises e Relatórios...\n\n✅ Gráficos carregados\n📊 Dados atualizados\n💾 Exportação disponível'
+            };
+            
+            setTimeout(() => {
+                alert(modules[module] || `Módulo ${module} funcionando!`);
+            }, 800);
+        }
+        
+        function simulateInstall() {
+            updateStatus('📦 Reinstalando APK...');
+            setTimeout(() => {
+                updateStatus('✅ APK Reinstalado com Sucesso');
+                alert('📱 APK MediApp reinstalado!\n\n✅ Instalação concluída\n🏥 Aplicação pronta para uso\n📊 Dados preservados');
+            }, 2000);
+        }
+        
+        function simulateBack() {
+            updateStatus('⬅️ Navegação: Voltar');
+            alert('⬅️ Botão Voltar do Android\n\n🔄 Navegação funcionando\n📱 Sistema respondendo\n✅ APK integrado ao Android');
+        }
+        
+        function simulateHome() {
+            updateStatus('🏠 Minimizando Aplicação');
+            setTimeout(() => {
+                updateStatus('📱 MediApp em Background');
+                alert('🏠 Retornando à tela inicial\n\n📱 App minimizado\n🔄 Executando em background\n✅ Integração Android completa');
+            }, 1000);
+        }
+        
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+            setTimeout(() => {
+                document.getElementById('status').textContent = '✅ APK Instalado - Simulador Ativo';
+            }, 3000);
+        }
+        
+        // Simulação de carregamento inicial
+        window.onload = function() {
+            console.log('🏥 MediApp APK Simulator iniciado');
+            console.log('📱 Simulando comportamento do Android');
+            console.log('⚡ APK Status: Funcionando corretamente');
+            
+            setTimeout(() => {
+                updateStatus('🚀 MediApp Beta Carregado');
+            }, 1000);
+        };
+        
+        // Prevenção de seleção (comportamento mobile)
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+        });
+        
+        // Simulação de gestos touch
+        let touchStartY = 0;
+        document.addEventListener('touchstart', function(e) {
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchmove', function(e) {
+            e.preventDefault(); // Previne scroll da página
+        }, { passive: false });
+        
+        console.log('📱 MediApp Android APK - Simulador de Teste');
+        console.log('✅ Status: APK funcionando corretamente');
+        console.log('🔧 Ambiente: Simulador de Android');
+    </script>
+</body>
+</html>

@@ -526,23 +526,23 @@
     <!-- Navigation -->
     <nav class="nav">
         <div class="nav-content">
-            <div class="nav-item active" onclick="showPage('dashboard')">
+            <div class="nav-item active" data-action="show-page" data-page="dashboard">
                 <i class="fas fa-chart-line"></i>
                 Painel Médico
             </div>
-            <div class="nav-item" onclick="showPage('patients')">
+            <div class="nav-item" data-action="show-page" data-page="patients">
                 <i class="fas fa-users"></i>
                 Pacientes
             </div>
-            <div class="nav-item" onclick="showPage('records')">
+            <div class="nav-item" data-action="show-page" data-page="records">
                 <i class="fas fa-file-medical"></i>
                 Prontuários
             </div>
-            <div class="nav-item" onclick="showPage('exams')">
+            <div class="nav-item" data-action="show-page" data-page="exams">
                 <i class="fas fa-x-ray"></i>
                 Exames
             </div>
-            <div class="nav-item" onclick="showPage('allergies')">
+            <div class="nav-item" data-action="show-page" data-page="allergies">
                 <i class="fas fa-exclamation-triangle"></i>
                 Alergias
             </div>
@@ -621,21 +621,21 @@
                     <div class="action-title">Prontuários Médicos</div>
                     <div class="action-desc">Criar e gerenciar prontuários</div>
                 </a>
-                <div class="action-card coming-soon" onclick="showComingSoon('Exames')">
+                <div class="action-card coming-soon" data-action="show-coming-soon" data-feature="Exames">
                     <div class="action-icon">
                         <i class="fas fa-file-medical"></i>
                     </div>
                     <div class="action-title">Exames Médicos</div>
                     <div class="action-desc">Upload e gestão de exames</div>
                 </div>
-                <div class="action-card coming-soon" onclick="showComingSoon('Alergias')">
+                <div class="action-card coming-soon" data-action="show-coming-soon" data-feature="Alergias">
                     <div class="action-icon">
                         <i class="fas fa-exclamation-triangle"></i>
                     </div>
                     <div class="action-title">Alergias e Contraindicações</div>
                     <div class="action-desc">Registrar alergias dos pacientes</div>
                 </div>
-                <div class="action-card coming-soon" onclick="showComingSoon('Relatórios')">
+                <div class="action-card coming-soon" data-action="show-coming-soon" data-feature="Relatórios">
                     <div class="action-icon">
                         <i class="fas fa-chart-bar"></i>
                     </div>
@@ -710,7 +710,7 @@
                         <i class="fas fa-users"></i>
                         Gestão de Pacientes
                     </h2>
-                    <button class="btn btn-primary" onclick="openModal('patientModal')">
+                    <button class="btn btn-primary" data-action="open-modal" data-modal="patientModal">
                         <i class="fas fa-plus"></i>
                         Novo Paciente
                     </button>
@@ -765,7 +765,7 @@
                         <i class="fas fa-file-medical"></i>
                         Prontuários Médicos
                     </h2>
-                    <button class="btn btn-primary" onclick="openModal('recordModal')">
+                    <button class="btn btn-primary" data-action="open-modal" data-modal="recordModal">
                         <i class="fas fa-plus"></i>
                         Novo Prontuário
                     </button>
@@ -814,7 +814,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Novo Paciente</h3>
-                <button class="modal-close" onclick="closeModal('patientModal')">&times;</button>
+                <button class="modal-close" data-action="close-modal" data-modal="patientModal">&times;</button>
             </div>
             <form>
                 <div class="form-group">
@@ -842,7 +842,7 @@
                     <input type="text" class="form-input" required>
                 </div>
                 <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('patientModal')">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" data-action="close-modal" data-modal="patientModal">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Salvar Paciente</button>
                 </div>
             </form>
@@ -905,8 +905,46 @@
             });
         });
 
+        // Initialize Event Listeners for CSP compliance
+        function initializeEventListeners() {
+            // Navigation items
+            document.querySelectorAll('[data-action="show-page"]').forEach(item => {
+                item.addEventListener('click', function() {
+                    const page = this.getAttribute('data-page');
+                    showPage(page);
+                });
+            });
+
+            // Coming soon features
+            document.querySelectorAll('[data-action="show-coming-soon"]').forEach(item => {
+                item.addEventListener('click', function() {
+                    const feature = this.getAttribute('data-feature');
+                    showComingSoon(feature);
+                });
+            });
+
+            // Modal open buttons
+            document.querySelectorAll('[data-action="open-modal"]').forEach(item => {
+                item.addEventListener('click', function() {
+                    const modal = this.getAttribute('data-modal');
+                    openModal(modal);
+                });
+            });
+
+            // Modal close buttons
+            document.querySelectorAll('[data-action="close-modal"]').forEach(item => {
+                item.addEventListener('click', function() {
+                    const modal = this.getAttribute('data-modal');
+                    closeModal(modal);
+                });
+            });
+        }
+
         // Simulate real data loading
         window.addEventListener('load', function() {
+            // Initialize all event listeners for CSP compliance
+            initializeEventListeners();
+
             // Setup click handler for cadastrar medico button
             const cadastrarMedicoBtn = document.getElementById('cadastrar-medico-btn');
             if (cadastrarMedicoBtn) {

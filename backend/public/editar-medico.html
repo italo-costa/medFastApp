@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 MediApp - Editar Médico</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .navigation {
+            background: #ffffff;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .nav-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            background: #3182ce;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-grid.single {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .required {
+            color: #e53e3e;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3182ce;
+        }
+
+        .btn-primary:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #e53e3e;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .success {
+            background: #c6f6d5;
+            color: #38a169;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .field-help {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-top: 0.25rem;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #c6f6d5;
+            color: #38a169;
+        }
+
+        .status-inactive {
+            background: #fed7d7;
+            color: #e53e3e;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navigation">
+        <button class="nav-btn" id="voltar-lista">
+            <i class="fas fa-arrow-left"></i>
+            Voltar à Lista
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-user-edit"></i> Editar Médico</h1>
+            <p>Atualize as informações do médico selecionado</p>
+        </div>
+
+        <div id="loadingState" class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Carregando dados do médico...</p>
+        </div>
+
+        <div id="errorMessage" class="error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <div id="successMessage" class="success">
+            <i class="fas fa-check-circle"></i>
+            <span id="successText"></span>
+        </div>
+
+        <div id="editForm" class="form-container" style="display: none;">
+            <form id="medicoForm">
+                <!-- Dados Pessoais -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-user"></i>
+                        Dados Pessoais
+                    </h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Nome Completo <span class="required">*</span>
+                            </label>
+                            <input type="text" id="nome" name="nome" class="form-input" required>
+                            <div class="field-help">Nome completo do médico</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="email" name="email" class="form-input" readonly>
+                            <div class="field-help">Email não pode ser alterado</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dados Profissionais -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-id-card"></i>
+                        Dados Profissionais
+                    </h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">CRM</label>
+                            <input type="text" id="crm" name="crm" class="form-input" readonly>
+                            <div class="field-help">CRM não pode ser alterado</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">UF do CRM</label>
+                            <input type="text" id="crm_uf" name="crm_uf" class="form-input" readonly>
+                            <div class="field-help">Estado do CRM não pode ser alterado</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                Especialidade <span class="required">*</span>
+                            </label>
+                            <input type="text" id="especialidade" name="especialidade" class="form-input" required>
+                            <div class="field-help">Especialidade médica principal</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contato -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-phone"></i>
+                        Informações de Contato
+                    </h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Telefone</label>
+                            <input type="text" id="telefone" name="telefone" class="form-input" 
+                                   placeholder="(11) 3456-7890">
+                            <div class="field-help">Telefone fixo ou comercial</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Celular</label>
+                            <input type="text" id="celular" name="celular" class="form-input" 
+                                   placeholder="(11) 99999-9999">
+                            <div class="field-help">Número do celular para contato</div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid single">
+                        <div class="form-group">
+                            <label class="form-label">Endereço</label>
+                            <textarea id="endereco" name="endereco" class="form-input form-textarea" 
+                                      placeholder="Rua, número, bairro, cidade - UF"></textarea>
+                            <div class="field-help">Endereço completo do consultório ou residência</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formação e Experiência -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-graduation-cap"></i>
+                        Formação e Experiência
+                    </h3>
+                    
+                    <div class="form-grid single">
+                        <div class="form-group">
+                            <label class="form-label">Formação</label>
+                            <textarea id="formacao" name="formacao" class="form-input form-textarea" 
+                                      placeholder="Universidade, especializações, residência..."></textarea>
+                            <div class="field-help">Informações sobre formação acadêmica</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Experiência</label>
+                            <textarea id="experiencia" name="experiencia" class="form-input form-textarea" 
+                                      placeholder="Anos de experiência, áreas de atuação..."></textarea>
+                            <div class="field-help">Experiência profissional e áreas de atuação</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Horário de Atendimento</label>
+                            <textarea id="horario_atendimento" name="horario_atendimento" class="form-input form-textarea" 
+                                      placeholder="Segunda a Sexta: 8h às 18h"></textarea>
+                            <div class="field-help">Horários disponíveis para atendimento</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        Informações do Sistema
+                    </h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Status Atual</label>
+                            <div id="statusDisplay"></div>
+                            <div class="field-help">Status da conta do médico no sistema</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">ID do Médico</label>
+                            <input type="text" id="medico_id" class="form-input" readonly>
+                            <div class="field-help">Identificador único no sistema</div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Cadastrado em</label>
+                            <input type="text" id="criado_em" class="form-input" readonly>
+                            <div class="field-help">Data de criação do cadastro</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Última Atualização</label>
+                            <input type="text" id="atualizado_em" class="form-input" readonly>
+                            <div class="field-help">Data da última modificação</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ações -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelarBtn">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="salvarBtn">
+                        <i class="fas fa-save"></i>
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentDoctorId = null;
+        let originalData = {};
+
+        // Função para obter parâmetros da URL
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Função para carregar dados do médico
+        async function loadDoctorData(doctorId) {
+            try {
+                showLoading();
+                
+                const response = await fetch(`/api/medicos/${doctorId}`);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Médico não encontrado');
+                    }
+                    throw new Error('Erro ao carregar dados do médico');
+                }
+
+                const data = await response.json();
+                const doctor = data.data;
+                
+                // Armazenar dados originais
+                originalData = { ...doctor };
+                
+                // Preencher formulário
+                populateForm(doctor);
+                
+                hideLoading();
+                showForm();
+                
+            } catch (error) {
+                console.error('Erro ao carregar médico:', error);
+                showError(error.message);
+            }
+        }
+
+        // Função para preencher o formulário
+        function populateForm(doctor) {
+            document.getElementById('nome').value = doctor.nome || '';
+            document.getElementById('email').value = doctor.email || '';
+            document.getElementById('crm').value = doctor.crm || '';
+            document.getElementById('crm_uf').value = doctor.crm_uf || '';
+            document.getElementById('especialidade').value = doctor.especialidade || '';
+            document.getElementById('telefone').value = doctor.telefone || '';
+            document.getElementById('celular').value = doctor.celular || '';
+            document.getElementById('endereco').value = doctor.endereco || '';
+            document.getElementById('formacao').value = doctor.formacao || '';
+            document.getElementById('experiencia').value = doctor.experiencia || '';
+            document.getElementById('horario_atendimento').value = doctor.horario_atendimento || '';
+            
+            // Preencher informações do sistema
+            document.getElementById('medico_id').value = doctor.id || '';
+            
+            // Formatar datas
+            if (doctor.criado_em) {
+                const criadoEm = new Date(doctor.criado_em).toLocaleString('pt-BR');
+                document.getElementById('criado_em').value = criadoEm;
+            }
+            
+            if (doctor.atualizado_em) {
+                const atualizadoEm = new Date(doctor.atualizado_em).toLocaleString('pt-BR');
+                document.getElementById('atualizado_em').value = atualizadoEm;
+            }
+            
+            // Exibir status
+            const statusDiv = document.getElementById('statusDisplay');
+            const isActive = doctor.ativo;
+            statusDiv.innerHTML = `
+                <span class="status-indicator ${isActive ? 'status-active' : 'status-inactive'}">
+                    <i class="fas fa-${isActive ? 'check-circle' : 'times-circle'}"></i>
+                    ${isActive ? 'Ativo' : 'Inativo'}
+                </span>
+            `;
+        }
+
+        // Função para salvar alterações
+        async function saveChanges(formData) {
+            try {
+                const response = await fetch(`/api/medicos/${currentDoctorId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Erro ao salvar alterações');
+                }
+
+                const data = await response.json();
+                showSuccess('Médico atualizado com sucesso!');
+                
+                // Atualizar dados originais
+                originalData = { ...data.data };
+                
+                // Voltar para lista após 2 segundos
+                setTimeout(() => {
+                    window.location.href = '/lista-medicos.html';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+                showError(error.message);
+            }
+        }
+
+        // Função para verificar alterações
+        function hasChanges() {
+            const currentData = {
+                nome: document.getElementById('nome').value.trim(),
+                especialidade: document.getElementById('especialidade').value.trim(),
+                telefone: document.getElementById('telefone').value.trim(),
+                celular: document.getElementById('celular').value.trim(),
+                endereco: document.getElementById('endereco').value.trim(),
+                formacao: document.getElementById('formacao').value.trim(),
+                experiencia: document.getElementById('experiencia').value.trim(),
+                horario_atendimento: document.getElementById('horario_atendimento').value.trim()
+            };
+
+            return Object.keys(currentData).some(key => 
+                currentData[key] !== (originalData[key] || '')
+            );
+        }
+
+        // Funções de UI
+        function showLoading() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('editForm').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingState').style.display = 'none';
+        }
+
+        function showForm() {
+            document.getElementById('editForm').style.display = 'block';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            document.getElementById('errorText').textContent = message;
+            errorDiv.style.display = 'block';
+            hideLoading();
+            
+            // Esconder após 5 segundos
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            document.getElementById('successText').textContent = message;
+            successDiv.style.display = 'block';
+            
+            // Esconder após 5 segundos
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obter ID do médico da URL
+            currentDoctorId = getUrlParameter('id');
+            
+            if (!currentDoctorId) {
+                showError('ID do médico não fornecido');
+                return;
+            }
+            
+            // Carregar dados do médico
+            loadDoctorData(currentDoctorId);
+
+            // Event listener para o formulário
+            document.getElementById('medicoForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!hasChanges()) {
+                    showError('Nenhuma alteração foi feita');
+                    return;
+                }
+                
+                // Coletar dados do formulário
+                const formData = {
+                    nome: document.getElementById('nome').value.trim(),
+                    especialidade: document.getElementById('especialidade').value.trim(),
+                    telefone: document.getElementById('telefone').value.trim() || null,
+                    celular: document.getElementById('celular').value.trim() || null,
+                    endereco: document.getElementById('endereco').value.trim() || null,
+                    formacao: document.getElementById('formacao').value.trim() || null,
+                    experiencia: document.getElementById('experiencia').value.trim() || null,
+                    horario_atendimento: document.getElementById('horario_atendimento').value.trim() || null
+                };
+                
+                // Validações
+                if (!formData.nome) {
+                    showError('Nome é obrigatório');
+                    return;
+                }
+                
+                if (!formData.especialidade) {
+                    showError('Especialidade é obrigatória');
+                    return;
+                }
+                
+                // Desabilitar botão enquanto salva
+                const saveBtn = document.getElementById('salvarBtn');
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+                
+                // Salvar alterações
+                saveChanges(formData).finally(() => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Alterações';
+                });
+            });
+
+            // Event listener para cancelar
+            document.getElementById('cancelarBtn').addEventListener('click', function() {
+                if (hasChanges()) {
+                    if (confirm('Há alterações não salvas. Deseja realmente cancelar?')) {
+                        window.location.href = '/lista-medicos.html';
+                    }
+                } else {
+                    window.location.href = '/lista-medicos.html';
+                }
+            });
+
+            // Event listener para voltar à lista
+            document.getElementById('voltar-lista').addEventListener('click', function() {
+                if (hasChanges()) {
+                    if (confirm('Há alterações não salvas. Deseja realmente voltar?')) {
+                        window.location.href = '/lista-medicos.html';
+                    }
+                } else {
+                    window.location.href = '/lista-medicos.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -168,7 +168,7 @@
                 <div class="api-test">
                     <h4>🏥 Acesso ao Sistema</h4>
                     <a href="/app.html" class="btn" style="text-decoration: none;">🏥 Acessar MediApp</a>
-                    <button class="btn" onclick="testAPI()">� Health Check</button>
+                    <button class="btn" data-action="test-api">🔍 Health Check</button>
                     <div class="response" id="api-response" style="display: none;"></div>
                 </div>
             </div>
@@ -250,7 +250,45 @@
                     card.style.transform = 'translateY(0)';
                 }, index * 200);
             });
+
+            // Initialize Event Listeners for CSP compliance
+            initializeEventListeners();
         });
+
+        // Função para testar API
+        async function testAPI() {
+            const responseDiv = document.getElementById('api-response');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = '<p>🔄 Testando conexão...</p>';
+            
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.innerHTML = `
+                        <p style="color: #28a745;">✅ API funcionando corretamente!</p>
+                        <p><strong>Status:</strong> ${data.status}</p>
+                        <p><strong>Servidor:</strong> ${data.timestamp}</p>
+                    `;
+                } else {
+                    throw new Error('API retornou erro');
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <p style="color: #dc3545;">❌ Erro na conexão</p>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        // Initialize Event Listeners for CSP compliance
+        function initializeEventListeners() {
+            // Test API button
+            document.querySelectorAll('[data-action="test-api"]').forEach(btn => {
+                btn.addEventListener('click', testAPI);
+            });
+        }
     </script>
 </body>
 </html>
