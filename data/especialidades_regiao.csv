@@ -1,0 +1,217 @@
+cidade,estado,tipo_municipio,especialidade,disponivel_local,medicos_count,tempo_espera_dias
+Salvador,BA,capital,Clínica Geral,True,76,2
+Salvador,BA,capital,Pediatria,True,60,10
+Salvador,BA,capital,Ginecologia,True,27,7
+Salvador,BA,capital,Cardiologia,True,23,8
+Salvador,BA,capital,Ortopedia,True,62,10
+Salvador,BA,capital,Neurologia,True,99,4
+Salvador,BA,capital,Oncologia,True,73,4
+Salvador,BA,capital,Psiquiatria,True,56,4
+Salvador,BA,capital,Dermatologia,True,43,6
+Salvador,BA,capital,Oftalmologia,True,34,13
+Salvador,BA,capital,Urologia,True,22,12
+Salvador,BA,capital,Endocrinologia,True,87,1
+Fortaleza,CE,capital,Clínica Geral,True,27,3
+Fortaleza,CE,capital,Pediatria,True,37,2
+Fortaleza,CE,capital,Ginecologia,True,91,2
+Fortaleza,CE,capital,Cardiologia,True,89,7
+Fortaleza,CE,capital,Ortopedia,True,51,14
+Fortaleza,CE,capital,Neurologia,True,88,2
+Fortaleza,CE,capital,Oncologia,True,64,6
+Fortaleza,CE,capital,Psiquiatria,True,32,8
+Fortaleza,CE,capital,Dermatologia,True,36,13
+Fortaleza,CE,capital,Oftalmologia,True,58,8
+Fortaleza,CE,capital,Urologia,True,75,14
+Fortaleza,CE,capital,Endocrinologia,True,80,11
+Recife,PE,capital,Clínica Geral,True,50,3
+Recife,PE,capital,Pediatria,True,28,3
+Recife,PE,capital,Ginecologia,True,49,3
+Recife,PE,capital,Cardiologia,True,65,14
+Recife,PE,capital,Ortopedia,True,26,2
+Recife,PE,capital,Neurologia,True,23,9
+Recife,PE,capital,Oncologia,True,57,7
+Recife,PE,capital,Psiquiatria,True,93,1
+Recife,PE,capital,Dermatologia,True,99,14
+Recife,PE,capital,Oftalmologia,True,48,6
+Recife,PE,capital,Urologia,True,37,7
+Recife,PE,capital,Endocrinologia,True,84,14
+São Luís,MA,capital,Clínica Geral,True,79,14
+São Luís,MA,capital,Pediatria,True,64,8
+São Luís,MA,capital,Ginecologia,True,63,4
+São Luís,MA,capital,Cardiologia,True,44,7
+São Luís,MA,capital,Ortopedia,True,34,14
+São Luís,MA,capital,Neurologia,True,78,1
+São Luís,MA,capital,Oncologia,True,42,8
+São Luís,MA,capital,Psiquiatria,True,20,5
+São Luís,MA,capital,Dermatologia,True,69,11
+São Luís,MA,capital,Oftalmologia,True,51,11
+São Luís,MA,capital,Urologia,True,92,8
+São Luís,MA,capital,Endocrinologia,True,57,13
+Teresina,PI,capital,Clínica Geral,True,90,5
+Teresina,PI,capital,Pediatria,True,70,4
+Teresina,PI,capital,Ginecologia,True,93,9
+Teresina,PI,capital,Cardiologia,True,40,13
+Teresina,PI,capital,Ortopedia,True,73,9
+Teresina,PI,capital,Neurologia,True,27,7
+Teresina,PI,capital,Oncologia,True,62,3
+Teresina,PI,capital,Psiquiatria,True,74,12
+Teresina,PI,capital,Dermatologia,True,27,12
+Teresina,PI,capital,Oftalmologia,True,94,6
+Teresina,PI,capital,Urologia,True,70,4
+Teresina,PI,capital,Endocrinologia,True,92,6
+Natal,RN,capital,Clínica Geral,True,49,7
+Natal,RN,capital,Pediatria,True,73,12
+Natal,RN,capital,Ginecologia,True,75,14
+Natal,RN,capital,Cardiologia,True,40,5
+Natal,RN,capital,Ortopedia,True,35,1
+Natal,RN,capital,Neurologia,True,27,6
+Natal,RN,capital,Oncologia,True,66,2
+Natal,RN,capital,Psiquiatria,True,69,7
+Natal,RN,capital,Dermatologia,True,77,3
+Natal,RN,capital,Oftalmologia,True,73,3
+Natal,RN,capital,Urologia,True,96,6
+Natal,RN,capital,Endocrinologia,True,47,2
+João Pessoa,PB,capital,Clínica Geral,True,60,11
+João Pessoa,PB,capital,Pediatria,True,80,14
+João Pessoa,PB,capital,Ginecologia,True,24,12
+João Pessoa,PB,capital,Cardiologia,True,62,4
+João Pessoa,PB,capital,Ortopedia,True,62,11
+João Pessoa,PB,capital,Neurologia,True,94,1
+João Pessoa,PB,capital,Oncologia,True,40,1
+João Pessoa,PB,capital,Psiquiatria,True,42,4
+João Pessoa,PB,capital,Dermatologia,True,39,5
+João Pessoa,PB,capital,Oftalmologia,True,88,12
+João Pessoa,PB,capital,Urologia,True,47,12
+João Pessoa,PB,capital,Endocrinologia,True,56,4
+Maceió,AL,capital,Clínica Geral,True,83,14
+Maceió,AL,capital,Pediatria,True,34,3
+Maceió,AL,capital,Ginecologia,True,92,13
+Maceió,AL,capital,Cardiologia,True,43,10
+Maceió,AL,capital,Ortopedia,True,77,4
+Maceió,AL,capital,Neurologia,True,80,1
+Maceió,AL,capital,Oncologia,True,29,10
+Maceió,AL,capital,Psiquiatria,True,71,9
+Maceió,AL,capital,Dermatologia,True,67,1
+Maceió,AL,capital,Oftalmologia,True,77,2
+Maceió,AL,capital,Urologia,True,91,2
+Maceió,AL,capital,Endocrinologia,True,51,6
+Aracaju,SE,capital,Clínica Geral,True,44,9
+Aracaju,SE,capital,Pediatria,True,85,7
+Aracaju,SE,capital,Ginecologia,True,21,12
+Aracaju,SE,capital,Cardiologia,True,62,3
+Aracaju,SE,capital,Ortopedia,True,95,14
+Aracaju,SE,capital,Neurologia,True,76,11
+Aracaju,SE,capital,Oncologia,True,21,5
+Aracaju,SE,capital,Psiquiatria,True,54,11
+Aracaju,SE,capital,Dermatologia,True,75,14
+Aracaju,SE,capital,Oftalmologia,True,41,2
+Aracaju,SE,capital,Urologia,True,90,1
+Aracaju,SE,capital,Endocrinologia,True,22,5
+Feira de Santana,BA,interior_grande,Clínica Geral,True,2,11
+Feira de Santana,BA,interior_grande,Pediatria,True,5,12
+Feira de Santana,BA,interior_grande,Ginecologia,True,9,8
+Feira de Santana,BA,interior_grande,Cardiologia,True,12,10
+Feira de Santana,BA,interior_grande,Ortopedia,True,8,11
+Feira de Santana,BA,interior_grande,Neurologia,False,0,30
+Feira de Santana,BA,interior_grande,Oncologia,False,0,75
+Feira de Santana,BA,interior_grande,Psiquiatria,False,0,77
+Feira de Santana,BA,interior_grande,Dermatologia,False,0,71
+Feira de Santana,BA,interior_grande,Oftalmologia,False,0,30
+Feira de Santana,BA,interior_grande,Urologia,False,0,72
+Feira de Santana,BA,interior_grande,Endocrinologia,False,0,31
+Petrolina,PE,interior_grande,Clínica Geral,True,5,5
+Petrolina,PE,interior_grande,Pediatria,True,12,14
+Petrolina,PE,interior_grande,Ginecologia,True,10,10
+Petrolina,PE,interior_grande,Cardiologia,True,3,9
+Petrolina,PE,interior_grande,Ortopedia,True,2,5
+Petrolina,PE,interior_grande,Neurologia,False,0,82
+Petrolina,PE,interior_grande,Oncologia,False,0,42
+Petrolina,PE,interior_grande,Psiquiatria,False,0,74
+Petrolina,PE,interior_grande,Dermatologia,False,0,54
+Petrolina,PE,interior_grande,Oftalmologia,False,0,48
+Petrolina,PE,interior_grande,Urologia,False,0,69
+Petrolina,PE,interior_grande,Endocrinologia,False,0,46
+Caruaru,PE,interior_grande,Clínica Geral,True,10,4
+Caruaru,PE,interior_grande,Pediatria,True,13,9
+Caruaru,PE,interior_grande,Ginecologia,True,6,1
+Caruaru,PE,interior_grande,Cardiologia,True,9,6
+Caruaru,PE,interior_grande,Ortopedia,True,10,9
+Caruaru,PE,interior_grande,Neurologia,False,0,49
+Caruaru,PE,interior_grande,Oncologia,False,0,46
+Caruaru,PE,interior_grande,Psiquiatria,False,0,78
+Caruaru,PE,interior_grande,Dermatologia,False,0,54
+Caruaru,PE,interior_grande,Oftalmologia,False,0,31
+Caruaru,PE,interior_grande,Urologia,False,0,60
+Caruaru,PE,interior_grande,Endocrinologia,False,0,63
+Mossoró,RN,interior_grande,Clínica Geral,True,3,3
+Mossoró,RN,interior_grande,Pediatria,True,2,1
+Mossoró,RN,interior_grande,Ginecologia,True,5,14
+Mossoró,RN,interior_grande,Cardiologia,True,3,13
+Mossoró,RN,interior_grande,Ortopedia,True,7,6
+Mossoró,RN,interior_grande,Neurologia,False,0,84
+Mossoró,RN,interior_grande,Oncologia,False,0,52
+Mossoró,RN,interior_grande,Psiquiatria,False,0,80
+Mossoró,RN,interior_grande,Dermatologia,False,0,63
+Mossoró,RN,interior_grande,Oftalmologia,False,0,76
+Mossoró,RN,interior_grande,Urologia,False,0,33
+Mossoró,RN,interior_grande,Endocrinologia,False,0,63
+Alagoinhas,BA,interior_medio,Clínica Geral,True,2,2
+Alagoinhas,BA,interior_medio,Pediatria,True,1,8
+Alagoinhas,BA,interior_medio,Ginecologia,True,7,8
+Alagoinhas,BA,interior_medio,Cardiologia,False,0,34
+Alagoinhas,BA,interior_medio,Ortopedia,False,0,88
+Alagoinhas,BA,interior_medio,Neurologia,False,0,45
+Alagoinhas,BA,interior_medio,Oncologia,False,0,74
+Alagoinhas,BA,interior_medio,Psiquiatria,False,0,66
+Alagoinhas,BA,interior_medio,Dermatologia,False,0,32
+Alagoinhas,BA,interior_medio,Oftalmologia,False,0,34
+Alagoinhas,BA,interior_medio,Urologia,False,0,56
+Alagoinhas,BA,interior_medio,Endocrinologia,False,0,81
+Garanhuns,PE,interior_medio,Clínica Geral,True,6,14
+Garanhuns,PE,interior_medio,Pediatria,True,3,2
+Garanhuns,PE,interior_medio,Ginecologia,True,1,6
+Garanhuns,PE,interior_medio,Cardiologia,False,0,72
+Garanhuns,PE,interior_medio,Ortopedia,False,0,37
+Garanhuns,PE,interior_medio,Neurologia,False,0,73
+Garanhuns,PE,interior_medio,Oncologia,False,0,77
+Garanhuns,PE,interior_medio,Psiquiatria,False,0,37
+Garanhuns,PE,interior_medio,Dermatologia,False,0,36
+Garanhuns,PE,interior_medio,Oftalmologia,False,0,77
+Garanhuns,PE,interior_medio,Urologia,False,0,58
+Garanhuns,PE,interior_medio,Endocrinologia,False,0,41
+Parnamirim,RN,interior_medio,Clínica Geral,True,5,7
+Parnamirim,RN,interior_medio,Pediatria,True,5,10
+Parnamirim,RN,interior_medio,Ginecologia,True,2,11
+Parnamirim,RN,interior_medio,Cardiologia,False,0,69
+Parnamirim,RN,interior_medio,Ortopedia,False,0,48
+Parnamirim,RN,interior_medio,Neurologia,False,0,84
+Parnamirim,RN,interior_medio,Oncologia,False,0,87
+Parnamirim,RN,interior_medio,Psiquiatria,False,0,50
+Parnamirim,RN,interior_medio,Dermatologia,False,0,61
+Parnamirim,RN,interior_medio,Oftalmologia,False,0,53
+Parnamirim,RN,interior_medio,Urologia,False,0,50
+Parnamirim,RN,interior_medio,Endocrinologia,False,0,85
+Cruz das Almas,BA,interior_pequeno,Clínica Geral,True,1,12
+Cruz das Almas,BA,interior_pequeno,Pediatria,True,2,9
+Cruz das Almas,BA,interior_pequeno,Ginecologia,False,0,89
+Cruz das Almas,BA,interior_pequeno,Cardiologia,False,0,35
+Cruz das Almas,BA,interior_pequeno,Ortopedia,False,0,52
+Cruz das Almas,BA,interior_pequeno,Neurologia,False,0,39
+Cruz das Almas,BA,interior_pequeno,Oncologia,False,0,77
+Cruz das Almas,BA,interior_pequeno,Psiquiatria,False,0,74
+Cruz das Almas,BA,interior_pequeno,Dermatologia,False,0,48
+Cruz das Almas,BA,interior_pequeno,Oftalmologia,False,0,69
+Cruz das Almas,BA,interior_pequeno,Urologia,False,0,78
+Cruz das Almas,BA,interior_pequeno,Endocrinologia,False,0,47
+São Bento do Una,PE,interior_pequeno,Clínica Geral,True,1,3
+São Bento do Una,PE,interior_pequeno,Pediatria,True,2,2
+São Bento do Una,PE,interior_pequeno,Ginecologia,False,0,77
+São Bento do Una,PE,interior_pequeno,Cardiologia,False,0,51
+São Bento do Una,PE,interior_pequeno,Ortopedia,False,0,79
+São Bento do Una,PE,interior_pequeno,Neurologia,False,0,33
+São Bento do Una,PE,interior_pequeno,Oncologia,False,0,39
+São Bento do Una,PE,interior_pequeno,Psiquiatria,False,0,69
+São Bento do Una,PE,interior_pequeno,Dermatologia,False,0,30
+São Bento do Una,PE,interior_pequeno,Oftalmologia,False,0,51
+São Bento do Una,PE,interior_pequeno,Urologia,False,0,87
+São Bento do Una,PE,interior_pequeno,Endocrinologia,False,0,83

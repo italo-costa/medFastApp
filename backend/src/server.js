@@ -8,15 +8,17 @@ require('dotenv').config();
 
 const { logger } = require('./utils/logger');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
+const AnalyticsDataSanitizer = require('./middleware/analyticsDataSanitizer');
 
 // Importar rotas
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
-const patientRoutes = require('./routes/patients');
+const patientRoutes = require('./routes/patients-db'); // Usando versão do banco de dados
 const recordRoutes = require('./routes/records');
 const examRoutes = require('./routes/exams');
 const allergyRoutes = require('./routes/allergies');
 const medicoRoutes = require('./routes/medicos');
+const analyticsRoutes = require('./routes/analytics');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -37,11 +39,18 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
       fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", "https://servicodados.ibge.gov.br", "https://www.ans.gov.br", "http://tabnet.datasus.gov.br"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      upgradeInsecureRequests: [],
     },
+    reportOnly: false, // Aplicar CSP rigorosamente
   },
+  crossOriginEmbedderPolicy: false, // Para permitir mapas externos
 }));
 
 app.use(compression());
@@ -63,8 +72,33 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Middleware de sanitização para analytics
+const analyticsSanitizer = new AnalyticsDataSanitizer();
+app.use(analyticsSanitizer.middleware());
+
 // Servir arquivos estáticos (dashboard web)
 app.use(express.static('public'));
+
+// Servir arquivos de dados gerados (mapas, relatórios, etc.)
+app.use('/data', express.static('../../data', {
+  setHeaders: (res, path) => {
+    // Headers específicos para arquivos de imagem
+    if (path.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache de 1 hora
+    }
+    if (path.endsWith('.csv')) {
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment');
+    }
+    if (path.endsWith('.json')) {
+      res.setHeader('Content-Type', 'application/json');
+    }
+    if (path.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html');
+    }
+  }
+}));
 
 // Logging HTTP
 if (process.env.NODE_ENV !== 'test') {
@@ -90,6 +124,7 @@ app.use('/api/records', recordRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/allergies', allergyRoutes);
 app.use('/api/medicos', medicoRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Middleware de erro 404
 app.use(notFound);

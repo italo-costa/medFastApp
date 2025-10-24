@@ -1,0 +1,19 @@
+cidade,estado,populacao,ocupacao_hospitalar,planos_saude,conectividade,digitalizacao,latitude,longitude,tipo_municipio,distancia_capital,resolutividade
+Salvador,BA,2900000,0.87,0.35,95,0.8,-12.9714,-38.5014,capital,0,0.95
+Fortaleza,CE,2700000,0.83,0.32,98,0.85,-3.7319,-38.5267,capital,0,0.95
+Recife,PE,1700000,0.89,0.38,92,0.75,-8.0476,-34.877,capital,0,0.95
+São Luís,MA,1100000,0.82,0.28,88,0.7,-2.5387,-44.2825,capital,0,0.95
+Teresina,PI,870000,0.79,0.25,85,0.68,-5.0892,-42.8019,capital,0,0.95
+Natal,RN,890000,0.81,0.3,90,0.72,-5.7945,-35.211,capital,0,0.95
+João Pessoa,PB,820000,0.78,0.27,87,0.69,-7.1195,-34.845,capital,0,0.95
+Maceió,AL,1000000,0.84,0.29,89,0.71,-9.6658,-35.7353,capital,0,0.95
+Aracaju,SE,664000,0.76,0.31,91,0.73,-10.9472,-37.0731,capital,0,0.95
+Feira de Santana,BA,619609,0.75,0.18,70,0.6,-12.2664,-38.9663,interior_grande,108,0.75
+Petrolina,PE,354317,0.72,0.15,65,0.55,-9.3891,-40.5034,interior_grande,720,0.7
+Caruaru,PE,361118,0.77,0.2,68,0.58,-8.2836,-35.9758,interior_grande,134,0.7
+Mossoró,RN,295619,0.73,0.16,63,0.53,-5.188,-37.3441,interior_grande,277,0.68
+Alagoinhas,BA,155904,0.68,0.12,45,0.45,-12.1348,-38.4197,interior_medio,124,0.6
+Garanhuns,PE,140577,0.65,0.1,42,0.42,-8.8902,-36.4932,interior_medio,230,0.58
+Parnamirim,RN,267036,0.7,0.25,80,0.65,-5.9153,-35.2628,interior_medio,15,0.65
+Cruz das Almas,BA,58997,0.6,0.08,25,0.3,-12.6727,-39.1066,interior_pequeno,146,0.5
+São Bento do Una,PE,56432,0.58,0.06,15,0.25,-8.521,-36.4444,interior_pequeno,180,0.45

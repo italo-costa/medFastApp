@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestão de Pacientes - MediApp</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Scripts dos Componentes -->
+    <script src="js/patient-photo-manager.js"></script>
+    <script src="js/address-manager.js"></script>
+    <script src="js/insurance-manager.js"></script>
+    <!-- Mock API removido - usando banco real -->
     <style>
         * {
             margin: 0;
@@ -718,6 +724,15 @@
             </div>
             <div class="modal-body">
                 <form id="formNovoPaciente">
+                    <!-- Seção de Foto -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-camera"></i>
+                            Foto do Paciente
+                        </h3>
+                        <div id="patientPhotoContainer"></div>
+                    </div>
+
                     <div class="form-section">
                         <h3 class="section-title">
                             <i class="fas fa-user"></i>
@@ -750,6 +765,12 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Endereço -->
+                    <div id="patientAddressContainer"></div>
+
+                    <!-- Convênio -->
+                    <div id="patientInsuranceContainer"></div>
 
                     <div class="form-section">
                         <h3 class="section-title">
@@ -798,13 +819,26 @@
     <script>
         let pacienteSelecionado = null;
         let pacientes = [];
+        
+        // Gerenciadores de Componentes
+        let photoManager;
+        let addressManager;
+        let insuranceManager;
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
+            initializeComponents();
             carregarPacientes();
             carregarEstatisticas();
             aplicarMascaras();
         });
+
+        function initializeComponents() {
+            // Inicializar gerenciadores de componentes
+            photoManager = new PatientPhotoManager('patientPhotoContainer');
+            addressManager = new AddressManager('patientAddressContainer');
+            insuranceManager = new InsuranceManager('patientInsuranceContainer');
+        }
 
         // Aplicar máscaras nos campos
         function aplicarMascaras() {
@@ -835,23 +869,70 @@
             document.getElementById(tabName).classList.add('active');
         }
 
-        // Carregar lista de pacientes
-        async function carregarPacientes() {
+        // Carregar lista de pacientes da API
+        async function carregarPacientes(searchTerm = '', page = 1, limit = 10) {
             try {
-                const response = await fetch('/api/pacientes');
+                // Mostrar loading
+                mostrarLoading();
+                
+                // Construir URL com parâmetros
+                const params = new URLSearchParams();
+                if (searchTerm) params.append('search', searchTerm);
+                params.append('page', page);
+                params.append('limit', limit);
+                
+                const response = await fetch(`http://localhost:3002/api/patients?${params}`);
                 const data = await response.json();
                 
-                if (response.ok) {
-                    pacientes = data.data || [];
+                if (response.ok && data.success) {
+                    pacientes = data.patients || [];
+                    paginacao = data.pagination || {};
                     renderizarListaPacientes(pacientes);
+                    atualizarEstatisticas();
+                    console.log('✅ Pacientes carregados:', pacientes.length);
                 } else {
-                    showAlert('Erro ao carregar pacientes: ' + data.message, 'error');
+                    showAlert(`Erro ao carregar pacientes: ${data.message}`, 'error');
+                    // Fallback para dados de exemplo
+                    carregarDadosExemplo();
                 }
             } catch (error) {
-                console.error('Erro ao carregar pacientes:', error);
+                console.error('❌ Erro ao carregar pacientes:', error);
+                showAlert('Erro de conexão. Carregando dados de demonstração...', 'warning');
                 // Carregar dados de exemplo para demonstração
                 carregarDadosExemplo();
+            } finally {
+                ocultarLoading();
             }
+        }
+
+        // Função para mostrar loading
+        function mostrarLoading() {
+            const container = document.getElementById('patientList');
+            container.innerHTML = `
+                <div style="text-align: center; padding: 50px; color: #666;">
+                    <div class="loading-spinner" style="
+                        width: 40px; 
+                        height: 40px; 
+                        border: 4px solid #f3f3f3;
+                        border-top: 4px solid #667eea;
+                        border-radius: 50%;
+                        animation: spin 1s linear infinite;
+                        margin: 0 auto 20px;
+                    "></div>
+                    <p>Carregando pacientes...</p>
+                </div>
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            `;
+        }
+
+        // Função para ocultar loading
+        function ocultarLoading() {
+            // O loading será substituído pelo conteúdo real
         }
 
         // Carregar dados de exemplo
@@ -1130,32 +1211,72 @@
             }
         }
 
-        // Buscar paciente
-        function buscarPaciente() {
-            const termo = document.getElementById('searchInput').value.toLowerCase();
-            const resultados = pacientes.filter(paciente => 
-                paciente.nomeCompleto.toLowerCase().includes(termo) ||
-                paciente.cpf.includes(termo) ||
-                paciente.id.toString().includes(termo)
-            );
-            renderizarListaPacientes(resultados);
+        // Buscar paciente na API
+        async function buscarPaciente() {
+            const termo = document.getElementById('searchInput').value.trim();
+            await carregarPacientes(termo, 1, 20); // Buscar com mais resultados
         }
 
-        // Permitir busca ao pressionar Enter
+        // Busca em tempo real (debounced)
+        let timeoutBusca;
+        function buscarEmTempoReal() {
+            clearTimeout(timeoutBusca);
+            timeoutBusca = setTimeout(() => {
+                buscarPaciente();
+            }, 500); // Aguardar 500ms após parar de digitar
+        }
+
+        // Configurar eventos de busca
+        document.getElementById('searchInput').addEventListener('input', buscarEmTempoReal);
         document.getElementById('searchInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
+                e.preventDefault();
                 buscarPaciente();
             }
         });
 
         // Abrir modal novo paciente
         function abrirModalNovoPaciente() {
+            const form = document.getElementById('formNovoPaciente');
+            
+            // Limpar formulário e modo de edição
+            form.reset();
+            delete form.dataset.editId;
+            
+            // Restaurar título para novo paciente
+            document.querySelector('#modalNovoPaciente .modal-header h2').innerHTML = 
+                '<i class="fas fa-user-plus"></i> Novo Paciente';
+            
             document.getElementById('modalNovoPaciente').style.display = 'block';
         }
 
         // Fechar modal
         function fecharModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
+            
+            // Se for o modal de paciente, limpar componentes
+            if (modalId === 'modalNovoPaciente') {
+                // Limpar formulário básico
+                document.getElementById('formNovoPaciente').reset();
+                delete document.getElementById('formNovoPaciente').dataset.editId;
+                
+                // Restaurar título original
+                document.querySelector('#modalNovoPaciente .modal-header h2').innerHTML = 
+                    '<i class="fas fa-user-plus"></i> Novo Paciente';
+                
+                // Limpar componentes
+                if (patientPhotoManager) {
+                    patientPhotoManager.clearData();
+                }
+                
+                if (addressManager) {
+                    addressManager.clearData();
+                }
+                
+                if (insuranceManager) {
+                    insuranceManager.clearData();
+                }
+            }
         }
 
         // Cadastrar novo paciente
@@ -1165,9 +1286,41 @@
             const formData = new FormData(this);
             const dados = Object.fromEntries(formData.entries());
             
+            // Adicionar dados dos componentes
+            if (addressManager) {
+                const addressData = addressManager.getAddressData();
+                Object.assign(dados, addressData);
+            }
+            
+            if (insuranceManager) {
+                const insuranceData = insuranceManager.getInsuranceData();
+                Object.assign(dados, insuranceData);
+            }
+            
+            // Verificar se é edição ou criação
+            const editId = this.dataset.editId;
+            const isEdit = !!editId;
+            
+            // Mostrar loading no botão
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const textOriginal = submitBtn.innerHTML;
+            const loadingText = isEdit ? 
+                '<i class="fas fa-spinner fa-spin"></i> Atualizando...' : 
+                '<i class="fas fa-spinner fa-spin"></i> Cadastrando...';
+            submitBtn.innerHTML = loadingText;
+            submitBtn.disabled = true;
+            
             try {
-                const response = await fetch('/api/patients', {
-                    method: 'POST',
+                console.log(`📝 ${isEdit ? 'Atualizando' : 'Enviando'} dados do paciente:`, dados);
+                
+                const url = isEdit ? 
+                    `http://localhost:3002/api/patients/${editId}` : 
+                    'http://localhost:3002/api/patients';
+                
+                const method = isEdit ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -1175,28 +1328,66 @@
                 });
 
                 const result = await response.json();
+                console.log('📋 Resposta da API:', result);
 
-                if (response.ok) {
-                    showAlert('Paciente cadastrado com sucesso!', 'success');
+                if (response.ok && result.success) {
+                    const successMessage = isEdit ? 
+                        '✅ Paciente atualizado com sucesso!' : 
+                        '✅ Paciente cadastrado com sucesso!';
+                    showAlert(successMessage, 'success');
                     fecharModal('modalNovoPaciente');
                     this.reset();
-                    carregarPacientes();
+                    delete this.dataset.editId; // Limpar modo edição
+                    await carregarPacientes(); // Recarregar lista
                 } else {
-                    showAlert(result.message || 'Erro ao cadastrar paciente.', 'error');
+                    const errorMessage = isEdit ? 'Erro ao atualizar paciente' : 'Erro ao cadastrar paciente';
+                    showAlert(`❌ ${result.message || errorMessage}`, 'error');
                 }
             } catch (error) {
-                // Para demonstração, adicionar localmente
-                const novoPaciente = {
-                    id: Date.now(),
-                    ...dados
-                };
-                pacientes.push(novoPaciente);
-                renderizarListaPacientes(pacientes);
-                carregarEstatisticas();
+                console.error(`❌ Erro ao ${isEdit ? 'atualizar' : 'cadastrar'}:`, error);
                 
-                showAlert('Paciente cadastrado com sucesso!', 'success');
+                if (isEdit) {
+                    // Fallback para edição
+                    const index = pacientes.findIndex(p => p.id == editId);
+                    if (index !== -1) {
+                        pacientes[index] = {
+                            ...pacientes[index],
+                            nomeCompleto: dados.nomeCompleto,
+                            cpf: dados.cpf,
+                            dataNascimento: dados.dataNascimento,
+                            telefone: dados.telefone,
+                            email: dados.email,
+                            tipoSanguineo: dados.tipoSanguineo || 'N/I'
+                        };
+                        renderizarListaPacientes(pacientes);
+                        showAlert('⚠️ Modo demonstração: Paciente editado localmente!', 'warning');
+                    }
+                } else {
+                    // Fallback para criação
+                    const novoPaciente = {
+                        id: Date.now(),
+                        nomeCompleto: dados.nomeCompleto,
+                        cpf: dados.cpf,
+                        dataNascimento: dados.dataNascimento,
+                        telefone: dados.telefone,
+                        email: dados.email,
+                        tipoSanguineo: dados.tipoSanguineo || 'N/I',
+                        alergias: dados.alergias || 'Nenhuma alergia conhecida',
+                        ultimaConsulta: null
+                    };
+                    
+                    pacientes.push(novoPaciente);
+                    renderizarListaPacientes(pacientes);
+                    showAlert('⚠️ Modo demonstração: Paciente adicionado localmente!', 'warning');
+                }
+                
                 fecharModal('modalNovoPaciente');
                 this.reset();
+                delete this.dataset.editId; // Limpar modo edição
+            } finally {
+                // Restaurar botão
+                submitBtn.innerHTML = textOriginal;
+                submitBtn.disabled = false;
             }
         });
 
@@ -1227,17 +1418,122 @@
             }, 5000);
         }
 
-        // Funcões dos botões (placeholders)
-        function editarPaciente(id) {
-            showAlert('Funcionalidade de edição será disponibilizada em breve', 'info');
+        // Editar paciente
+        async function editarPaciente(id) {
+            try {
+                // Buscar dados completos do paciente
+                const response = await fetch(`http://localhost:3002/api/patients/${id}`);
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    const paciente = result.patient;
+                    
+                    // Pré-preencher formulário
+                    const form = document.getElementById('formNovoPaciente');
+                    form.querySelector('[name="nomeCompleto"]').value = paciente.name || '';
+                    form.querySelector('[name="cpf"]').value = paciente.cpf || '';
+                    form.querySelector('[name="dataNascimento"]').value = paciente.birthDate ? paciente.birthDate.split('T')[0] : '';
+                    form.querySelector('[name="telefone"]').value = paciente.phone || '';
+                    form.querySelector('[name="email"]').value = paciente.email || '';
+                    form.querySelector('[name="tipoSanguineo"]').value = paciente.bloodType || '';
+                    form.querySelector('[name="observacoes"]').value = paciente.observations || '';
+                    
+                    // Carregar dados nos novos componentes
+                    
+                    // 1. Foto do paciente
+                    if (patientPhotoManager && paciente.photo) {
+                        patientPhotoManager.loadExistingPhoto(paciente.photo);
+                    }
+                    
+                    // 2. Dados de endereço
+                    if (addressManager && paciente.address) {
+                        addressManager.loadAddress({
+                            cep: paciente.address.cep || '',
+                            rua: paciente.address.street || '',
+                            numero: paciente.address.number || '',
+                            complemento: paciente.address.complement || '',
+                            bairro: paciente.address.neighborhood || '',
+                            cidade: paciente.address.city || '',
+                            estado: paciente.address.state || ''
+                        });
+                    }
+                    
+                    // 3. Dados de plano de saúde
+                    if (insuranceManager && paciente.insurance) {
+                        insuranceManager.loadInsurance({
+                            tipo: paciente.insurance.type || 'sus',
+                            operadora: paciente.insurance.provider || '',
+                            numeroCarteirinha: paciente.insurance.cardNumber || '',
+                            validadeCarteirinha: paciente.insurance.validUntil || '',
+                            titular: paciente.insurance.holder || '',
+                            observacoes: paciente.insurance.notes || ''
+                        });
+                    }
+                    
+                    // Alterar título e modo do modal
+                    document.querySelector('#modalNovoPaciente .modal-header h2').innerHTML = 
+                        '<i class="fas fa-edit"></i> Editar Paciente';
+                    form.dataset.editId = id;
+                    
+                    // Abrir modal
+                    abrirModalNovoPaciente();
+                } else {
+                    throw new Error(result.message || 'Erro ao buscar dados do paciente');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar paciente:', error);
+                
+                // Fallback: usar dados locais
+                const paciente = pacientes.find(p => p.id == id);
+                if (paciente) {
+                    const form = document.getElementById('formNovoPaciente');
+                    form.querySelector('[name="nomeCompleto"]').value = paciente.nomeCompleto || '';
+                    form.querySelector('[name="cpf"]').value = paciente.cpf || '';
+                    form.querySelector('[name="dataNascimento"]').value = paciente.dataNascimento || '';
+                    form.querySelector('[name="telefone"]').value = paciente.telefone || '';
+                    form.querySelector('[name="email"]').value = paciente.email || '';
+                    form.querySelector('[name="tipoSanguineo"]').value = paciente.tipoSanguineo || '';
+                    
+                    document.querySelector('#modalNovoPaciente .modal-header h2').innerHTML = 
+                        '<i class="fas fa-edit"></i> Editar Paciente';
+                    form.dataset.editId = id;
+                    abrirModalNovoPaciente();
+                } else {
+                    showAlert('❌ Erro ao carregar dados do paciente', 'error');
+                }
+            }
         }
 
-        function excluirPaciente(id) {
-            if (confirm('Tem certeza que deseja excluir este paciente?')) {
-                pacientes = pacientes.filter(p => p.id !== id);
+        // Excluir paciente
+        async function excluirPaciente(id) {
+            // Encontrar nome do paciente
+            const paciente = pacientes.find(p => p.id == id);
+            const nome = paciente ? (paciente.name || paciente.nomeCompleto) : 'este paciente';
+            
+            if (!confirm(`⚠️ Tem certeza que deseja excluir ${nome}?\n\nEsta ação não pode ser desfeita.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`http://localhost:3002/api/patients/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showAlert('✅ Paciente excluído com sucesso!', 'success');
+                    await carregarPacientes(); // Recarregar lista
+                } else {
+                    throw new Error(result.message || 'Erro ao excluir paciente');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao excluir:', error);
+                
+                // Fallback: remover localmente
+                pacientes = pacientes.filter(p => p.id != id);
                 renderizarListaPacientes(pacientes);
-                carregarEstatisticas();
-                showAlert('Paciente excluído com sucesso!', 'success');
+                showAlert('⚠️ Modo demonstração: Paciente removido localmente!', 'warning');
             }
         }
 

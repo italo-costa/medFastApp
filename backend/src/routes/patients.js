@@ -1,6 +1,14 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const { logger } = require('../utils/logger');
+const { 
+    validatePatientData, 
+    validateCPF, 
+    formatCPF, 
+    formatPhone, 
+    formatCEP,
+    sanitizeString 
+} = require('../utils/validators');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -121,20 +129,47 @@ router.post('/', async (req, res) => {
       email,
       tipoSanguineo,
       alergias,
-      observacoes
+      observacoes,
+      cep,
+      endereco,
+      cidade,
+      uf,
+      profissao,
+      estadoCivil
     } = req.body;
 
-    // Validações básicas
-    if (!nomeCompleto || !cpf || !dataNascimento || !telefone) {
+    // Sanitizar dados de entrada
+    const sanitizedData = {
+      nomeCompleto: sanitizeString(nomeCompleto),
+      cpf: cpf ? cpf.replace(/[^\d]/g, '') : '',
+      rg: rg ? sanitizeString(rg) : '',
+      dataNascimento,
+      telefone: telefone ? telefone.replace(/[^\d]/g, '') : '',
+      email: email ? sanitizeString(email).toLowerCase() : '',
+      tipoSanguineo: tipoSanguineo ? sanitizeString(tipoSanguineo) : '',
+      alergias: alergias ? sanitizeString(alergias) : '',
+      observacoes: observacoes ? sanitizeString(observacoes) : '',
+      cep: cep ? cep.replace(/[^\d]/g, '') : '',
+      endereco: endereco ? sanitizeString(endereco) : '',
+      cidade: cidade ? sanitizeString(cidade) : '',
+      uf: uf ? sanitizeString(uf).toUpperCase() : '',
+      profissao: profissao ? sanitizeString(profissao) : '',
+      estadoCivil: estadoCivil ? sanitizeString(estadoCivil) : ''
+    };
+
+    // Validar dados obrigatórios e formato
+    const validation = validatePatientData(sanitizedData);
+    if (!validation.isValid) {
       return res.status(400).json({
         success: false,
-        message: 'Campos obrigatórios: nomeCompleto, CPF, dataNascimento e telefone'
+        message: 'Dados inválidos',
+        errors: validation.errors
       });
     }
 
     // Verificar se CPF já existe
     const existingPatient = await prisma.patient.findUnique({
-      where: { cpf }
+      where: { cpf: sanitizedData.cpf }
     });
 
     if (existingPatient) {
@@ -147,20 +182,26 @@ router.post('/', async (req, res) => {
     // Criar paciente
     const patient = await prisma.patient.create({
       data: {
-        name: nomeCompleto,
-        cpf,
-        rg: rg || null,
-        birthDate: new Date(dataNascimento),
-        phone: telefone,
-        email: email || null,
-        bloodType: tipoSanguineo || null,
-        observations: observacoes || null
+        name: sanitizedData.nomeCompleto,
+        cpf: sanitizedData.cpf,
+        rg: sanitizedData.rg || null,
+        birthDate: new Date(sanitizedData.dataNascimento),
+        phone: sanitizedData.telefone,
+        email: sanitizedData.email || null,
+        bloodType: sanitizedData.tipoSanguineo || null,
+        observations: sanitizedData.observacoes || null,
+        address: sanitizedData.endereco || null,
+        zipCode: sanitizedData.cep || null,
+        city: sanitizedData.cidade || null,
+        state: sanitizedData.uf || null,
+        profession: sanitizedData.profissao || null,
+        maritalStatus: sanitizedData.estadoCivil || null
       }
     });
 
     // Criar alergias se informadas
-    if (alergias && alergias.trim()) {
-      const allergiesList = alergias.split(',').map(allergy => allergy.trim());
+    if (sanitizedData.alergias && sanitizedData.alergias.trim()) {
+      const allergiesList = sanitizedData.alergias.split(',').map(allergy => allergy.trim());
       
       for (const allergyName of allergiesList) {
         if (allergyName) {
@@ -176,12 +217,17 @@ router.post('/', async (req, res) => {
       }
     }
 
-    logger.info(`Novo paciente cadastrado: ${patient.name} (${patient.cpf})`);
+    logger.info(`Novo paciente cadastrado: ${patient.name} (${formatCPF(patient.cpf)})`);
 
     res.status(201).json({
       success: true,
       message: 'Paciente cadastrado com sucesso',
-      patient
+      patient: {
+        ...patient,
+        cpf: formatCPF(patient.cpf),
+        phone: formatPhone(patient.phone),
+        zipCode: formatCEP(patient.zipCode)
+      }
     });
   } catch (error) {
     logger.error('Erro ao criar paciente:', error);
