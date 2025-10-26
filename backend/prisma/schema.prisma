@@ -169,21 +169,24 @@ model Consulta {
 
 // Exames
 model Exame {
-  id                String     @id @default(cuid())
-  paciente_id       String
-  tipo_exame        String
-  nome_exame        String
-  data_realizacao   DateTime
-  resultado         String?
-  observacoes       String?
-  laboratorio       String?
-  medico_solicitante String?
-  arquivo_url       String?
-  criado_em         DateTime   @default(now())
-  atualizado_em     DateTime   @updatedAt
+  id                    String     @id @default(cuid())
+  paciente_id           String
+  tipo_exame            String
+  nome_exame            String
+  data_realizacao       DateTime
+  resultado             String?
+  observacoes           String?
+  laboratorio           String?     // Empresa onde foi feito o exame
+  medico_solicitante    String?
+  arquivo_url           String?     // Caminho do arquivo
+  nome_arquivo_original String?     // Nome original do arquivo
+  tamanho_arquivo       Int?        // Tamanho em bytes
+  tipo_arquivo          String?     // MIME type (image/jpeg, application/pdf, etc.)
+  criado_em             DateTime   @default(now())
+  atualizado_em         DateTime   @updatedAt
   
   // Relacionamentos
-  paciente          Paciente   @relation(fields: [paciente_id], references: [id])
+  paciente              Paciente   @relation(fields: [paciente_id], references: [id])
   
   @@map("exames")
 }

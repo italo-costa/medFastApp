@@ -984,12 +984,193 @@
                         <i class="fas fa-x-ray"></i>
                         Gestão de Exames
                     </h2>
-                    <button class="btn btn-primary">
-                        <i class="fas fa-upload"></i>
-                        Upload Exame
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <div class="search-container" style="position: relative;">
+                            <input type="text" id="examSearch" placeholder="Buscar exames..." 
+                                   style="padding: 0.5rem 2.5rem 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 0.375rem; width: 250px;">
+                            <i class="fas fa-search" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); color: #a0aec0;"></i>
+                        </div>
+                        <button class="btn btn-primary" data-action="open-modal" data-modal="examModal">
+                            <i class="fas fa-upload"></i>
+                            Novo Exame
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Filtros -->
+                <div style="padding: 1rem; border-bottom: 1px solid #e2e8f0; display: flex; gap: 1rem; align-items: center;">
+                    <select id="filterExamPaciente" style="padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.375rem;">
+                        <option value="">Todos os pacientes</option>
+                    </select>
+                    <select id="filterTipoExame" style="padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.375rem;">
+                        <option value="">Todos os tipos</option>
+                    </select>
+                    <input type="date" id="filterExamDataInicio" style="padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.375rem;">
+                    <input type="date" id="filterExamDataFim" style="padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.375rem;">
+                    <button onclick="aplicarFiltrosExames()" class="btn btn-secondary">
+                        <i class="fas fa-filter"></i>
+                        Filtrar
+                    </button>
+                    <button onclick="limparFiltrosExames()" class="btn btn-outline">
+                        <i class="fas fa-times"></i>
+                        Limpar
                     </button>
                 </div>
-                <p>Módulo de exames será disponibilizado em breve</p>
+
+                <!-- Loading -->
+                <div id="examsLoading" style="display: none; text-align: center; padding: 2rem;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #4299e1;"></i>
+                    <p style="margin-top: 1rem;">Carregando exames...</p>
+                </div>
+
+                <!-- Lista de Exames -->
+                <div id="examsList" style="padding: 1rem;">
+                    <!-- Conteúdo será preenchido dinamicamente -->
+                </div>
+
+                <!-- Paginação -->
+                <div id="examsPagination" style="padding: 1rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center; gap: 1rem;">
+                    <!-- Controles de paginação serão inseridos aqui -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Exam Modal -->
+        <div id="examModal" class="modal">
+            <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+                <div class="modal-header">
+                    <h3 id="examModalTitle">Novo Exame</h3>
+                    <button class="modal-close" data-action="close-modal" data-modal="examModal">&times;</button>
+                </div>
+                <form id="examForm" enctype="multipart/form-data">
+                    <input type="hidden" id="examId">
+                    
+                    <!-- Informações Básicas -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label class="form-label">Paciente *</label>
+                            <select id="examPaciente" class="form-input" required>
+                                <option value="">Selecione um paciente</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Data de Realização *</label>
+                            <input type="date" id="examDataRealizacao" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <!-- Dados do Exame -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Exame *</label>
+                            <select id="examTipo" class="form-input" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="Raio-X">Raio-X</option>
+                                <option value="Tomografia Computadorizada">Tomografia Computadorizada</option>
+                                <option value="Ressonância Magnética">Ressonância Magnética</option>
+                                <option value="Ultrassom">Ultrassom</option>
+                                <option value="Eletrocardiograma">Eletrocardiograma</option>
+                                <option value="Ecocardiograma">Ecocardiograma</option>
+                                <option value="Endoscopia">Endoscopia</option>
+                                <option value="Colonoscopia">Colonoscopia</option>
+                                <option value="Mamografia">Mamografia</option>
+                                <option value="Densitometria Óssea">Densitometria Óssea</option>
+                                <option value="Exame de Sangue">Exame de Sangue</option>
+                                <option value="Exame de Urina">Exame de Urina</option>
+                                <option value="Espirometria">Espirometria</option>
+                                <option value="Holter">Holter</option>
+                                <option value="MAPA">MAPA</option>
+                                <option value="Biopsia">Biopsia</option>
+                                <option value="Teste Ergométrico">Teste Ergométrico</option>
+                                <option value="PET Scan">PET Scan</option>
+                                <option value="Cintilografia">Cintilografia</option>
+                                <option value="Angiografia">Angiografia</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nome do Exame *</label>
+                            <input type="text" id="examNome" class="form-input" required 
+                                   placeholder="Ex: Raio-X de Tórax AP e Perfil">
+                        </div>
+                    </div>
+
+                    <!-- Local e Médico -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label class="form-label">Laboratório/Clínica</label>
+                            <input type="text" id="examLaboratorio" class="form-input" 
+                                   placeholder="Ex: Laboratório São Paulo">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Médico Solicitante</label>
+                            <input type="text" id="examMedicoSolicitante" class="form-input" 
+                                   placeholder="Ex: Dr. João Silva">
+                        </div>
+                    </div>
+
+                    <!-- Upload de Arquivo -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #2d3748; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e2e8f0;">
+                            <i class="fas fa-upload"></i> Arquivo do Exame
+                        </h4>
+                        
+                        <!-- Drag and Drop Area -->
+                        <div id="examDropZone" style="border: 2px dashed #cbd5e0; border-radius: 0.5rem; padding: 2rem; text-align: center; background: #f7fafc; cursor: pointer; transition: all 0.3s;">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #4299e1; margin-bottom: 1rem;"></i>
+                            <p style="margin: 0; color: #4a5568; font-size: 1.1rem;">
+                                <strong>Clique aqui ou arraste arquivos</strong>
+                            </p>
+                            <p style="margin: 0.5rem 0 0 0; color: #718096; font-size: 0.875rem;">
+                                Tipos aceitos: PDF, Imagens (JPG, PNG, GIF), Vídeos (MP4, AVI, MOV)<br>
+                                Tamanho máximo: 100MB
+                            </p>
+                            <input type="file" id="examArquivo" style="display: none;" 
+                                   accept=".pdf,.jpg,.jpeg,.png,.gif,.bmp,.webp,.mp4,.avi,.mov,.wmv,.mkv,.webm,.doc,.docx">
+                        </div>
+                        
+                        <!-- Preview do Arquivo -->
+                        <div id="examFilePreview" style="display: none; margin-top: 1rem; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div id="examFileIcon" style="font-size: 2rem;"></div>
+                                <div style="flex: 1;">
+                                    <p id="examFileName" style="margin: 0; font-weight: bold;"></p>
+                                    <p id="examFileSize" style="margin: 0; color: #718096; font-size: 0.875rem;"></p>
+                                </div>
+                                <button type="button" onclick="removeExamFile()" style="background: none; border: none; color: #e53e3e; cursor: pointer;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resultado e Observações -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #2d3748; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #e2e8f0;">
+                            <i class="fas fa-notes-medical"></i> Resultado e Observações
+                        </h4>
+                        <div class="form-group">
+                            <label class="form-label">Resultado do Exame</label>
+                            <textarea id="examResultado" class="form-input" rows="3" 
+                                      placeholder="Descreva o resultado do exame..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Observações</label>
+                            <textarea id="examObservacoes" class="form-input" rows="2" 
+                                      placeholder="Observações adicionais..."></textarea>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+                        <button type="button" class="btn btn-secondary" data-action="close-modal" data-modal="examModal">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Salvar Exame
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -1768,6 +1949,526 @@
         function showError(message) {
             // Implementar notificação de erro
             alert(message); // Temporário
+        }
+
+        // ====================================
+        // FUNÇÕES PARA GESTÃO DE EXAMES
+        // ====================================
+
+        let currentExamPage = 1;
+        let currentExamFilters = {};
+
+        // Carregar lista de exames
+        async function loadExams(page = 1, filters = {}) {
+            try {
+                showLoading('examsLoading');
+                
+                const params = new URLSearchParams({
+                    page: page,
+                    limit: 10,
+                    ...filters
+                });
+                
+                const response = await fetch(`/api/exams?${params}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayExams(data.data);
+                    displayExamsPagination(data.pagination);
+                    currentExamPage = page;
+                    currentExamFilters = filters;
+                } else {
+                    showError('Erro ao carregar exames: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar exames:', error);
+                showError('Erro de conexão ao carregar exames');
+            } finally {
+                hideLoading('examsLoading');
+            }
+        }
+
+        // Exibir lista de exames
+        function displayExams(exams) {
+            const container = document.getElementById('examsList');
+            
+            if (exams.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #718096;">
+                        <i class="fas fa-x-ray" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <p>Nenhum exame encontrado</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = exams.map(exam => `
+                <div class="exam-item" style="border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; background: white;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <div style="flex: 1;">
+                            <h4 style="color: #2d3748; margin: 0;">
+                                <i class="fas fa-file-medical"></i>
+                                ${exam.nome_exame}
+                            </h4>
+                            <p style="color: #718096; margin: 0; font-size: 0.875rem;">
+                                ${exam.paciente.nome} - CPF: ${formatCPF(exam.paciente.cpf)}
+                            </p>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="background: #e6fffa; color: #234e52; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">
+                                ${exam.tipo_exame}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 0.5rem 0;">
+                        <div>
+                            <strong>Data de Realização:</strong><br>
+                            ${formatDate(exam.data_realizacao)}
+                        </div>
+                        <div>
+                            <strong>Laboratório:</strong><br>
+                            ${exam.laboratorio || 'Não informado'}
+                        </div>
+                        <div>
+                            <strong>Médico Solicitante:</strong><br>
+                            ${exam.medico_solicitante || 'Não informado'}
+                        </div>
+                    </div>
+                    
+                    ${exam.resultado ? `
+                        <div style="margin: 0.5rem 0;">
+                            <strong>Resultado:</strong><br>
+                            <span style="color: #4a5568;">${exam.resultado.substring(0, 100)}${exam.resultado.length > 100 ? '...' : ''}</span>
+                        </div>
+                    ` : ''}
+                    
+                    ${exam.arquivo_url ? `
+                        <div style="margin: 0.5rem 0; padding: 0.5rem; background: #f7fafc; border-radius: 0.25rem;">
+                            <i class="${getFileIcon(exam.tipo_arquivo)}" style="color: #4299e1; margin-right: 0.5rem;"></i>
+                            <strong>Arquivo:</strong> ${exam.nome_arquivo_original || 'Arquivo anexado'}
+                            <span style="color: #718096; font-size: 0.875rem;">
+                                (${formatFileSize(exam.tamanho_arquivo)})
+                            </span>
+                        </div>
+                    ` : ''}
+                    
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem; justify-content: flex-end;">
+                        ${exam.arquivo_url ? `
+                            <button onclick="viewExamFile('${exam.id}')" class="btn btn-outline" style="font-size: 0.875rem;">
+                                <i class="fas fa-eye"></i> Visualizar
+                            </button>
+                            <button onclick="downloadExamFile('${exam.id}')" class="btn btn-outline" style="font-size: 0.875rem;">
+                                <i class="fas fa-download"></i> Download
+                            </button>
+                        ` : ''}
+                        <button onclick="editExam('${exam.id}')" class="btn btn-secondary" style="font-size: 0.875rem;">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button onclick="deleteExam('${exam.id}', '${exam.nome_exame}')" class="btn btn-danger" style="font-size: 0.875rem;">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Exibir controles de paginação dos exames
+        function displayExamsPagination(pagination) {
+            const container = document.getElementById('examsPagination');
+            
+            if (pagination.pages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let html = `
+                <button onclick="loadExams(${pagination.page - 1}, currentExamFilters)" 
+                        ${pagination.page <= 1 ? 'disabled' : ''} 
+                        class="btn btn-outline">
+                    <i class="fas fa-chevron-left"></i> Anterior
+                </button>
+                
+                <span style="margin: 0 1rem;">
+                    Página ${pagination.page} de ${pagination.pages} 
+                    (${pagination.total} total)
+                </span>
+                
+                <button onclick="loadExams(${pagination.page + 1}, currentExamFilters)" 
+                        ${pagination.page >= pagination.pages ? 'disabled' : ''} 
+                        class="btn btn-outline">
+                    Próximo <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // Aplicar filtros nos exames
+        function aplicarFiltrosExames() {
+            const filters = {};
+            
+            const pacienteId = document.getElementById('filterExamPaciente').value;
+            const tipoExame = document.getElementById('filterTipoExame').value;
+            const dataInicio = document.getElementById('filterExamDataInicio').value;
+            const dataFim = document.getElementById('filterExamDataFim').value;
+            
+            if (pacienteId) filters.paciente_id = pacienteId;
+            if (tipoExame) filters.tipo_exame = tipoExame;
+            if (dataInicio) filters.data_inicio = dataInicio;
+            if (dataFim) filters.data_fim = dataFim;
+            
+            loadExams(1, filters);
+        }
+
+        // Limpar filtros dos exames
+        function limparFiltrosExames() {
+            document.getElementById('filterExamPaciente').value = '';
+            document.getElementById('filterTipoExame').value = '';
+            document.getElementById('filterExamDataInicio').value = '';
+            document.getElementById('filterExamDataFim').value = '';
+            
+            loadExams(1, {});
+        }
+
+        // Configurar drag and drop para upload
+        function setupExamDragDrop() {
+            const dropZone = document.getElementById('examDropZone');
+            const fileInput = document.getElementById('examArquivo');
+            
+            if (!dropZone || !fileInput) return;
+            
+            dropZone.addEventListener('click', () => fileInput.click());
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = '#4299e1';
+                dropZone.style.background = '#ebf8ff';
+            });
+            
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = '#cbd5e0';
+                dropZone.style.background = '#f7fafc';
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = '#cbd5e0';
+                dropZone.style.background = '#f7fafc';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleExamFileSelect(files[0]);
+                }
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleExamFileSelect(e.target.files[0]);
+                }
+            });
+        }
+
+        // Tratar seleção de arquivo
+        function handleExamFileSelect(file) {
+            if (!file) return;
+            
+            // Validar tipo de arquivo
+            const allowedTypes = [
+                'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp',
+                'application/pdf',
+                'video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/mkv', 'video/webm',
+                'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ];
+            
+            if (!allowedTypes.includes(file.type)) {
+                showError('Tipo de arquivo não permitido. Use: imagens, PDFs, vídeos ou documentos.');
+                return;
+            }
+            
+            // Validar tamanho (100MB)
+            if (file.size > 100 * 1024 * 1024) {
+                showError('Arquivo muito grande. Tamanho máximo: 100MB');
+                return;
+            }
+            
+            // Mostrar preview
+            showExamFilePreview(file);
+        }
+
+        // Mostrar preview do arquivo
+        function showExamFilePreview(file) {
+            const preview = document.getElementById('examFilePreview');
+            const icon = document.getElementById('examFileIcon');
+            const name = document.getElementById('examFileName');
+            const size = document.getElementById('examFileSize');
+            
+            icon.innerHTML = `<i class="${getFileIcon(file.type)}" style="color: #4299e1;"></i>`;
+            name.textContent = file.name;
+            size.textContent = formatFileSize(file.size);
+            
+            preview.style.display = 'block';
+        }
+
+        // Remover arquivo selecionado
+        function removeExamFile() {
+            document.getElementById('examArquivo').value = '';
+            document.getElementById('examFilePreview').style.display = 'none';
+        }
+
+        // Obter ícone do arquivo
+        function getFileIcon(mimeType) {
+            if (!mimeType) return 'fas fa-file';
+            
+            if (mimeType.startsWith('image/')) return 'fas fa-file-image';
+            if (mimeType === 'application/pdf') return 'fas fa-file-pdf';
+            if (mimeType.startsWith('video/')) return 'fas fa-file-video';
+            if (mimeType.includes('word')) return 'fas fa-file-word';
+            
+            return 'fas fa-file';
+        }
+
+        // Formatar tamanho do arquivo
+        function formatFileSize(bytes) {
+            if (!bytes) return '0 B';
+            
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // Visualizar arquivo do exame
+        function viewExamFile(examId) {
+            window.open(`/api/exams/view/${examId}`, '_blank');
+        }
+
+        // Download do arquivo do exame
+        function downloadExamFile(examId) {
+            window.location.href = `/api/exams/download/${examId}`;
+        }
+
+        // Editar exame
+        async function editExam(examId) {
+            try {
+                const response = await fetch(`/api/exams/${examId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const exam = data.data;
+                    
+                    // Preencher formulário
+                    document.getElementById('examId').value = exam.id;
+                    document.getElementById('examPaciente').value = exam.paciente_id;
+                    document.getElementById('examDataRealizacao').value = formatDateForInput(exam.data_realizacao);
+                    document.getElementById('examTipo').value = exam.tipo_exame;
+                    document.getElementById('examNome').value = exam.nome_exame;
+                    document.getElementById('examLaboratorio').value = exam.laboratorio || '';
+                    document.getElementById('examMedicoSolicitante').value = exam.medico_solicitante || '';
+                    document.getElementById('examResultado').value = exam.resultado || '';
+                    document.getElementById('examObservacoes').value = exam.observacoes || '';
+                    
+                    // Alterar título do modal
+                    document.getElementById('examModalTitle').textContent = 'Editar Exame';
+                    
+                    // Abrir modal
+                    openModal('examModal');
+                } else {
+                    showError('Erro ao carregar exame: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar exame para edição:', error);
+                showError('Erro de conexão ao carregar exame');
+            }
+        }
+
+        // Excluir exame
+        async function deleteExam(examId, examName) {
+            if (!confirm(`Confirma a exclusão do exame "${examName}"?\n\nEsta ação não pode ser desfeita e o arquivo será removido permanentemente.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/exams/${examId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('Exame excluído com sucesso!');
+                    loadExams(currentExamPage, currentExamFilters);
+                } else {
+                    showError('Erro ao excluir exame: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Erro ao excluir exame:', error);
+                showError('Erro de conexão ao excluir exame');
+            }
+        }
+
+        // Submissão do formulário de exame
+        document.addEventListener('DOMContentLoaded', function() {
+            const examForm = document.getElementById('examForm');
+            if (examForm) {
+                examForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const examId = document.getElementById('examId').value;
+                    const isEdit = !!examId;
+                    const fileInput = document.getElementById('examArquivo');
+                    
+                    // Preparar FormData para upload
+                    const formData = new FormData();
+                    
+                    // Adicionar dados do formulário
+                    formData.append('paciente_id', document.getElementById('examPaciente').value);
+                    formData.append('data_realizacao', document.getElementById('examDataRealizacao').value);
+                    formData.append('tipo_exame', document.getElementById('examTipo').value);
+                    formData.append('nome_exame', document.getElementById('examNome').value);
+                    formData.append('laboratorio', document.getElementById('examLaboratorio').value);
+                    formData.append('medico_solicitante', document.getElementById('examMedicoSolicitante').value);
+                    formData.append('resultado', document.getElementById('examResultado').value);
+                    formData.append('observacoes', document.getElementById('examObservacoes').value);
+                    
+                    // Adicionar arquivo (apenas para novos exames)
+                    if (fileInput.files.length > 0 && !isEdit) {
+                        formData.append('arquivo', fileInput.files[0]);
+                    }
+                    
+                    try {
+                        let url, method;
+                        
+                        if (isEdit) {
+                            // Para edição, usar PUT sem arquivo
+                            url = `/api/exams/${examId}`;
+                            method = 'PUT';
+                            
+                            // Converter FormData para JSON para PUT
+                            const jsonData = {};
+                            for (let [key, value] of formData.entries()) {
+                                if (key !== 'arquivo') {
+                                    jsonData[key] = value;
+                                }
+                            }
+                            
+                            const response = await fetch(url, {
+                                method: method,
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(jsonData)
+                            });
+                            
+                            const data = await response.json();
+                            
+                            if (data.success) {
+                                showSuccess('Exame atualizado com sucesso!');
+                                closeModal('examModal');
+                                examForm.reset();
+                                document.getElementById('examId').value = '';
+                                document.getElementById('examModalTitle').textContent = 'Novo Exame';
+                                removeExamFile();
+                                loadExams(currentExamPage, currentExamFilters);
+                            } else {
+                                showError('Erro ao atualizar exame: ' + data.error);
+                            }
+                        } else {
+                            // Para criação, usar POST com upload
+                            url = '/api/exams/upload';
+                            method = 'POST';
+                            
+                            const response = await fetch(url, {
+                                method: method,
+                                body: formData
+                            });
+                            
+                            const data = await response.json();
+                            
+                            if (data.success) {
+                                showSuccess('Exame criado com sucesso!');
+                                closeModal('examModal');
+                                examForm.reset();
+                                removeExamFile();
+                                loadExams(currentExamPage, currentExamFilters);
+                            } else {
+                                showError('Erro ao criar exame: ' + data.error);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Erro ao salvar exame:', error);
+                        showError('Erro de conexão ao salvar exame');
+                    }
+                });
+            }
+            
+            // Configurar drag and drop
+            setupExamDragDrop();
+            
+            // Carregar dados iniciais dos exames
+            loadExams();
+            loadPacientesForExamSelect();
+            loadTiposExamesForFilter();
+        });
+
+        // Carregar pacientes para select de exames
+        async function loadPacientesForExamSelect() {
+            try {
+                const response = await fetch('/api/patients-db');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const selects = ['examPaciente', 'filterExamPaciente'];
+                    
+                    selects.forEach(selectId => {
+                        const select = document.getElementById(selectId);
+                        if (select) {
+                            const currentValue = select.value;
+                            select.innerHTML = selectId === 'filterExamPaciente' ? 
+                                '<option value="">Todos os pacientes</option>' : 
+                                '<option value="">Selecione um paciente</option>';
+                            
+                            data.data.forEach(paciente => {
+                                const option = document.createElement('option');
+                                option.value = paciente.id;
+                                option.textContent = `${paciente.nome} - ${formatCPF(paciente.cpf)}`;
+                                select.appendChild(option);
+                            });
+                            
+                            if (currentValue) select.value = currentValue;
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar pacientes para exames:', error);
+            }
+        }
+
+        // Carregar tipos de exames para filtro
+        async function loadTiposExamesForFilter() {
+            try {
+                const response = await fetch('/api/exams/types/common');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('filterTipoExame');
+                    if (select) {
+                        select.innerHTML = '<option value="">Todos os tipos</option>';
+                        
+                        data.data.forEach(tipo => {
+                            const option = document.createElement('option');
+                            option.value = tipo;
+                            option.textContent = tipo;
+                            select.appendChild(option);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar tipos de exames:', error);
+            }
         }
         });
     </script>
