@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Teste de Mapa - MediApp</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f8fafc;
+        }
+        .test-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .test-result {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        .success { background: #f0fff4; border: 1px solid #9ae6b4; color: #22543d; }
+        .error { background: #fed7d7; border: 1px solid #fc8181; color: #742a2a; }
+        .warning { background: #fefbf2; border: 1px solid #f6e05e; color: #744210; }
+        img { max-width: 100%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+        button {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        button:hover { background: #3182ce; }
+        #console { 
+            background: #1a202c; 
+            color: #e2e8f0; 
+            padding: 1rem; 
+            border-radius: 8px; 
+            font-family: monospace; 
+            white-space: pre-wrap; 
+            max-height: 300px; 
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Teste de Diagnóstico - Mapas Geográficos</h1>
+        <p>Esta página testa o carregamento dos mapas geográficos do MediApp.</p>
+    </div>
+
+    <div class="test-container">
+        <h2>🔍 Testes Automáticos</h2>
+        <div id="test-results"></div>
+        
+        <h3>Console de Debug:</h3>
+        <div id="console"></div>
+    </div>
+
+    <div class="test-container">
+        <h2>🗺️ Teste de Imagem Direta</h2>
+        <p>Carregamento direto da imagem do mapa:</p>
+        
+        <div style="text-align: center; margin: 2rem 0;">
+            <img src="/data/mapa_indicadores_saude_nordeste.png" 
+                 alt="Mapa de Indicadores de Saúde" 
+                 onload="logResult('✅ Imagem carregada com sucesso!')"
+                 onerror="logResult('❌ Erro ao carregar imagem diretamente')"
+                 style="max-height: 500px;">
+        </div>
+        
+        <div style="text-align: center;">
+            <button onclick="testFetch()">🔄 Testar via Fetch API</button>
+            <button onclick="testImageObject()">🖼️ Testar via Image Object</button>
+            <button onclick="openDirect()">🔗 Abrir Link Direto</button>
+            <button onclick="downloadTest()">💾 Testar Download</button>
+            <button onclick="debugMapFiles()">🐛 Debug Map Files</button>
+            <button onclick="healthCheck()">💚 Health Check</button>
+        </div>
+    </div>
+
+    <script>
+        // Console logging
+        function logResult(message, type = 'info') {
+            const console = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#fc8181' : type === 'success' ? '#9ae6b4' : '#90cdf4';
+            console.innerHTML += `<span style="color: ${color};">[${timestamp}] ${message}</span>\n`;
+            console.scrollTop = console.scrollHeight;
+            
+            // Also log to browser console
+            console.log(message);
+        }
+
+        function addTestResult(title, status, message) {
+            const container = document.getElementById('test-results');
+            const className = status === 'success' ? 'success' : status === 'error' ? 'error' : 'warning';
+            const icon = status === 'success' ? '✅' : status === 'error' ? '❌' : '⚠️';
+            
+            container.innerHTML += `
+                <div class="test-result ${className}">
+                    <strong>${icon} ${title}</strong><br>
+                    ${message}
+                </div>
+            `;
+        }
+
+        // Test functions
+        function testFetch() {
+            logResult('🔍 Iniciando teste via Fetch API...');
+            
+            fetch('/data/mapa_indicadores_saude_nordeste.png')
+                .then(response => {
+                    logResult(`📊 Status: ${response.status} ${response.statusText}`);
+                    logResult(`📊 Content-Type: ${response.headers.get('content-type')}`);
+                    logResult(`📊 Content-Length: ${response.headers.get('content-length')}`);
+                    
+                    if (response.ok) {
+                        addTestResult('Fetch API', 'success', `Arquivo acessível (${response.status})`);
+                        logResult('✅ Fetch test successful!', 'success');
+                        
+                        // Test blob conversion
+                        return response.blob();
+                    } else {
+                        addTestResult('Fetch API', 'error', `HTTP ${response.status}: ${response.statusText}`);
+                        logResult('❌ Fetch test failed', 'error');
+                    }
+                })
+                .then(blob => {
+                    if (blob) {
+                        logResult(`📦 Blob size: ${blob.size} bytes, type: ${blob.type}`, 'success');
+                        addTestResult('Blob Conversion', 'success', `${blob.size} bytes, ${blob.type}`);
+                    }
+                })
+                .catch(error => {
+                    logResult(`❌ Fetch error: ${error.message}`, 'error');
+                    addTestResult('Fetch API', 'error', error.message);
+                });
+        }
+
+        function testImageObject() {
+            logResult('🖼️ Iniciando teste via Image Object...');
+            
+            const img = new Image();
+            
+            img.onload = function() {
+                logResult(`✅ Image loaded: ${this.naturalWidth}x${this.naturalHeight}`, 'success');
+                addTestResult('Image Object', 'success', `${this.naturalWidth}x${this.naturalHeight} pixels`);
+            };
+            
+            img.onerror = function() {
+                logResult('❌ Image object loading failed', 'error');
+                addTestResult('Image Object', 'error', 'Failed to load image');
+            };
+            
+            img.src = '/data/mapa_indicadores_saude_nordeste.png';
+        }
+
+        function openDirect() {
+            logResult('🔗 Abrindo link direto...');
+            window.open('/data/mapa_indicadores_saude_nordeste.png', '_blank');
+        }
+
+        function downloadTest() {
+            logResult('💾 Testando download...');
+            
+            const link = document.createElement('a');
+            link.href = '/data/mapa_indicadores_saude_nordeste.png';
+            link.download = 'teste-mapa.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            logResult('💾 Download iniciado', 'success');
+        }
+
+        function debugMapFiles() {
+            logResult('🐛 Executando debug de arquivos de mapa...');
+            
+            fetch('/debug/map-files')
+                .then(response => response.json())
+                .then(data => {
+                    logResult('📁 Data path: ' + data.dataPath, 'info');
+                    logResult('📊 Map files found: ' + data.mapFiles.length, 'info');
+                    
+                    data.mapFiles.forEach(file => {
+                        logResult(`📄 ${file.name}: ${(file.size / 1024 / 1024).toFixed(2)}MB, modified: ${new Date(file.modified).toLocaleString()}`, 'info');
+                    });
+                    
+                    addTestResult('Debug Map Files', 'success', `${data.mapFiles.length} arquivos encontrados`);
+                })
+                .catch(error => {
+                    logResult('❌ Debug error: ' + error.message, 'error');
+                    addTestResult('Debug Map Files', 'error', error.message);
+                });
+        }
+
+        function healthCheck() {
+            logResult('💚 Executando health check...');
+            
+            fetch('/health/analytics')
+                .then(response => response.json())
+                .then(data => {
+                    logResult('💚 Analytics health: ' + data.status, 'success');
+                    logResult('📁 Data path: ' + data.dataPath, 'info');
+                    logResult('🗺️ Map exists: ' + data.mapExists, data.mapExists ? 'success' : 'error');
+                    
+                    addTestResult('Analytics Health', data.mapExists ? 'success' : 'error', 
+                                `Status: ${data.status}, Map exists: ${data.mapExists}`);
+                })
+                .catch(error => {
+                    logResult('❌ Health check error: ' + error.message, 'error');
+                    addTestResult('Analytics Health', 'error', error.message);
+                });
+        }
+
+        // Auto-run tests when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            logResult('🚀 Iniciando diagnóstico automático...');
+            
+            // Test 1: Check if server is responding
+            fetch('/')
+                .then(response => {
+                    addTestResult('Servidor Principal', 'success', `Respondendo (${response.status})`);
+                    logResult('✅ Servidor principal acessível', 'success');
+                })
+                .catch(error => {
+                    addTestResult('Servidor Principal', 'error', error.message);
+                    logResult('❌ Servidor principal inacessível', 'error');
+                });
+
+            // Test 2: Check data directory
+            fetch('/data/')
+                .then(response => {
+                    if (response.ok) {
+                        addTestResult('Pasta /data/', 'success', 'Acessível');
+                        logResult('✅ Pasta /data/ acessível', 'success');
+                    } else {
+                        addTestResult('Pasta /data/', 'warning', `HTTP ${response.status}`);
+                        logResult(`⚠️ Pasta /data/ retornou ${response.status}`, 'warning');
+                    }
+                })
+                .catch(error => {
+                    addTestResult('Pasta /data/', 'error', error.message);
+                    logResult('❌ Erro ao acessar pasta /data/', 'error');
+                });
+
+            // Test 3: Automatic fetch test
+            setTimeout(() => {
+                testFetch();
+            }, 1000);
+
+            // Test 4: Automatic image test
+            setTimeout(() => {
+                testImageObject();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

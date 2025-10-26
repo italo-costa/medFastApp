@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 require('dotenv').config();
 
 const { logger } = require('./utils/logger');
@@ -77,24 +78,29 @@ const analyticsSanitizer = new AnalyticsDataSanitizer();
 app.use(analyticsSanitizer.middleware());
 
 // Servir arquivos estáticos (dashboard web)
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// Servir arquivos de dados gerados (mapas, relatórios, etc.)
-app.use('/data', express.static('../../data', {
-  setHeaders: (res, path) => {
+// Servir arquivos de dados gerados (mapas, relatórios, etc.) com caminho absoluto
+const dataPath = path.join(__dirname, '..', '..', 'data');
+console.log('📁 Servindo arquivos de dados de:', dataPath);
+
+app.use('/data', express.static(dataPath, {
+  setHeaders: (res, filePath) => {
+    console.log('📊 Servindo arquivo:', filePath);
+    
     // Headers específicos para arquivos de imagem
-    if (path.endsWith('.png')) {
+    if (filePath.endsWith('.png')) {
       res.setHeader('Content-Type', 'image/png');
       res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache de 1 hora
     }
-    if (path.endsWith('.csv')) {
+    if (filePath.endsWith('.csv')) {
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', 'attachment');
     }
-    if (path.endsWith('.json')) {
+    if (filePath.endsWith('.json')) {
       res.setHeader('Content-Type', 'application/json');
     }
-    if (path.endsWith('.html')) {
+    if (filePath.endsWith('.html')) {
       res.setHeader('Content-Type', 'text/html');
     }
   }
@@ -125,6 +131,55 @@ app.use('/api/exams', examRoutes);
 app.use('/api/allergies', allergyRoutes);
 app.use('/api/medicos', medicoRoutes);
 app.use('/api/analytics', analyticsRoutes);
+
+// Rota de teste para debug dos mapas
+app.get('/debug/map-files', (req, res) => {
+  const fs = require('fs');
+  const dataPath = path.join(__dirname, '..', '..', 'data');
+  
+  try {
+    const files = fs.readdirSync(dataPath);
+    const mapFiles = files.filter(file => file.includes('mapa'));
+    
+    const fileDetails = mapFiles.map(file => {
+      const filePath = path.join(dataPath, file);
+      const stats = fs.statSync(filePath);
+      return {
+        name: file,
+        size: stats.size,
+        modified: stats.mtime,
+        path: filePath,
+        exists: fs.existsSync(filePath)
+      };
+    });
+    
+    res.json({
+      dataPath,
+      mapFiles: fileDetails,
+      allFiles: files
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+      dataPath
+    });
+  }
+});
+
+// Health check específico para analytics
+app.get('/health/analytics', (req, res) => {
+  const fs = require('fs');
+  const dataPath = path.join(__dirname, '..', '..', 'data');
+  const mapFile = path.join(dataPath, 'mapa_indicadores_saude_nordeste.png');
+  
+  res.json({
+    status: 'ok',
+    dataPath,
+    mapFile,
+    mapExists: fs.existsSync(mapFile),
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Middleware de erro 404
 app.use(notFound);

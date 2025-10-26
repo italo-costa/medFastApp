@@ -332,6 +332,40 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Loading Spinner */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #4299e1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            gap: 1rem;
+            color: #4a5568;
+        }
+
+        /* Map Image Styling */
+        .map-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .map-image:hover {
+            transform: scale(1.02);
+        }
+
         /* Error State */
         .error-state {
             text-align: center;
@@ -712,50 +746,185 @@
             document.getElementById(tabId).classList.add('active');
         }
 
-        // Map generation simulation
+        // Map generation with improved error handling
         function generateMap(containerId) {
             const container = document.getElementById(containerId);
             const loading = container.querySelector('.loading') || document.getElementById(`loading-${containerId.split('-')[1]}`);
-            const placeholder = container.querySelector('.map-placeholder');
             
             if (loading) loading.style.display = 'flex';
             
-            // Simulate map generation
+            // Show loading state immediately
+            container.innerHTML = `
+                <div class="loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 400px; gap: 1rem;">
+                    <div class="spinner"></div>
+                    <p>Carregando mapa geográfico...</p>
+                </div>
+            `;
+            
+            // Check if map images exist with improved error handling
             setTimeout(() => {
-                // Check if map images exist, otherwise show placeholder with instructions
                 const mapPath = '/data/mapa_indicadores_saude_nordeste.png';
+                console.log('🗺️ Tentando carregar mapa:', mapPath);
                 
-                // Try to load the map image
-                const img = new Image();
-                img.onload = function() {
-                    container.innerHTML = `<img src="${mapPath}" alt="Mapa de Indicadores de Saúde" class="map-image">`;
-                };
-                img.onerror = function() {
-                    // Show instructions to generate the map
-                    container.innerHTML = `
-                        <div class="map-placeholder">
-                            <i class="fas fa-exclamation-circle" style="color: #dd6b20;"></i>
-                            <h3>Mapa não encontrado</h3>
-                            <p>Para gerar os mapas geoespaciais:</p>
-                            <ol style="text-align: left; margin-top: 1rem; color: #4a5568;">
-                                <li>Acesse o Jupyter Notebook em <code>/analytics/indicadores-saude-nordeste.ipynb</code></li>
-                                <li>Execute as células do notebook para gerar os mapas</li>
-                                <li>Os mapas serão salvos automaticamente na pasta <code>/data/</code></li>
-                                <li>Retorne a esta página e clique em "Atualizar Dados"</li>
-                            </ol>
-                            <div style="margin-top: 1.5rem;">
+                // Try to fetch the image first to get better error info
+                fetch(mapPath)
+                    .then(response => {
+                        console.log('📊 Resposta do servidor:', response.status, response.statusText);
+                        if (response.ok) {
+                            // Image exists, load it
+                            const img = new Image();
+                            img.onload = function() {
+                                console.log('✅ Mapa carregado com sucesso!');
+                                container.innerHTML = `
+                                    <div style="text-align: center; padding: 1rem;">
+                                        <img src="${mapPath}" alt="Mapa de Indicadores de Saúde" class="map-image" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                        <div style="margin-top: 1rem; color: #4a5568; font-size: 0.9rem;">
+                                            <i class="fas fa-info-circle"></i>
+                                            Mapa de Indicadores de Saúde - Região Nordeste
+                                        </div>
+                                    </div>
+                                `;
+                            };
+                            img.onerror = function() {
+                                console.error('❌ Erro ao carregar imagem do mapa');
+                                showMapNotFoundMessage(container);
+                            };
+                            img.src = mapPath;
+                        } else {
+                            console.error('❌ Arquivo de mapa não encontrado:', response.status);
+                            showMapNotFoundMessage(container);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('❌ Erro ao acessar arquivo de mapa:', error);
+                        showMapNotFoundMessage(container);
+                    });
+            }, 1000);
+        }
+
+        // Show map not found message with instructions
+        function showMapNotFoundMessage(container) {
+            container.innerHTML = `
+                <div class="map-placeholder">
+                    <i class="fas fa-exclamation-circle" style="color: #dd6b20; font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <h3 style="color: #2d3748; margin-bottom: 1rem;">Mapa Geográfico Não Disponível</h3>
+                    <p style="color: #4a5568; margin-bottom: 1.5rem;">Os gráficos geográficos precisam ser gerados através do Jupyter Notebook.</p>
+                    
+                    <div style="background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; text-align: left;">
+                        <h4 style="color: #2d3748; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-list-ol"></i>
+                            Passos para gerar os mapas:
+                        </h4>
+                        <ol style="color: #4a5568; line-height: 1.8; padding-left: 1.5rem;">
+                            <li>Acesse o Jupyter Notebook: <code style="background: #edf2f7; padding: 0.25rem 0.5rem; border-radius: 4px; font-family: monospace;">/analytics/indicadores-saude-nordeste.ipynb</code></li>
+                            <li>Execute todas as células do notebook (Cell → Run All)</li>
+                            <li>Os mapas serão gerados automaticamente na pasta <code style="background: #edf2f7; padding: 0.25rem 0.5rem; border-radius: 4px; font-family: monospace;">/data/</code></li>
+                            <li>Retorne a esta página e clique em "🔄 Atualizar Dados"</li>
+                        </ol>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="window.open('/analytics/indicadores-saude-nordeste.ipynb', '_blank')" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-external-link-alt"></i>
+                            Abrir Jupyter Notebook
+                        </button>
+                        <button class="btn btn-secondary" onclick="testMapFile()" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-search"></i>
+                            Testar Arquivo
+                        </button>
+                        <button class="btn btn-secondary" onclick="generateMap('map-overview')" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-redo"></i>
+                            Tentar Novamente
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Test map file accessibility
+        function testMapFile() {
+            const mapPath = '/data/mapa_indicadores_saude_nordeste.png';
+            console.log('🔍 Testando acesso ao arquivo:', mapPath);
+            
+            // Show loading while testing
+            const container = document.getElementById('map-overview');
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Testando acesso ao arquivo do mapa...</p>
+                </div>
+            `;
+            
+            // Test with fetch first
+            fetch(mapPath)
+                .then(response => {
+                    console.log('📊 Status da resposta:', response.status, response.statusText);
+                    console.log('📊 Headers:', [...response.headers.entries()]);
+                    
+                    if (response.ok) {
+                        // File exists, try to load it
+                        console.log('✅ Arquivo encontrado, carregando...');
+                        const img = new Image();
+                        img.onload = function() {
+                            console.log('✅ Imagem carregada com sucesso!');
+                            container.innerHTML = `
+                                <div style="text-align: center; padding: 1rem;">
+                                    <div style="background: #f0fff4; border: 1px solid #9ae6b4; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                        <i class="fas fa-check-circle" style="color: #38a169;"></i>
+                                        <strong>Teste bem-sucedido!</strong> O arquivo do mapa está acessível.
+                                    </div>
+                                    <img src="${mapPath}" alt="Mapa de Indicadores de Saúde" class="map-image">
+                                    <div style="margin-top: 1rem; color: #4a5568; font-size: 0.9rem;">
+                                        <i class="fas fa-info-circle"></i>
+                                        Mapa de Indicadores de Saúde - Região Nordeste
+                                    </div>
+                                </div>
+                            `;
+                        };
+                        img.onerror = function() {
+                            console.error('❌ Erro ao renderizar a imagem');
+                            container.innerHTML = `
+                                <div class="map-placeholder">
+                                    <i class="fas fa-exclamation-triangle" style="color: #dd6b20; font-size: 3rem; margin-bottom: 1rem;"></i>
+                                    <h3>Arquivo encontrado mas não pode ser exibido</h3>
+                                    <p>O arquivo existe no servidor mas houve erro ao carregar a imagem.</p>
+                                    <button class="btn btn-secondary" onclick="window.open('${mapPath}', '_blank')">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        Abrir em nova aba
+                                    </button>
+                                </div>
+                            `;
+                        };
+                        img.src = mapPath;
+                    } else {
+                        console.error('❌ Arquivo não encontrado:', response.status);
+                        container.innerHTML = `
+                            <div class="map-placeholder">
+                                <i class="fas fa-times-circle" style="color: #e53e3e; font-size: 3rem; margin-bottom: 1rem;"></i>
+                                <h3>Arquivo não encontrado (${response.status})</h3>
+                                <p>O arquivo do mapa não está disponível no servidor.</p>
                                 <button class="btn btn-primary" onclick="window.open('/analytics/indicadores-saude-nordeste.ipynb', '_blank')">
-                                    <i class="fas fa-external-link-alt"></i>
-                                    Abrir Jupyter Notebook
+                                    <i class="fas fa-jupyter"></i>
+                                    Gerar Mapas via Jupyter
                                 </button>
                             </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Erro de rede:', error);
+                    container.innerHTML = `
+                        <div class="map-placeholder">
+                            <i class="fas fa-wifi" style="color: #e53e3e; font-size: 3rem; margin-bottom: 1rem;"></i>
+                            <h3>Erro de Conexão</h3>
+                            <p>Não foi possível conectar ao servidor: ${error.message}</p>
+                            <button class="btn btn-secondary" onclick="testMapFile()">
+                                <i class="fas fa-redo"></i>
+                                Tentar Novamente
+                            </button>
                         </div>
                     `;
-                };
-                img.src = mapPath;
-                
-                if (loading) loading.style.display = 'none';
-            }, 2000);
+                });
         }
 
         // Download map function
@@ -768,8 +937,15 @@
             document.body.removeChild(link);
         }
 
-        // Initialize page
+        // Initialize page with comprehensive diagnostic
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Iniciando Analytics - Mapas Geoespaciais v2.0');
+            console.log('🌐 URL atual:', window.location.href);
+            console.log('📍 Base URL:', window.location.origin);
+            
+            // Run comprehensive diagnostic
+            runComprehensiveDiagnostic();
+            
             // Tab click handlers
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.addEventListener('click', function() {
@@ -780,17 +956,17 @@
 
             // Control change handlers
             document.getElementById('indicator-select').addEventListener('change', function() {
-                console.log('Indicador selecionado:', this.value);
+                console.log('📊 Indicador selecionado:', this.value);
                 // Here you would filter the map based on the selected indicator
             });
 
             document.getElementById('municipality-filter').addEventListener('change', function() {
-                console.log('Filtro de município:', this.value);
+                console.log('🏘️ Filtro de município:', this.value);
                 // Here you would filter the map based on municipality type
             });
 
             document.getElementById('view-type').addEventListener('change', function() {
-                console.log('Tipo de visualização:', this.value);
+                console.log('👁️ Tipo de visualização:', this.value);
                 // Here you would switch between geographic and cluster view
             });
 
@@ -805,9 +981,79 @@
                 location.reload();
             });
 
-            // Load initial map
-            generateMap('map-overview');
+            // Load initial map after diagnostic
+            setTimeout(() => {
+                generateMap('map-overview');
+            }, 2000);
         });
+
+        // Comprehensive diagnostic function
+        function runComprehensiveDiagnostic() {
+            console.log('🔍 Executando diagnóstico completo do sistema...');
+            
+            // Check server health first
+            fetch('/health/analytics')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('💚 Analytics Health Check:', data);
+                    if (data.mapExists) {
+                        console.log('✅ Arquivo de mapa confirmado no servidor');
+                    } else {
+                        console.warn('⚠️ Arquivo de mapa não encontrado no servidor');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Erro no health check:', error);
+                });
+                
+            // Check debug info
+            fetch('/debug/map-files')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('🐛 Debug Info:', data);
+                    console.log(`📁 Data path: ${data.dataPath}`);
+                    console.log(`📊 Map files found: ${data.mapFiles.length}`);
+                    data.mapFiles.forEach(file => {
+                        console.log(`📄 ${file.name}: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+                    });
+                })
+                .catch(error => {
+                    console.error('❌ Erro no debug:', error);
+                });
+                
+            // Check if we can access the data directory
+            fetch('/data/')
+                .then(response => {
+                    console.log('📁 Status da pasta /data/:', response.status);
+                    if (response.ok) {
+                        console.log('✅ Pasta /data/ acessível');
+                    } else {
+                        console.warn('⚠️ Problema ao acessar pasta /data/:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Erro ao acessar pasta /data/:', error);
+                });
+                
+            // Check specific files
+            const filesToCheck = [
+                '/data/mapa_indicadores_saude_nordeste.png',
+                '/data/mapa_clusters_performance_nordeste.png',
+                '/data/municipios_nordeste.csv',
+                '/analytics/indicadores-saude-nordeste.ipynb'
+            ];
+            
+            filesToCheck.forEach(file => {
+                fetch(file, { method: 'HEAD' })
+                    .then(response => {
+                        const status = response.ok ? '✅' : '❌';
+                        console.log(`${status} ${file}: ${response.status} (${response.headers.get('content-type') || 'unknown type'})`);
+                    })
+                    .catch(error => {
+                        console.log(`❌ ${file}: ${error.message}`);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
