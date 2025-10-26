@@ -10,6 +10,7 @@ require('dotenv').config();
 const { logger } = require('./utils/logger');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 const AnalyticsDataSanitizer = require('./middleware/analyticsDataSanitizer');
+const ServerHealthMonitor = require('./utils/healthMonitor');
 
 // Importar rotas
 const authRoutes = require('./routes/auth');
@@ -20,6 +21,7 @@ const examRoutes = require('./routes/exams');
 const allergyRoutes = require('./routes/allergies');
 const medicoRoutes = require('./routes/medicos');
 const analyticsRoutes = require('./routes/analytics');
+const statisticsRoutes = require('./routes/statistics');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -80,6 +82,11 @@ app.use(analyticsSanitizer.middleware());
 // Servir arquivos estáticos (dashboard web)
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
+// Favicon fallback para evitar 404s desnecessários
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end(); // No content, evita erro 404
+});
+
 // Servir arquivos de dados gerados (mapas, relatórios, etc.) com caminho absoluto
 const dataPath = path.join(__dirname, '..', '..', 'data');
 console.log('📁 Servindo arquivos de dados de:', dataPath);
@@ -113,12 +120,15 @@ if (process.env.NODE_ENV !== 'test') {
 
 // Health check
 app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
+  const healthStatus = healthMonitor ? healthMonitor.getHealthStatus() : { healthy: true };
+  
+  res.status(healthStatus.healthy ? 200 : 503).json({
+    status: healthStatus.healthy ? 'OK' : 'UNHEALTHY',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV,
     version: require('../package.json').version,
+    health: healthStatus
   });
 });
 
@@ -131,6 +141,7 @@ app.use('/api/exams', examRoutes);
 app.use('/api/allergies', allergyRoutes);
 app.use('/api/medicos', medicoRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/statistics', statisticsRoutes);
 
 // Rota de teste para debug dos mapas
 app.get('/debug/map-files', (req, res) => {
@@ -192,6 +203,13 @@ app.use((req, res, next) => {
   // Headers para manter conexões vivas e evitar timeouts
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('Keep-Alive', 'timeout=30, max=100');
+  
+  // Prevenir memory leaks em requests longos
+  req.setTimeout(60000, () => {
+    logger.warn('⏰ Request timeout atingido:', req.url);
+    res.status(408).json({ error: 'Request timeout' });
+  });
+  
   next();
 });
 
@@ -215,27 +233,76 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   logger.info(`🖥️  Acesso WSL: http://localhost:${PORT} (Windows)`);
 });
 
-// Configurações do servidor para estabilidade
-server.keepAliveTimeout = 30000; // 30 segundos
-server.headersTimeout = 35000;   // 35 segundos
-server.requestTimeout = 60000;   // 60 segundos
-server.timeout = 120000;         // 2 minutos
+// Inicializar monitor de saúde
+const healthMonitor = new ServerHealthMonitor(server);
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  logger.info('🛑 SIGTERM recebido, fechando servidor...');
-  server.close(() => {
+// Configurações do servidor para estabilidade e performance
+server.keepAliveTimeout = 60000;  // 60 segundos (aumentado)
+server.headersTimeout = 65000;    // 65 segundos (deve ser > keepAliveTimeout)
+server.requestTimeout = 120000;   // 2 minutos
+server.timeout = 300000;          // 5 minutos (para uploads grandes)
+
+// Configurações adicionais para produção
+server.maxConnections = 1000;     // Limite de conexões simultâneas
+server.maxHeadersCount = 2000;    // Limite de headers por request
+
+// Monitoramento de performance
+if (process.env.NODE_ENV === 'development') {
+  setInterval(() => {
+    const memUsage = process.memoryUsage();
+    logger.debug('📊 Memory usage:', {
+      rss: `${Math.round(memUsage.rss / 1024 / 1024)}MB`,
+      heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`,
+      heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`,
+      external: `${Math.round(memUsage.external / 1024 / 1024)}MB`
+    });
+  }, 60000); // Log a cada minuto
+}
+
+// Graceful shutdown com timeout melhorado
+let isShuttingDown = false;
+
+const gracefulShutdown = (signal) => {
+  if (isShuttingDown) {
+    logger.warn(`🔄 ${signal} já em processo, forçando saída...`);
+    process.exit(1);
+  }
+  
+  isShuttingDown = true;
+  logger.info(`🛑 ${signal} recebido, iniciando graceful shutdown...`);
+  
+  // Timeout para forçar shutdown se necessário
+  const shutdownTimeout = setTimeout(() => {
+    logger.error('⏰ Timeout no graceful shutdown, forçando saída...');
+    process.exit(1);
+  }, 10000); // 10 segundos para shutdown
+  
+  server.close((error) => {
+    clearTimeout(shutdownTimeout);
+    
+    if (error) {
+      logger.error('❌ Erro durante shutdown:', error);
+      process.exit(1);
+    }
+    
     logger.info('✅ Servidor fechado com sucesso');
     process.exit(0);
   });
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Melhor tratamento de recursos e memory leaks
+process.on('uncaughtException', (error) => {
+  logger.error('💥 Erro não capturado crítico:', error);
+  gracefulShutdown('UNCAUGHT_EXCEPTION');
 });
 
-process.on('SIGINT', () => {
-  logger.info('🛑 SIGINT recebido, fechando servidor...');
-  server.close(() => {
-    logger.info('✅ Servidor fechado com sucesso');
-    process.exit(0);
-  });
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('🚫 Promise rejeitada não tratada:', reason);
+  logger.error('🔍 Promise:', promise);
+  // Não fazer shutdown automático, apenas log
 });
 
 module.exports = app;

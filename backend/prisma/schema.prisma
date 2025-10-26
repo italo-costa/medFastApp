@@ -418,6 +418,26 @@ model SincronizacaoMobile {
   @@map("sincronizacao_mobile")
 }
 
+// Estatísticas do Dashboard - Nova Tabela
+model EstatisticaDashboard {
+  id                    String     @id @default(cuid())
+  tipo_estatistica      TipoEstatistica
+  valor                 String
+  valor_numerico        Int?       // Para cálculos e comparações
+  label                 String
+  trend                 String?    // Tendência (ex: "+5 este mês")
+  icon                  String?    // Ícone FontAwesome
+  color                 String?    // Cor do card (blue, green, purple, orange)
+  dados_reais           Boolean    @default(false) // Se os dados vêm do banco real
+  metadados             Json?      // Informações extras como origem dos dados
+  data_calculo          DateTime   @default(now())
+  ativo                 Boolean    @default(true)
+  criado_em             DateTime   @default(now())
+  atualizado_em         DateTime   @updatedAt
+  
+  @@map("estatisticas_dashboard")
+}
+
 // ========================================
 // ENUMS
 // ========================================
@@ -493,4 +513,15 @@ enum AcaoSync {
   CREATE
   UPDATE
   DELETE
+}
+
+enum TipoEstatistica {
+  PACIENTES_CADASTRADOS
+  PRONTUARIOS_CRIADOS
+  EXAMES_REGISTRADOS
+  MEDICOS_ATIVOS
+  CONSULTAS_HOJE
+  AGENDAMENTOS_PENDENTES
+  ALERGIAS_REGISTRADAS
+  MEDICAMENTOS_PRESCRITOS
 }

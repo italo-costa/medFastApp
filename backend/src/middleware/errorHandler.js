@@ -2,6 +2,13 @@ const { logger } = require('../utils/logger');
 
 // Middleware para rotas não encontradas
 const notFound = (req, res, next) => {
+  // Evitar logs de erro para favicon e outros recursos comuns
+  const commonResources = ['/favicon.ico', '/robots.txt', '/sitemap.xml'];
+  
+  if (commonResources.includes(req.originalUrl)) {
+    return res.status(204).end(); // No content, sem log de erro
+  }
+  
   const error = new Error(`Endpoint não encontrado: ${req.originalUrl}`);
   res.status(404);
   next(error);
@@ -51,16 +58,24 @@ const errorHandler = (err, req, res, next) => {
     message = 'Tipo de arquivo não permitido';
   }
 
-  // Log do erro
-  logger.error({
-    message: err.message,
-    stack: err.stack,
-    url: req.url,
-    method: req.method,
-    ip: req.ip,
-    userAgent: req.get('User-Agent'),
-    userId: req.user?.id || 'anonymous'
-  });
+  // Log do erro (com filtros para reduzir spam)
+  const shouldLogError = !(
+    statusCode === 404 && req.originalUrl.match(/\.(ico|png|jpg|css|js|map)$/) ||
+    statusCode === 400 && message.includes('validation') ||
+    statusCode === 429 // Rate limiting
+  );
+  
+  if (shouldLogError) {
+    logger.error({
+      message: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+      url: req.url,
+      method: req.method,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      userId: req.user?.id || 'anonymous'
+    });
+  }
 
   // Resposta do erro
   const errorResponse = {
