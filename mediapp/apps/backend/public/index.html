@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <tit                <h3>🏥 Acesso ao Sistema</h3>
+                <div class="welcome-message">
+                    <p>Bem-vindo ao MediApp, o sistema completo para gestão de prontuários médicos.</p>
+                    <br>
+                    <a href="/app.html" class="btn" style="text-decoration: none; background: #4299e1; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600;">🏥 Acessar Sistema</a>
+                </div> - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #2196F3;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .status-online {
+            background-color: #4CAF50;
+        }
+
+        .welcome-message {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #1976D2;
+        }
+
+        .response {
+            background: #263238;
+            color: #00E676;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .feature {
+            background: #f0f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 MediApp</h1>
+            <p>Sistema de Prontuários Médicos</p>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <h3>📊 Status do Sistema</h3>
+                <div class="status">
+                    <div class="status-dot" id="api-status"></div>
+                    <span id="api-status-text">Verificando...</span>
+                </div>
+                <div id="system-info"></div>
+                
+                <div class="api-test">
+                    <h4>🏥 Acesso ao Sistema</h4>
+                    <a href="/app.html" class="btn" style="text-decoration: none;">🏥 Acessar MediApp</a>
+                    <button class="btn" data-action="test-api">🔍 Health Check</button>
+                    <div class="response" id="api-response" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🚀 Funcionalidades</h3>
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">👨‍⚕️</div>
+                        <h4>Médicos</h4>
+                        <p>Gestão de profissionais</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">👤</div>
+                        <h4>Pacientes</h4>
+                        <p>Cadastro completo</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">📋</div>
+                        <h4>Prontuários</h4>
+                        <p>Histórico médico</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🔬</div>
+                        <h4>Exames</h4>
+                        <p>Upload de arquivos</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">⚠️</div>
+                        <h4>Alergias</h4>
+                        <p>Contraindicações</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🔒</div>
+                        <h4>Segurança</h4>
+                        <p>LGPD Compliance</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>� Segurança e Privacidade</h3>
+                <div style="text-align: left;">
+                    <p>✅ <strong>LGPD Compliance:</strong> Conformidade total com a Lei Geral de Proteção de Dados</p>
+                    <p>🔐 <strong>Criptografia:</strong> Dados protegidos com tecnologia de ponta</p>
+                    <p>�️ <strong>Backup Seguro:</strong> Seus dados sempre protegidos</p>
+                    <p>� <strong>Controle de Acesso:</strong> Apenas profissionais autorizados</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>� Compatibilidade</h3>
+                <div style="text-align: left;">
+                    <p>🖥️ <strong>Web:</strong> Acesso via navegador em qualquer dispositivo</p>
+                    <p>📱 <strong>Mobile:</strong> Compatível com iOS e Android</p>
+                    <p>⚡ <strong>Performance:</strong> Sistema rápido e responsivo</p>
+                    <p>🌐 <strong>Online/Offline:</strong> Funciona mesmo sem internet</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 MediApp - Desenvolvido com ❤️ para profissionais de saúde</p>
+        </div>
+    </div>
+
+    <script>
+        // Script simples para melhorar a experiência do usuário
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adicionar animação suave aos cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'all 0.6s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Initialize Event Listeners for CSP compliance
+            initializeEventListeners();
+        });
+
+        // Função para testar API
+        async function testAPI() {
+            const responseDiv = document.getElementById('api-response');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = '<p>🔄 Testando conexão...</p>';
+            
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.innerHTML = `
+                        <p style="color: #28a745;">✅ API funcionando corretamente!</p>
+                        <p><strong>Status:</strong> ${data.status}</p>
+                        <p><strong>Servidor:</strong> ${data.timestamp}</p>
+                    `;
+                } else {
+                    throw new Error('API retornou erro');
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <p style="color: #dc3545;">❌ Erro na conexão</p>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+
+        // Initialize Event Listeners for CSP compliance
+        function initializeEventListeners() {
+            // Test API button
+            document.querySelectorAll('[data-action="test-api"]').forEach(btn => {
+                btn.addEventListener('click', testAPI);
+            });
+        }
+    </script>
+</body>
+</html>

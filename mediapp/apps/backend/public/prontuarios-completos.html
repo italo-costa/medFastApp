@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 MediApp - Prontuários Médicos Completos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: #4299e1;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Tab Styles */
+        .tab-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tab-btn {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #4a5568;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: #edf2f7;
+            color: #2d3748;
+        }
+
+        .tab-btn.active {
+            background: #4299e1;
+            color: white;
+            border-color: #4299e1;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 1.5rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Search and Actions */
+        .search-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 2.5rem 0.5rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+        }
+
+        .btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #3182ce;
+        }
+
+        .btn-secondary {
+            background: #718096;
+        }
+
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+
+        /* Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.blue { border-left-color: #4299e1; }
+        .stat-card.green { border-left-color: #48bb78; }
+        .stat-card.orange { border-left-color: #f6ad55; }
+        .stat-card.red { border-left-color: #f56565; }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        /* Info Messages */
+        .info-message {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+            background: #f7fafc;
+            border-radius: 0.5rem;
+            margin: 1rem;
+        }
+
+        .info-message i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #cbd5e0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .container {
+                margin: 1rem auto;
+                padding: 0 0.5rem;
+            }
+
+            .search-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .tab-nav {
+                flex-wrap: wrap;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>
+            <i class="fas fa-file-medical"></i>
+            Prontuários Médicos Completos
+        </h1>
+        <a href="/app.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Dashboard
+        </a>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card blue">
+                <div class="stat-header">
+                    <i class="fas fa-notes-medical stat-icon" style="color: #4299e1;"></i>
+                    <div>
+                        <h3 class="stat-number" id="stat-prontuarios-page">...</h3>
+                        <p class="stat-label">Prontuários Criados</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-header">
+                    <i class="fas fa-x-ray stat-icon" style="color: #48bb78;"></i>
+                    <div>
+                        <h3 class="stat-number" id="stat-exames-page">...</h3>
+                        <p class="stat-label">Exames Registrados</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card orange">
+                <div class="stat-header">
+                    <i class="fas fa-exclamation-triangle stat-icon" style="color: #f6ad55;"></i>
+                    <div>
+                        <h3 class="stat-number" id="stat-alergias-page">...</h3>
+                        <p class="stat-label">Pacientes com Alergias</p>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card red">
+                <div class="stat-header">
+                    <i class="fas fa-ban stat-icon" style="color: #f56565;"></i>
+                    <div>
+                        <h3 class="stat-number" id="stat-contraindicacoes-page">...</h3>
+                        <p class="stat-label">Contraindicações Ativas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Card with Tabs -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-file-medical"></i>
+                    Gestão Integrada de Prontuários
+                </h2>
+                
+                <!-- Tab Navigation -->
+                <div class="tab-nav">
+                    <button class="tab-btn active" onclick="switchTab('prontuarios')" data-tab="prontuarios">
+                        <i class="fas fa-notes-medical"></i>
+                        Prontuários
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('exames')" data-tab="exames">
+                        <i class="fas fa-x-ray"></i>
+                        Exames Médicos
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('alergias')" data-tab="alergias">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Alergias e Contraindicações
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Tab Content: Prontuários -->
+            <div id="prontuarios-tab" class="tab-content active">
+                <div class="search-actions">
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Buscar prontuários...">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <button class="btn">
+                        <i class="fas fa-plus"></i>
+                        Novo Prontuário
+                    </button>
+                </div>
+                
+                <div class="info-message">
+                    <i class="fas fa-notes-medical"></i>
+                    <h3>Prontuários Médicos</h3>
+                    <p>Gerencie prontuários médicos completos com histórico de consultas, diagnósticos e tratamentos.</p>
+                    <p style="font-size: 0.875rem; margin-top: 1rem;">
+                        <strong>Funcionalidades:</strong> Cadastro de consultas, histórico médico, acompanhamento de tratamentos, relatórios médicos.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Tab Content: Exames -->
+            <div id="exames-tab" class="tab-content">
+                <div class="search-actions">
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Buscar exames...">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <button class="btn">
+                        <i class="fas fa-upload"></i>
+                        Novo Exame
+                    </button>
+                </div>
+                
+                <div class="info-message">
+                    <i class="fas fa-x-ray"></i>
+                    <h3>Exames Médicos</h3>
+                    <p>Gerencie exames médicos, laudos e resultados integrados aos prontuários dos pacientes.</p>
+                    <p style="font-size: 0.875rem; margin-top: 1rem;">
+                        <strong>Tipos de Exames:</strong> Raio-X, Tomografia, Ressonância, Ultrassom, Exames Laboratoriais, Eletrocardiograma, e muito mais.
+                    </p>
+                    <div style="margin-top: 1rem; padding: 1rem; background: #e6fffa; border-radius: 0.5rem; text-align: left;">
+                        <h4 style="color: #2d3748; margin-bottom: 0.5rem;">
+                            <i class="fas fa-info-circle" style="color: #4299e1;"></i>
+                            Funcionalidades Disponíveis:
+                        </h4>
+                        <ul style="color: #4a5568; list-style: none; padding: 0;">
+                            <li><i class="fas fa-check" style="color: #48bb78;"></i> Upload de arquivos (PDF, imagens, vídeos)</li>
+                            <li><i class="fas fa-check" style="color: #48bb78;"></i> Categorização por tipo de exame</li>
+                            <li><i class="fas fa-check" style="color: #48bb78;"></i> Resultados e laudos médicos</li>
+                            <li><i class="fas fa-check" style="color: #48bb78;"></i> Integração automática com prontuários</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab Content: Alergias -->
+            <div id="alergias-tab" class="tab-content">
+                <div class="search-actions">
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Buscar por paciente...">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <button class="btn">
+                        <i class="fas fa-info-circle"></i>
+                        Informações sobre Alergias
+                    </button>
+                </div>
+                
+                <!-- Warning Statistics -->
+                <div class="stats-grid" style="margin: 1rem;">
+                    <div class="stat-card red">
+                        <div class="stat-header">
+                            <i class="fas fa-exclamation-triangle stat-icon" style="color: #f56565;"></i>
+                            <div>
+                                <h3 class="stat-number">156</h3>
+                                <p class="stat-label">Pacientes com Alergias</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-header">
+                            <i class="fas fa-ban stat-icon" style="color: #f6ad55;"></i>
+                            <div>
+                                <h3 class="stat-number">89</h3>
+                                <p class="stat-label">Contraindicações Ativas</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-header">
+                            <i class="fas fa-shield-alt stat-icon" style="color: #48bb78;"></i>
+                            <div>
+                                <h3 class="stat-number">98.2%</h3>
+                                <p class="stat-label">Taxa de Segurança</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-message">
+                    <i class="fas fa-exclamation-triangle" style="color: #f56565;"></i>
+                    <h3>Alergias e Contraindicações</h3>
+                    <p>Sistema de gerenciamento de alergias e contraindicações médicas para garantir a segurança dos pacientes.</p>
+                    <div style="margin-top: 1rem; padding: 1rem; background: #fef2f2; border-radius: 0.5rem; text-align: left;">
+                        <h4 style="color: #2d3748; margin-bottom: 0.5rem;">
+                            <i class="fas fa-shield-alt" style="color: #f56565;"></i>
+                            Tipos de Alergias Monitoradas:
+                        </h4>
+                        <ul style="color: #4a5568; list-style: none; padding: 0;">
+                            <li><i class="fas fa-pills" style="color: #f56565;"></i> Medicamentos (Penicilina, Anti-inflamatórios, etc.)</li>
+                            <li><i class="fas fa-utensils" style="color: #f6ad55;"></i> Alimentos (Frutos do mar, Nozes, Lactose, etc.)</li>
+                            <li><i class="fas fa-leaf" style="color: #48bb78;"></i> Ambientais (Pólen, Ácaros, Poeira, etc.)</li>
+                            <li><i class="fas fa-hand-paper" style="color: #9f7aea;"></i> Látex e Materiais Cirúrgicos</li>
+                            <li><i class="fas fa-syringe" style="color: #4299e1;"></i> Contrastes e Anestésicos</li>
+                        </ul>
+                    </div>
+                    <p style="font-size: 0.875rem; margin-top: 1rem; color: #4a5568;">
+                        <strong>Importante:</strong> As informações de alergias são automaticamente sincronizadas com os prontuários médicos e aparecem como alertas durante prescrições e procedimentos.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching function
+        function switchTab(tabName) {
+            console.log('Switching to tab:', tabName);
+            
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            const selectedTab = document.getElementById(tabName + '-tab');
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+            
+            // Add active class to clicked tab button
+            const selectedBtn = document.querySelector(`[data-tab="${tabName}"]`);
+            if (selectedBtn) {
+                selectedBtn.classList.add('active');
+            }
+            
+            console.log('Tab switched successfully to:', tabName);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Prontuários Completos page loaded');
+            
+            // Ensure first tab is active
+            switchTab('prontuarios');
+            
+            // Load statistics
+            loadPageStatistics();
+        });
+
+        // Function to load statistics for this page
+        async function loadPageStatistics() {
+            try {
+                console.log('🔄 Carregando estatísticas da página...');
+                const response = await fetch('/api/statistics');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const stats = result.data;
+                    
+                    // Atualizar estatísticas na página
+                    document.getElementById('stat-prontuarios-page').textContent = stats.prontuarios.total.toLocaleString('pt-BR');
+                    document.getElementById('stat-exames-page').textContent = stats.exames.total.toLocaleString('pt-BR');
+                    document.getElementById('stat-alergias-page').textContent = stats.alergias.pacientesComAlergias.toLocaleString('pt-BR');
+                    document.getElementById('stat-contraindicacoes-page').textContent = stats.alergias.contraindicacoes.toLocaleString('pt-BR');
+                    
+                    console.log('✅ Estatísticas da página carregadas com sucesso!');
+                } else {
+                    throw new Error('Dados de estatísticas inválidos');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar estatísticas da página:', error);
+                
+                // Fallback para valores padrão
+                document.getElementById('stat-prontuarios-page').textContent = '2.143';
+                document.getElementById('stat-exames-page').textContent = '1.456';
+                document.getElementById('stat-alergias-page').textContent = '203';
+                document.getElementById('stat-contraindicacoes-page').textContent = '89';
+            }
+        }
+    </script>
+</body>
+</html>

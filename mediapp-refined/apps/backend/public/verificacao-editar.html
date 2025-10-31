@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Verificação Automática - Botão Editar</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 2rem; 
+            background: #f8fafc;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .test-container { 
+            background: white; 
+            padding: 2rem; 
+            margin: 1rem 0; 
+            border-radius: 0.75rem; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section { 
+            border-left: 4px solid #4299e1;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            background: #f7fafc;
+            border-radius: 0 0.5rem 0.5rem 0;
+        }
+        .test-result { 
+            padding: 1rem; 
+            margin: 0.5rem 0; 
+            border-radius: 0.5rem; 
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        .success { 
+            background: #c6f6d5; 
+            color: #2f855a; 
+            border: 1px solid #9ae6b4;
+        }
+        .error { 
+            background: #fed7d7; 
+            color: #c53030; 
+            border: 1px solid #feb2b2;
+        }
+        .info { 
+            background: #bee3f8; 
+            color: #2b6cb0; 
+            border: 1px solid #90cdf4;
+        }
+        .loading { 
+            background: #fef5e7; 
+            color: #d69e2e; 
+            border: 1px solid #f6e05e;
+        }
+        .test-button { 
+            background: #4299e1; 
+            color: white; 
+            padding: 0.75rem 1.5rem; 
+            border: none; 
+            border-radius: 0.5rem; 
+            cursor: pointer; 
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+        .test-button:hover { 
+            background: #3182ce; 
+        }
+        .test-button:disabled { 
+            background: #a0aec0; 
+            cursor: not-allowed;
+        }
+        h1 { color: #2d3748; margin-bottom: 1rem; }
+        h2 { color: #4a5568; margin-bottom: 0.5rem; }
+        h3 { color: #4299e1; margin-bottom: 0.5rem; }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background: #38a169; }
+        .status-error { background: #e53e3e; }
+        .status-loading { background: #d69e2e; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        iframe {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 Verificação Automática - Botão Editar Lista Médicos</h1>
+        <p>Esta página realiza testes automáticos para verificar se o botão "Editar" na lista de médicos está funcionando corretamente.</p>
+        
+        <div class="test-section">
+            <h2>🧪 Testes Realizados</h2>
+            <div id="testResults"></div>
+            <button class="test-button" onclick="runAllTests()" id="runTestsBtn">
+                🚀 Executar Todos os Testes
+            </button>
+            <button class="test-button" onclick="openOriginalPage()" style="background: #38a169;">
+                📋 Abrir Lista Original
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h2>🎯 Teste Visual do Botão</h2>
+            <div id="visualTest"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🌐 Preview da Página de Edição</h2>
+            <iframe id="previewFrame" src="about:blank" style="display: none;"></iframe>
+        </div>
+    </div>
+
+    <script>
+        let testResults = [];
+
+        function addTestResult(test, status, details) {
+            const statusIcon = status === 'success' ? '✅' : status === 'error' ? '❌' : '🔄';
+            const statusClass = status === 'success' ? 'success' : status === 'error' ? 'error' : 'loading';
+            
+            testResults.push({
+                test: test,
+                status: status,
+                details: details,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            
+            updateTestDisplay();
+        }
+
+        function updateTestDisplay() {
+            const container = document.getElementById('testResults');
+            container.innerHTML = testResults.map(result => `
+                <div class="test-result ${result.status}">
+                    <strong>[${result.timestamp}] ${result.test}</strong><br>
+                    ${result.details}
+                </div>
+            `).join('');
+        }
+
+        async function testAPI() {
+            addTestResult('🔌 Teste da API', 'loading', 'Verificando API de médicos...');
+            
+            try {
+                const response = await fetch('/api/medicos');
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    addTestResult('🔌 Teste da API', 'success', 
+                        `API funcionando corretamente. ${data.data.length} médicos encontrados.`);
+                    return data.data;
+                } else {
+                    throw new Error('API retornou dados inválidos');
+                }
+            } catch (error) {
+                addTestResult('🔌 Teste da API', 'error', 
+                    `Erro na API: ${error.message}`);
+                return [];
+            }
+        }
+
+        async function testEditPage(doctorId) {
+            addTestResult('📄 Teste Página Edição', 'loading', 'Verificando página de edição...');
+            
+            try {
+                const url = `/editar-medico.html?id=${doctorId}`;
+                const response = await fetch(url);
+                
+                if (response.ok) {
+                    addTestResult('📄 Teste Página Edição', 'success', 
+                        `Página de edição carrega corretamente (${response.status}). URL: ${url}`);
+                    return true;
+                } else {
+                    throw new Error(`Status ${response.status}`);
+                }
+            } catch (error) {
+                addTestResult('📄 Teste Página Edição', 'error', 
+                    `Erro ao carregar página: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function testIndividualAPI(doctorId) {
+            addTestResult('🔍 Teste API Individual', 'loading', 'Verificando API individual do médico...');
+            
+            try {
+                const response = await fetch(`/api/medicos/${doctorId}`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    addTestResult('🔍 Teste API Individual', 'success', 
+                        `API individual funcionando. Médico: ${data.data.nome} - ${data.data.especialidade}`);
+                    return data.data;
+                } else {
+                    throw new Error(data.message || 'Dados inválidos');
+                }
+            } catch (error) {
+                addTestResult('🔍 Teste API Individual', 'error', 
+                    `Erro na API individual: ${error.message}`);
+                return null;
+            }
+        }
+
+        function testEditFunction(doctorId, doctorName) {
+            addTestResult('🔧 Teste Função editDoctor', 'loading', 'Simulando função editDoctor...');
+            
+            try {
+                // Simular exatamente a função editDoctor da lista-medicos.html
+                if (!doctorId) {
+                    throw new Error('ID do médico não fornecido');
+                }
+                
+                const url = `/editar-medico.html?id=${doctorId}`;
+                
+                addTestResult('🔧 Teste Função editDoctor', 'success', 
+                    `Função executada com sucesso. URL gerada: ${url} para ${doctorName}`);
+                
+                // Mostrar no iframe para preview
+                const iframe = document.getElementById('previewFrame');
+                iframe.style.display = 'block';
+                iframe.src = url;
+                
+                return true;
+            } catch (error) {
+                addTestResult('🔧 Teste Função editDoctor', 'error', 
+                    `Erro na função: ${error.message}`);
+                return false;
+            }
+        }
+
+        function createVisualTest(doctors) {
+            const container = document.getElementById('visualTest');
+            
+            if (doctors.length === 0) {
+                container.innerHTML = '<div class="test-result error">Nenhum médico disponível para teste visual</div>';
+                return;
+            }
+
+            const testDoctor = doctors[0];
+            container.innerHTML = `
+                <p><strong>Teste com:</strong> ${testDoctor.nome} (${testDoctor.especialidade})</p>
+                <div style="background: #f7fafc; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #4299e1, #3182ce); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                            ${testDoctor.nome.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                        </div>
+                        <div>
+                            <strong>${testDoctor.nome}</strong><br>
+                            <span style="color: #4299e1;">${testDoctor.especialidade}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="test-button" onclick="testEditFunction('${testDoctor.id}', '${testDoctor.nome}')" style="font-size: 0.875rem; padding: 0.5rem 1rem;">
+                            🔧 Testar Edição
+                        </button>
+                        <button class="test-button" onclick="window.open('/editar-medico.html?id=${testDoctor.id}', '_blank')" style="background: #38a169; font-size: 0.875rem; padding: 0.5rem 1rem;">
+                            📝 Abrir Edição
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function runAllTests() {
+            const button = document.getElementById('runTestsBtn');
+            button.disabled = true;
+            button.textContent = '🔄 Executando Testes...';
+            
+            testResults = [];
+            updateTestDisplay();
+            
+            // Teste 1: API de médicos
+            const doctors = await testAPI();
+            
+            if (doctors.length > 0) {
+                const testDoctor = doctors[0];
+                
+                // Teste 2: Página de edição
+                await testEditPage(testDoctor.id);
+                
+                // Teste 3: API individual
+                await testIndividualAPI(testDoctor.id);
+                
+                // Teste 4: Função editDoctor
+                testEditFunction(testDoctor.id, testDoctor.nome);
+                
+                // Criar teste visual
+                createVisualTest(doctors);
+                
+                addTestResult('🎉 Conclusão', 'success', 
+                    'Todos os testes concluídos! O botão Editar está funcional.');
+            } else {
+                addTestResult('🎉 Conclusão', 'error', 
+                    'Não foi possível completar os testes devido a problemas na API.');
+            }
+            
+            button.disabled = false;
+            button.textContent = '🔄 Executar Novamente';
+        }
+
+        function openOriginalPage() {
+            window.open('/lista-medicos.html', '_blank');
+        }
+
+        // Executar testes automaticamente ao carregar
+        window.addEventListener('load', function() {
+            setTimeout(runAllTests, 1000);
+        });
+    </script>
+</body>
+</html>

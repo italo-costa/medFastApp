@@ -392,6 +392,20 @@
                     </div>
 
                     <div class="form-row">
+                        <div class="form-group">
+                            <button type="button" class="btn btn-secondary" data-action="buscar-cep-reverso" style="margin-top: 0px;">
+                                <i class="fas fa-map-pin"></i>
+                                Buscar por Endereço
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <small style="color: #6c757d; font-style: italic; margin-top: 5px; display: block;">
+                                Não sabe o CEP? Use a busca por endereço para encontrar automaticamente
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
                         <div class="form-group required">
                             <label for="logradouro">Logradouro</label>
                             <input type="text" id="logradouro" name="logradouro" required>
@@ -523,35 +537,246 @@
             e.target.value = value;
         });
 
-        // Buscar CEP via API
+        // Buscar CEP via API aprimorada
         async function buscarCEP() {
-            const cep = document.getElementById('cep').value.replace(/\D/g, '');
-            if (cep.length !== 8) {
-                showAlert('Por favor, digite um CEP válido com 8 dígitos.', 'error');
+            const cepInput = document.getElementById('cep').value;
+            
+            // Validação básica
+            if (!cepInput) {
+                showAlert('Por favor, digite um CEP.', 'error');
                 return;
             }
 
-            try {
-                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-                const data = await response.json();
+            const btnBuscar = document.querySelector('[data-action="buscar-cep"]');
+            const originalText = btnBuscar.innerHTML;
+            
+            // Mostra loading
+            btnBuscar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+            btnBuscar.disabled = true;
 
-                if (data.erro) {
-                    showAlert('CEP não encontrado.', 'error');
+            try {
+                // Usa nossa API interna que integra com ViaCEP
+                const response = await fetch('/api/cep/consultar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ cep: cepInput })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    showAlert(result.error || 'Erro ao buscar CEP.', 'error');
                     return;
                 }
 
-                document.getElementById('logradouro').value = data.logradouro;
-                document.getElementById('bairro').value = data.bairro;
-                document.getElementById('cidade').value = data.localidade;
-                document.getElementById('estado').value = data.uf;
+                const data = result.data;
 
-                showAlert('Endereço preenchido automaticamente!', 'success');
+                // Preenche os campos
+                document.getElementById('logradouro').value = data.logradouro || '';
+                document.getElementById('bairro').value = data.bairro || '';
+                document.getElementById('cidade').value = data.localidade || '';
+                document.getElementById('estado').value = data.uf || '';
+
+                // Mostra mensagem de sucesso
+                const cacheInfo = result.fromCache ? ' (cache)' : '';
+                showAlert(`Endereço encontrado: ${data.localidade}/${data.uf}${cacheInfo}`, 'success');
+
+                // Foca no campo número
+                document.getElementById('numero').focus();
+
             } catch (error) {
-                showAlert('Erro ao buscar CEP. Tente novamente.', 'error');
+                console.error('Erro ao buscar CEP:', error);
+                showAlert('Erro de conexão. Tente novamente.', 'error');
+            } finally {
+                // Restaura botão
+                btnBuscar.innerHTML = originalText;
+                btnBuscar.disabled = false;
             }
         }
 
-        // Verificar disponibilidade do usuário
+        // Buscar CEP por endereço (busca reversa)
+        async function buscarCepReverso() {
+            const estado = document.getElementById('estado').value;
+            const cidade = document.getElementById('cidade').value;
+            const logradouro = document.getElementById('logradouro').value;
+
+            // Validações
+            if (!estado) {
+                showAlert('Selecione o estado primeiro.', 'error');
+                document.getElementById('estado').focus();
+                return;
+            }
+
+            if (!cidade || cidade.length < 3) {
+                showAlert('Digite o nome da cidade (mínimo 3 caracteres).', 'error');
+                document.getElementById('cidade').focus();
+                return;
+            }
+
+            if (!logradouro || logradouro.length < 3) {
+                showAlert('Digite o nome da rua/avenida (mínimo 3 caracteres).', 'error');
+                document.getElementById('logradouro').focus();
+                return;
+            }
+
+            const btnBuscar = document.querySelector('[data-action="buscar-cep-reverso"]');
+            const originalText = btnBuscar.innerHTML;
+            
+            // Mostra loading
+            btnBuscar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+            btnBuscar.disabled = true;
+
+            try {
+                // Usa nossa API interna para busca reversa
+                const response = await fetch('/api/cep/buscar-por-endereco', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        uf: estado,
+                        cidade: cidade,
+                        logradouro: logradouro
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    showAlert(result.error || 'Erro ao buscar endereços.', 'error');
+                    return;
+                }
+
+                const enderecos = result.data;
+
+                if (enderecos.length === 0) {
+                    showAlert('Nenhum CEP encontrado para este endereço.', 'error');
+                    return;
+                }
+
+                // Se encontrou apenas um, preenche automaticamente
+                if (enderecos.length === 1) {
+                    const endereco = enderecos[0];
+                    document.getElementById('cep').value = endereco.cep;
+                    document.getElementById('logradouro').value = endereco.logradouro;
+                    document.getElementById('bairro').value = endereco.bairro;
+                    
+                    const cacheInfo = result.fromCache ? ' (cache)' : '';
+                    showAlert(`CEP encontrado: ${endereco.cep}${cacheInfo}`, 'success');
+                    document.getElementById('numero').focus();
+                    return;
+                }
+
+                // Se encontrou múltiplos, mostra opções
+                mostrarOpcoesEndereco(enderecos, result.fromCache);
+
+            } catch (error) {
+                console.error('Erro ao buscar endereços:', error);
+                showAlert('Erro de conexão. Tente novamente.', 'error');
+            } finally {
+                // Restaura botão
+                btnBuscar.innerHTML = originalText;
+                btnBuscar.disabled = false;
+            }
+        }
+
+        // Mostra modal com opções de endereço
+        function mostrarOpcoesEndereco(enderecos, fromCache) {
+            // Remove modal existente se houver
+            const existingModal = document.getElementById('endereco-modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // Cria modal
+            const modal = document.createElement('div');
+            modal.id = 'endereco-modal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+
+            const cacheInfo = fromCache ? ' (cache)' : '';
+            
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 15px; padding: 30px; max-width: 600px; max-height: 80vh; overflow-y: auto; margin: 20px;">
+                    <h3 style="margin-bottom: 20px; color: #2c3e50;">
+                        <i class="fas fa-list"></i> 
+                        Endereços Encontrados${cacheInfo}
+                    </h3>
+                    <p style="margin-bottom: 20px; color: #6c757d;">
+                        Encontramos ${enderecos.length} endereços. Selecione o mais adequado:
+                    </p>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        ${enderecos.map((endereco, index) => `
+                            <div class="endereco-option" data-index="${index}" style="
+                                border: 2px solid #e9ecef;
+                                border-radius: 10px;
+                                padding: 15px;
+                                margin-bottom: 10px;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                            " onmouseover="this.style.borderColor='#667eea'" onmouseout="this.style.borderColor='#e9ecef'">
+                                <strong style="color: #2c3e50;">${endereco.cep}</strong><br>
+                                <span style="color: #495057;">${endereco.logradouro}</span><br>
+                                <small style="color: #6c757d;">${endereco.bairro} - ${endereco.localidade}/${endereco.uf}</small>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button onclick="fecharModalEndereco()" style="
+                            background: #6c757d;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                        ">Cancelar</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Adiciona event listeners para as opções
+            modal.querySelectorAll('.endereco-option').forEach((option, index) => {
+                option.addEventListener('click', () => {
+                    const endereco = enderecos[index];
+                    document.getElementById('cep').value = endereco.cep;
+                    document.getElementById('logradouro').value = endereco.logradouro;
+                    document.getElementById('bairro').value = endereco.bairro;
+                    
+                    fecharModalEndereco();
+                    showAlert(`Endereço selecionado: ${endereco.cep}`, 'success');
+                    document.getElementById('numero').focus();
+                });
+            });
+
+            // Fecha modal ao clicar fora
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    fecharModalEndereco();
+                }
+            });
+        }
+
+        // Fecha modal de endereços
+        function fecharModalEndereco() {
+            const modal = document.getElementById('endereco-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
         async function verificarUsuario() {
             const usuario = document.getElementById('usuario').value;
             if (!usuario) {
@@ -668,6 +893,11 @@
             // Buscar CEP
             document.querySelectorAll('[data-action="buscar-cep"]').forEach(btn => {
                 btn.addEventListener('click', buscarCEP);
+            });
+
+            // Buscar CEP reverso
+            document.querySelectorAll('[data-action="buscar-cep-reverso"]').forEach(btn => {
+                btn.addEventListener('click', buscarCepReverso);
             });
 
             // Verificar usuário

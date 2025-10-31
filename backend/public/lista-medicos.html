@@ -402,9 +402,13 @@
 
         // Função para criar card de médico
         function createDoctorCard(doctor) {
-            console.log('📋 Criando card para médico:', doctor.nome, 'ID:', doctor.id);
+            // Corrigir acesso aos dados do usuário
+            const nome = doctor.usuario?.nome || 'Nome não disponível';
+            const email = doctor.usuario?.email || 'Email não disponível';
             
-            const initials = doctor.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            console.log('📋 Criando card para médico:', nome, 'ID:', doctor.id);
+            
+            const initials = nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
             const createdDate = new Date(doctor.criado_em).toLocaleDateString('pt-BR');
             
             const cardHTML = `
@@ -412,7 +416,7 @@
                     <div class="doctor-header">
                         <div class="doctor-avatar">${initials}</div>
                         <div class="doctor-info">
-                            <h3>${doctor.nome}</h3>
+                            <h3>${nome}</h3>
                             <div class="specialty">${doctor.especialidade}</div>
                         </div>
                     </div>
@@ -424,7 +428,7 @@
                         </div>
                         <div class="detail-item">
                             <i class="fas fa-envelope"></i>
-                            <span>${doctor.email}</span>
+                            <span>${email}</span>
                         </div>
                         <div class="detail-item">
                             <i class="fas fa-phone"></i>
@@ -486,10 +490,12 @@
         function filterDoctors(searchTerm) {
             const term = searchTerm.toLowerCase();
             filteredDoctors = allDoctors.filter(doctor => {
-                return doctor.nome.toLowerCase().includes(term) ||
+                const nome = doctor.usuario?.nome || '';
+                const email = doctor.usuario?.email || '';
+                return nome.toLowerCase().includes(term) ||
                        doctor.crm.toLowerCase().includes(term) ||
                        doctor.especialidade.toLowerCase().includes(term) ||
-                       doctor.email.toLowerCase().includes(term);
+                       email.toLowerCase().includes(term);
             });
             displayDoctors();
         }

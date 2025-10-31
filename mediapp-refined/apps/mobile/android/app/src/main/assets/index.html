@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediApp - Beta</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .beta-tag {
+            background: #ff6b6b;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            display: inline-block;
+        }
+        
+        p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .features {
+            text-align: left;
+            margin: 30px 0;
+        }
+        
+        .feature {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid #4facfe;
+        }
+        
+        .version {
+            margin-top: 30px;
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 MediApp</h1>
+        <span class="beta-tag">BETA</span>
+        
+        <p>Aplicativo médico para gestão de consultas e prontuários eletrônicos</p>
+        
+        <div class="features">
+            <div class="feature">
+                📋 <strong>Prontuários Digitais</strong><br>
+                Gestão completa de registros médicos
+            </div>
+            <div class="feature">
+                📅 <strong>Agendamento</strong><br>
+                Sistema de consultas integrado
+            </div>
+            <div class="feature">
+                👨‍⚕️ <strong>Perfil Médico</strong><br>
+                Dashboard personalizado para profissionais
+            </div>
+            <div class="feature">
+                📊 <strong>Relatórios</strong><br>
+                Analytics e estatísticas médicas
+            </div>
+        </div>
+        
+        <button class="btn" onclick="showAlert()">Testar Funcionalidade</button>
+        
+        <div class="version">
+            Versão Beta 1.0<br>
+            Build: Android APK<br>
+            Data: 09/10/2025
+        </div>
+    </div>
+    
+    <script>
+        function showAlert() {
+            alert('🎉 MediApp Beta funcionando!\n\nRecursos disponíveis:\n• Interface responsiva\n• Navegação otimizada\n• Pronto para testes');
+        }
+        
+        // Log para debug
+        console.log('MediApp Beta carregado com sucesso!');
+        
+        // Simular carregamento da aplicação
+        setTimeout(() => {
+            console.log('Sistema médico inicializado');
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 MediApp - Detalhes do Médico</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .navigation {
+            background: #ffffff;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            background: #3182ce;
+        }
+
+        .nav-btn.secondary {
+            background: #38a169;
+        }
+
+        .nav-btn.secondary:hover {
+            background: #2f855a;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .doctor-profile {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .profile-name {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-specialty {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+
+        .profile-content {
+            padding: 2rem;
+        }
+
+        .info-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid #4299e1;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-value {
+            color: #2d3748;
+        }
+
+        .info-value.empty {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .status-active {
+            background: #c6f6d5;
+            color: #38a169;
+        }
+
+        .status-inactive {
+            background: #fed7d7;
+            color: #e53e3e;
+        }
+
+        .text-content {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid #4299e1;
+            white-space: pre-wrap;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #e53e3e;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4299e1;
+        }
+
+        .stat-label {
+            color: #718096;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .profile-header {
+                padding: 1.5rem;
+            }
+
+            .profile-avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .profile-name {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navigation">
+        <button class="nav-btn" id="voltar-lista">
+            <i class="fas fa-arrow-left"></i>
+            Voltar à Lista
+        </button>
+        <button class="nav-btn secondary" id="editar-medico">
+            <i class="fas fa-edit"></i>
+            Editar Médico
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-user-md"></i> Perfil do Médico</h1>
+            <p>Visualize todas as informações detalhadas do médico</p>
+        </div>
+
+        <div id="loadingState" class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Carregando dados do médico...</p>
+        </div>
+
+        <div id="errorMessage" class="error" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <div id="doctorProfile" class="doctor-profile" style="display: none;">
+            <div class="profile-header">
+                <div class="profile-avatar" id="doctorAvatar"></div>
+                <div class="profile-name" id="doctorName"></div>
+                <div class="profile-specialty" id="doctorSpecialty"></div>
+            </div>
+
+            <div class="profile-content">
+                <!-- Informações Básicas -->
+                <div class="info-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-id-card"></i>
+                        Informações Profissionais
+                    </h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-id-badge"></i>
+                                CRM
+                            </div>
+                            <div class="info-value" id="doctorCRM"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                UF do CRM
+                            </div>
+                            <div class="info-value" id="doctorCRMUF"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-stethoscope"></i>
+                                Especialidade
+                            </div>
+                            <div class="info-value" id="doctorSpecialtyDetail"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-toggle-on"></i>
+                                Status
+                            </div>
+                            <div class="info-value" id="doctorStatus"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contato -->
+                <div class="info-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-address-book"></i>
+                        Informações de Contato
+                    </h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-envelope"></i>
+                                Email
+                            </div>
+                            <div class="info-value" id="doctorEmail"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-phone"></i>
+                                Telefone
+                            </div>
+                            <div class="info-value" id="doctorPhone"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-mobile-alt"></i>
+                                Celular
+                            </div>
+                            <div class="info-value" id="doctorMobile"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-clock"></i>
+                                Horário de Atendimento
+                            </div>
+                            <div class="info-value" id="doctorSchedule"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Endereço -->
+                <div class="info-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Endereço
+                    </h3>
+                    <div class="text-content" id="doctorAddress"></div>
+                </div>
+
+                <!-- Formação -->
+                <div class="info-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-graduation-cap"></i>
+                        Formação Acadêmica
+                    </h3>
+                    <div class="text-content" id="doctorEducation"></div>
+                </div>
+
+                <!-- Experiência -->
+                <div class="info-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-briefcase"></i>
+                        Experiência Profissional
+                    </h3>
+                    <div class="text-content" id="doctorExperience"></div>
+                </div>
+
+                <!-- Informações do Sistema -->
+                <div class="info-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-database"></i>
+                        Informações do Sistema
+                    </h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-fingerprint"></i>
+                                ID do Sistema
+                            </div>
+                            <div class="info-value" id="doctorId"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar-plus"></i>
+                                Cadastrado em
+                            </div>
+                            <div class="info-value" id="doctorCreated"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar-check"></i>
+                                Última Atualização
+                            </div>
+                            <div class="info-value" id="doctorUpdated"></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Último Login
+                            </div>
+                            <div class="info-value" id="doctorLastLogin"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalConsultas">-</div>
+                <div class="stat-label">Consultas Realizadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalProntuarios">-</div>
+                <div class="stat-label">Prontuários Criados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="diasCadastrado">-</div>
+                <div class="stat-label">Dias no Sistema</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDoctorId = null;
+
+        // Função para obter parâmetros da URL
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Função para carregar dados do médico
+        async function loadDoctorData(doctorId) {
+            try {
+                showLoading();
+                
+                const response = await fetch(`/api/medicos/${doctorId}`);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Médico não encontrado');
+                    }
+                    throw new Error('Erro ao carregar dados do médico');
+                }
+
+                const data = await response.json();
+                const doctor = data.data;
+                
+                // Mostrar dados do médico
+                displayDoctorProfile(doctor);
+                
+                hideLoading();
+                showProfile();
+                
+            } catch (error) {
+                console.error('Erro ao carregar médico:', error);
+                showError(error.message);
+            }
+        }
+
+        // Função para exibir perfil do médico
+        function displayDoctorProfile(doctor) {
+            // Avatar
+            const initials = doctor.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('doctorAvatar').textContent = initials;
+            
+            // Informações básicas
+            document.getElementById('doctorName').textContent = doctor.nome;
+            document.getElementById('doctorSpecialty').textContent = doctor.especialidade;
+            
+            // Informações profissionais
+            document.getElementById('doctorCRM').textContent = doctor.crm;
+            document.getElementById('doctorCRMUF').textContent = doctor.crm_uf;
+            document.getElementById('doctorSpecialtyDetail').textContent = doctor.especialidade;
+            
+            // Status
+            const isActive = doctor.ativo;
+            document.getElementById('doctorStatus').innerHTML = `
+                <span class="status-badge ${isActive ? 'status-active' : 'status-inactive'}">
+                    <i class="fas fa-${isActive ? 'check-circle' : 'times-circle'}"></i>
+                    ${isActive ? 'Ativo' : 'Inativo'}
+                </span>
+            `;
+            
+            // Contato
+            document.getElementById('doctorEmail').textContent = doctor.email;
+            document.getElementById('doctorPhone').textContent = doctor.telefone || 'Não informado';
+            document.getElementById('doctorMobile').textContent = doctor.celular || 'Não informado';
+            document.getElementById('doctorSchedule').textContent = doctor.horario_atendimento || 'Não informado';
+            
+            // Endereço
+            document.getElementById('doctorAddress').textContent = doctor.endereco || 'Endereço não informado';
+            
+            // Formação
+            document.getElementById('doctorEducation').textContent = doctor.formacao || 'Informações de formação não disponíveis';
+            
+            // Experiência
+            document.getElementById('doctorExperience').textContent = doctor.experiencia || 'Informações de experiência não disponíveis';
+            
+            // Informações do sistema
+            document.getElementById('doctorId').textContent = doctor.id;
+            document.getElementById('doctorCreated').textContent = new Date(doctor.criado_em).toLocaleString('pt-BR');
+            document.getElementById('doctorUpdated').textContent = new Date(doctor.atualizado_em).toLocaleString('pt-BR');
+            document.getElementById('doctorLastLogin').textContent = doctor.ultimo_login ? 
+                new Date(doctor.ultimo_login).toLocaleString('pt-BR') : 'Nunca fez login';
+            
+            // Calcular estatísticas
+            const totalConsultas = doctor.consultas_recentes ? doctor.consultas_recentes.length : 0;
+            const totalProntuarios = doctor.prontuarios_recentes ? doctor.prontuarios_recentes.length : 0;
+            const diasCadastrado = Math.floor((new Date() - new Date(doctor.criado_em)) / (1000 * 60 * 60 * 24));
+            
+            document.getElementById('totalConsultas').textContent = totalConsultas;
+            document.getElementById('totalProntuarios').textContent = totalProntuarios;
+            document.getElementById('diasCadastrado').textContent = diasCadastrado;
+        }
+
+        // Funções de UI
+        function showLoading() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('doctorProfile').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingState').style.display = 'none';
+        }
+
+        function showProfile() {
+            document.getElementById('doctorProfile').style.display = 'block';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            document.getElementById('errorText').textContent = message;
+            errorDiv.style.display = 'block';
+            hideLoading();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obter ID do médico da URL
+            currentDoctorId = getUrlParameter('id');
+            
+            if (!currentDoctorId) {
+                showError('ID do médico não fornecido');
+                return;
+            }
+            
+            // Carregar dados do médico
+            loadDoctorData(currentDoctorId);
+
+            // Event listener para voltar à lista
+            document.getElementById('voltar-lista').addEventListener('click', function() {
+                window.location.href = '/lista-medicos.html';
+            });
+
+            // Event listener para editar médico
+            document.getElementById('editar-medico').addEventListener('click', function() {
+                window.location.href = `/editar-medico.html?id=${currentDoctorId}`;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 MediApp - Anamnese Médica</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .navigation {
+            background: #ffffff;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            background: #3182ce;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .patient-info {
+            background: #ffffff;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #4299e1;
+        }
+
+        .patient-info h2 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .patient-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-item strong {
+            color: #4a5568;
+            min-width: 100px;
+        }
+
+        .form-container {
+            background: #ffffff;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 2rem;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            color: #2d3748;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #4299e1;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .form-group.required label::after {
+            content: ' *';
+            color: #e53e3e;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .vital-signs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3182ce;
+        }
+
+        .btn-secondary {
+            background: #718096;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #2d3748;
+        }
+
+        .btn-success {
+            background: #38a169;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #2f855a;
+        }
+
+        .loading {
+            display: none;
+        }
+
+        .loading.show {
+            display: inline-flex;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            display: none;
+        }
+
+        .alert.success {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            color: #2f855a;
+        }
+
+        .alert.error {
+            background: #fed7d7;
+            border: 1px solid #feb2b2;
+            color: #c53030;
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .progress-step {
+            padding: 0.5rem 1rem;
+            background: #e2e8f0;
+            color: #718096;
+            border-radius: 0.25rem;
+            margin: 0 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .progress-step.active {
+            background: #4299e1;
+            color: white;
+        }
+
+        .progress-step.completed {
+            background: #38a169;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .vital-signs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navigation">
+        <a href="gestao-pacientes.html" class="nav-btn">
+            <i class="fas fa-arrow-left"></i>
+            Voltar para Gestão de Pacientes
+        </a>
+        <div class="patient-name" id="patientNameHeader">
+            <i class="fas fa-user"></i>
+            <span>Carregando paciente...</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-clipboard-list"></i>
+                Anamnese Médica
+            </h1>
+            <p>Coleta completa de informações clínicas do paciente</p>
+        </div>
+
+        <div class="progress-indicator">
+            <div class="progress-step active" id="step1">1. Dados Pessoais</div>
+            <div class="progress-step" id="step2">2. História Clínica</div>
+            <div class="progress-step" id="step3">3. Revisão de Sistemas</div>
+            <div class="progress-step" id="step4">4. Exame Físico</div>
+        </div>
+
+        <div class="patient-info" id="patientInfo">
+            <h2><i class="fas fa-user-circle"></i> Informações do Paciente</h2>
+            <div class="patient-details" id="patientDetails">
+                <div class="detail-item">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Carregando informações...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="patient-info" id="doctorInfo">
+            <h2><i class="fas fa-user-md"></i> Médico Responsável</h2>
+            <div class="form-group">
+                <label for="doctorSelect">Selecione o Médico *</label>
+                <select id="doctorSelect" name="doctorSelect" required>
+                    <option value="">Carregando médicos...</option>
+                </select>
+            </div>
+            <div class="patient-details" id="selectedDoctorInfo" style="display: none;">
+                <div class="detail-item">
+                    <i class="fas fa-user-md"></i>
+                    <strong>Médico:</strong>
+                    <span id="doctorName">-</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-id-badge"></i>
+                    <strong>CRM:</strong>
+                    <span id="doctorCRM">-</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-stethoscope"></i>
+                    <strong>Especialidade:</strong>
+                    <span id="doctorSpecialty">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert success" id="successAlert">
+            <i class="fas fa-check-circle"></i>
+            <span id="successMessage"></span>
+        </div>
+
+        <div class="alert error" id="errorAlert">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorMessage"></span>
+        </div>
+
+        <form class="form-container" id="anamnesisForm">
+            <!-- Seção 1: Dados Pessoais e Sociais -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-user"></i>
+                    1. Dados Pessoais e Sociais
+                </h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="profession">Profissão</label>
+                        <input type="text" id="profession" name="profession" placeholder="Ex: Engenheiro, Professor...">
+                    </div>
+                    <div class="form-group">
+                        <label for="maritalStatus">Estado Civil</label>
+                        <select id="maritalStatus" name="maritalStatus">
+                            <option value="">Selecione</option>
+                            <option value="solteiro">Solteiro(a)</option>
+                            <option value="casado">Casado(a)</option>
+                            <option value="divorciado">Divorciado(a)</option>
+                            <option value="viuvo">Viúvo(a)</option>
+                            <option value="uniao-estavel">União Estável</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="education">Escolaridade</label>
+                        <select id="education" name="education">
+                            <option value="">Selecione</option>
+                            <option value="fundamental-incompleto">Fundamental Incompleto</option>
+                            <option value="fundamental-completo">Fundamental Completo</option>
+                            <option value="medio-incompleto">Médio Incompleto</option>
+                            <option value="medio-completo">Médio Completo</option>
+                            <option value="superior-incompleto">Superior Incompleto</option>
+                            <option value="superior-completo">Superior Completo</option>
+                            <option value="pos-graduacao">Pós-graduação</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="lifestyle">Estilo de Vida</label>
+                        <textarea id="lifestyle" name="lifestyle" placeholder="Descreva o estilo de vida do paciente (rotina, hábitos, etc.)"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção 2: Motivo da Consulta -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-stethoscope"></i>
+                    2. Motivo da Consulta
+                </h3>
+                <div class="form-grid">
+                    <div class="form-group full-width required">
+                        <label for="chiefComplaint">Queixa Principal</label>
+                        <textarea id="chiefComplaint" name="chiefComplaint" required placeholder="Qual o motivo principal que trouxe o paciente à consulta?"></textarea>
+                    </div>
+                    <div class="form-group full-width required">
+                        <label for="historyPresentIllness">História da Doença Atual (HDA)</label>
+                        <textarea id="historyPresentIllness" name="historyPresentIllness" required placeholder="Descreva detalhadamente a evolução dos sintomas atuais"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção 3: História Patológica Pregressa -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-history"></i>
+                    3. História Patológica Pregressa
+                </h3>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="previousIllnesses">Doenças Anteriores</label>
+                        <textarea id="previousIllnesses" name="previousIllnesses" placeholder="Hipertensão, diabetes, doenças cardíacas, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="surgeries">Cirurgias</label>
+                        <textarea id="surgeries" name="surgeries" placeholder="Cirurgias realizadas e quando"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="hospitalizations">Internações</label>
+                        <textarea id="hospitalizations" name="hospitalizations" placeholder="Motivo e período das internações"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="allergies">Alergias</label>
+                        <textarea id="allergies" name="allergies" placeholder="Alergias a medicamentos, alimentos, substâncias"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="currentMedications">Medicações em Uso</label>
+                        <textarea id="currentMedications" name="currentMedications" placeholder="Liste as medicações atuais, doses e frequência"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção 4: História Familiar e Social -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-users"></i>
+                    4. História Familiar e Social
+                </h3>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="familyHistory">História Familiar</label>
+                        <textarea id="familyHistory" name="familyHistory" placeholder="Doenças hereditárias, histórico familiar relevante"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="smoking">Tabagismo</label>
+                        <textarea id="smoking" name="smoking" placeholder="Fumante? Ex-fumante? Quantidade e tempo"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="alcohol">Etilismo</label>
+                        <textarea id="alcohol" name="alcohol" placeholder="Consumo de álcool - frequência e quantidade"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="drugs">Uso de Drogas</label>
+                        <textarea id="drugs" name="drugs" placeholder="Uso de substâncias ilícitas"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="physicalActivity">Atividade Física</label>
+                        <textarea id="physicalActivity" name="physicalActivity" placeholder="Tipo, frequência e intensidade"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção 5: Revisão de Sistemas -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-search"></i>
+                    5. Revisão de Sistemas
+                </h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="generalSymptoms">Sintomas Gerais</label>
+                        <textarea id="generalSymptoms" name="generalSymptoms" placeholder="Febre, perda de peso, fadiga, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="cardiovascular">Sistema Cardiovascular</label>
+                        <textarea id="cardiovascular" name="cardiovascular" placeholder="Dor no peito, palpitações, dispneia, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="respiratory">Sistema Respiratório</label>
+                        <textarea id="respiratory" name="respiratory" placeholder="Tosse, falta de ar, chiado, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="gastrointestinal">Sistema Gastrointestinal</label>
+                        <textarea id="gastrointestinal" name="gastrointestinal" placeholder="Náuseas, vômitos, diarreia, constipação, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="genitourinary">Sistema Geniturinário</label>
+                        <textarea id="genitourinary" name="genitourinary" placeholder="Disúria, frequência urinária, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="neurological">Sistema Neurológico</label>
+                        <textarea id="neurological" name="neurological" placeholder="Cefaleia, tontura, alterações sensoriais, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="musculoskeletal">Sistema Musculoesquelético</label>
+                        <textarea id="musculoskeletal" name="musculoskeletal" placeholder="Dor articular, rigidez, limitação de movimento, etc."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="dermatological">Sistema Dermatológico</label>
+                        <textarea id="dermatological" name="dermatological" placeholder="Lesões de pele, prurido, alterações ungueais, etc."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção 6: Sinais Vitais -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-heartbeat"></i>
+                    6. Sinais Vitais
+                </h3>
+                <div class="vital-signs">
+                    <div class="form-group">
+                        <label for="bloodPressure">Pressão Arterial</label>
+                        <input type="text" id="bloodPressure" name="bloodPressure" placeholder="Ex: 120/80 mmHg">
+                    </div>
+                    <div class="form-group">
+                        <label for="heartRate">Frequência Cardíaca</label>
+                        <input type="number" id="heartRate" name="heartRate" placeholder="bpm">
+                    </div>
+                    <div class="form-group">
+                        <label for="respiratoryRate">Frequência Respiratória</label>
+                        <input type="number" id="respiratoryRate" name="respiratoryRate" placeholder="irpm">
+                    </div>
+                    <div class="form-group">
+                        <label for="temperature">Temperatura</label>
+                        <input type="number" id="temperature" name="temperature" step="0.1" placeholder="°C">
+                    </div>
+                    <div class="form-group">
+                        <label for="oxygenSaturation">Saturação O2</label>
+                        <input type="number" id="oxygenSaturation" name="oxygenSaturation" placeholder="%">
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">Peso</label>
+                        <input type="number" id="weight" name="weight" step="0.1" placeholder="kg">
+                    </div>
+                    <div class="form-group">
+                        <label for="height">Altura</label>
+                        <input type="number" id="height" name="height" step="0.01" placeholder="m">
+                    </div>
+                    <div class="form-group">
+                        <label for="bmi">IMC</label>
+                        <input type="number" id="bmi" name="bmi" step="0.1" placeholder="kg/m²" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção 7: Exame Físico -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-user-md"></i>
+                    7. Exame Físico
+                </h3>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="physicalExamination">Exame Físico Completo</label>
+                        <textarea id="physicalExamination" name="physicalExamination" placeholder="Descreva os achados do exame físico por sistemas"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção 8: Observações -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-notes-medical"></i>
+                    8. Observações Gerais
+                </h3>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="observations">Observações e Comentários</label>
+                        <textarea id="observations" name="observations" placeholder="Observações adicionais, impressões clínicas iniciais, etc."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button type="button" class="btn btn-secondary" id="saveAsDraftBtn">
+                    <i class="fas fa-save"></i>
+                    Salvar Rascunho
+                </button>
+                <button type="submit" class="btn btn-success" id="completeAnamnesisBtn">
+                    <i class="fas fa-check-circle"></i>
+                    Finalizar Anamnese
+                </button>
+                <div class="loading" id="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Salvando...
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let patientId = null;
+        let doctorId = null;
+        let currentStep = 1;
+        let doctorsData = [];
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPatientInfo();
+            loadDoctors();
+            setupEventListeners();
+            calculateBMI();
+        });
+
+        // Obter ID do paciente da URL
+        function getPatientIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('patientId');
+        }
+
+        // Carregar informações do paciente
+        async function loadPatientInfo() {
+            try {
+                patientId = getPatientIdFromUrl();
+                if (!patientId) {
+                    showError('ID do paciente não encontrado na URL');
+                    return;
+                }
+
+                const response = await fetch(`/api/patients/${patientId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const patient = data.patient;
+                    updatePatientDisplay(patient);
+                    
+                    // Verificar se já existe anamnese completa
+                    checkExistingAnamnesis();
+                } else {
+                    showError(data.message || 'Erro ao carregar informações do paciente');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showError('Erro ao carregar informações do paciente');
+            }
+        }
+
+        // Atualizar exibição das informações do paciente
+        function updatePatientDisplay(patient) {
+            const patientNameHeader = document.getElementById('patientNameHeader');
+            patientNameHeader.innerHTML = `
+                <i class="fas fa-user"></i>
+                <span>${patient.name}</span>
+            `;
+
+            const patientDetails = document.getElementById('patientDetails');
+            const age = calculateAge(patient.birthDate);
+            
+            patientDetails.innerHTML = `
+                <div class="detail-item">
+                    <i class="fas fa-user"></i>
+                    <strong>Nome:</strong>
+                    <span>${patient.name}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-id-card"></i>
+                    <strong>CPF:</strong>
+                    <span>${patient.cpf}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-birthday-cake"></i>
+                    <strong>Idade:</strong>
+                    <span>${age} anos</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-venus-mars"></i>
+                    <strong>Sexo:</strong>
+                    <span>${patient.gender || 'Não informado'}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-phone"></i>
+                    <strong>Telefone:</strong>
+                    <span>${patient.phone}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-tint"></i>
+                    <strong>Tipo Sanguíneo:</strong>
+                    <span>${patient.bloodType || 'Não informado'}</span>
+                </div>
+            `;
+        }
+
+        // Calcular idade
+        function calculateAge(birthDate) {
+            const today = new Date();
+            const birth = new Date(birthDate);
+            let age = today.getFullYear() - birth.getFullYear();
+            const monthDiff = today.getMonth() - birth.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                age--;
+            }
+            
+            return age;
+        }
+
+        // Carregar lista de médicos
+        async function loadDoctors() {
+            try {
+                const response = await fetch('/api/users/doctors');
+                const data = await response.json();
+
+                if (data.success) {
+                    doctorsData = data.doctors;
+                    updateDoctorSelect();
+                } else {
+                    showError('Erro ao carregar lista de médicos');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar médicos:', error);
+                showError('Erro ao carregar lista de médicos');
+            }
+        }
+
+        // Atualizar select de médicos
+        function updateDoctorSelect() {
+            const select = document.getElementById('doctorSelect');
+            select.innerHTML = '<option value="">Selecione um médico</option>';
+            
+            doctorsData.forEach(doctor => {
+                const option = document.createElement('option');
+                option.value = doctor.id;
+                option.textContent = `${doctor.name} - CRM: ${doctor.crm} (${doctor.specialty})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Atualizar informações do médico selecionado
+        function updateSelectedDoctorInfo() {
+            const select = document.getElementById('doctorSelect');
+            const selectedDoctorId = select.value;
+            const doctorInfoDiv = document.getElementById('selectedDoctorInfo');
+            
+            if (selectedDoctorId) {
+                const doctor = doctorsData.find(d => d.id === selectedDoctorId);
+                if (doctor) {
+                    document.getElementById('doctorName').textContent = doctor.name;
+                    document.getElementById('doctorCRM').textContent = doctor.crm;
+                    document.getElementById('doctorSpecialty').textContent = doctor.specialty;
+                    doctorInfoDiv.style.display = 'block';
+                    doctorId = selectedDoctorId;
+                }
+            } else {
+                doctorInfoDiv.style.display = 'none';
+                doctorId = null;
+            }
+        }
+
+        // Verificar se já existe anamnese completa
+        async function checkExistingAnamnesis() {
+            try {
+                const response = await fetch(`/api/patients/${patientId}/anamnesis/check/complete`);
+                const data = await response.json();
+
+                if (data.success && data.hasCompleteAnamnesis) {
+                    showError('Este paciente já possui uma anamnese completa. Você pode visualizar ou editar a anamnese existente.');
+                    // Aqui poderia redirecionar para a visualização da anamnese
+                }
+            } catch (error) {
+                console.error('Erro ao verificar anamnese existente:', error);
+            }
+        }
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            const form = document.getElementById('anamnesisForm');
+            const saveAsDraftBtn = document.getElementById('saveAsDraftBtn');
+            const doctorSelect = document.getElementById('doctorSelect');
+            
+            form.addEventListener('submit', handleSubmit);
+            saveAsDraftBtn.addEventListener('click', saveAsDraft);
+            doctorSelect.addEventListener('change', updateSelectedDoctorInfo);
+
+            // Calcular IMC automaticamente
+            document.getElementById('weight').addEventListener('input', calculateBMI);
+            document.getElementById('height').addEventListener('input', calculateBMI);
+        }
+
+        // Calcular IMC
+        function calculateBMI() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const bmiField = document.getElementById('bmi');
+
+            if (weight && height && height > 0) {
+                const bmi = weight / (height * height);
+                bmiField.value = bmi.toFixed(1);
+            } else {
+                bmiField.value = '';
+            }
+        }
+
+        // Coletar dados do formulário
+        function collectFormData() {
+            const formData = new FormData(document.getElementById('anamnesisForm'));
+            const data = {};
+
+            // Coletar dados básicos
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            // Coletar sinais vitais como JSON
+            data.vitalSigns = {
+                bloodPressure: data.bloodPressure,
+                heartRate: data.heartRate ? parseInt(data.heartRate) : null,
+                respiratoryRate: data.respiratoryRate ? parseInt(data.respiratoryRate) : null,
+                temperature: data.temperature ? parseFloat(data.temperature) : null,
+                oxygenSaturation: data.oxygenSaturation ? parseInt(data.oxygenSaturation) : null,
+                weight: data.weight ? parseFloat(data.weight) : null,
+                height: data.height ? parseFloat(data.height) : null,
+                bmi: data.bmi ? parseFloat(data.bmi) : null
+            };
+
+            // Remover campos de sinais vitais do nível superior
+            delete data.bloodPressure;
+            delete data.heartRate;
+            delete data.respiratoryRate;
+            delete data.temperature;
+            delete data.oxygenSaturation;
+            delete data.weight;
+            delete data.height;
+            delete data.bmi;
+
+            // Adicionar doctorId do médico selecionado
+            if (!doctorId) {
+                throw new Error('Selecione um médico responsável');
+            }
+            data.doctorId = doctorId;
+
+            return data;
+        }
+
+        // Salvar como rascunho
+        async function saveAsDraft() {
+            await saveAnamnesis(false);
+        }
+
+        // Submeter formulário
+        async function handleSubmit(event) {
+            event.preventDefault();
+            await saveAnamnesis(true);
+        }
+
+        // Salvar anamnese
+        async function saveAnamnesis(isComplete) {
+            try {
+                showLoading(true);
+                
+                const data = collectFormData();
+                data.isComplete = isComplete;
+
+                const response = await fetch(`/api/patients/${patientId}/anamnesis`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const message = isComplete ? 
+                        'Anamnese finalizada com sucesso!' : 
+                        'Rascunho salvo com sucesso!';
+                    
+                    showSuccess(message);
+                    
+                    if (isComplete) {
+                        setTimeout(() => {
+                            window.location.href = 'gestao-pacientes.html';
+                        }, 2000);
+                    }
+                } else {
+                    showError(result.message || 'Erro ao salvar anamnese');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showError('Erro ao salvar anamnese');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Mostrar loading
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const buttons = document.querySelectorAll('.btn');
+            
+            if (show) {
+                loading.classList.add('show');
+                buttons.forEach(btn => btn.disabled = true);
+            } else {
+                loading.classList.remove('show');
+                buttons.forEach(btn => btn.disabled = false);
+            }
+        }
+
+        // Mostrar sucesso
+        function showSuccess(message) {
+            const alert = document.getElementById('successAlert');
+            const messageEl = document.getElementById('successMessage');
+            
+            messageEl.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Mostrar erro
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            const messageEl = document.getElementById('errorMessage');
+            
+            messageEl.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

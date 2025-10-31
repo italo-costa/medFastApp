@@ -19,8 +19,8 @@ router.post('/check-username', async (req, res) => {
       });
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { username }
+    const existingUser = await prisma.usuario.findFirst({
+      where: { email: username }
     });
 
     res.json({
@@ -63,39 +63,27 @@ router.post('/register-doctor', async (req, res) => {
     } = req.body;
 
     // Validações básicas
-    if (!nomeCompleto || !cpf || !crm || !especialidade || !usuario || !senha) {
+    if (!nomeCompleto || !crm || !especialidade || !email || !senha) {
       return res.status(400).json({
         success: false,
-        message: 'Campos obrigatórios não preenchidos'
+        message: 'Campos obrigatórios não preenchidos: nome, CRM, especialidade, email e senha'
       });
     }
 
-    // Verificar se usuário já existe
-    const existingUser = await prisma.user.findUnique({
-      where: { username: usuario }
+    // Verificar se email já existe
+    const existingUser = await prisma.usuario.findFirst({
+      where: { email }
     });
 
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'Nome de usuário já está em uso'
-      });
-    }
-
-    // Verificar se CPF já existe
-    const existingCPF = await prisma.user.findFirst({
-      where: { cpf }
-    });
-
-    if (existingCPF) {
-      return res.status(400).json({
-        success: false,
-        message: 'CPF já cadastrado no sistema'
+        message: 'Email já está cadastrado no sistema'
       });
     }
 
     // Verificar se CRM já existe
-    const existingCRM = await prisma.user.findFirst({
+    const existingCRM = await prisma.medico.findFirst({
       where: { crm }
     });
 
@@ -109,51 +97,51 @@ router.post('/register-doctor', async (req, res) => {
     // Hash da senha
     const hashedPassword = await bcrypt.hash(senha, 10);
 
-    // Normalizar especialidade (primeira letra maiúscula, resto minúsculo)
-    const normalizedSpecialty = especialidade ? 
-      especialidade.charAt(0).toUpperCase() + especialidade.slice(1).toLowerCase() : null;
-
     // Criar usuário
-    const user = await prisma.user.create({
+    const novoUsuario = await prisma.usuario.create({
       data: {
-        name: nomeCompleto,
-        username: usuario,
         email,
-        password: hashedPassword,
-        role: 'DOCTOR',
-        cpf,
-        rg: rg || null,
-        birthDate: new Date(dataNascimento),
-        phone: telefone,
-        crm,
-        specialty: normalizedSpecialty,
-        rqe: rqe || null,
-        formationInstitution: instituicaoFormacao || 'Não informado',
-        formationYear: parseInt(anoFormacao) || new Date().getFullYear(),
-        address: (cep || logradouro) ? {
-          cep: cep || null,
-          logradouro: logradouro || null,
-          numero: numero || null,
-          complemento: complemento || null,
-          bairro: bairro || null,
-          cidade: cidade || null,
-          estado: estado || null
-        } : null
+        senha: hashedPassword,
+        nome: nomeCompleto,
+        tipo: 'MEDICO'
       }
     });
 
-    logger.info(`Novo médico cadastrado: ${user.name} (${user.crm})`);
+    // Criar endereço formatado
+    const enderecoCompleto = [
+      logradouro && numero ? `${logradouro}, ${numero}` : logradouro,
+      complemento,
+      bairro,
+      cidade && estado ? `${cidade} - ${estado}` : cidade,
+      cep
+    ].filter(Boolean).join(', ');
+
+    // Criar perfil médico
+    const novoMedico = await prisma.medico.create({
+      data: {
+        usuario_id: novoUsuario.id,
+        crm,
+        crm_uf: estado || 'SP',
+        especialidade,
+        telefone,
+        celular: telefone,
+        endereco: enderecoCompleto || null,
+        formacao: instituicaoFormacao || 'Não informado',
+        experiencia: `Formado em ${anoFormacao || new Date().getFullYear()}`
+      }
+    });
+
+    logger.info(`Novo médico cadastrado: ${novoUsuario.nome} (${novoMedico.crm})`);
 
     res.status(201).json({
       success: true,
       message: 'Médico cadastrado com sucesso',
       user: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        crm: user.crm,
-        specialty: user.specialty
+        id: novoUsuario.id,
+        name: novoUsuario.nome,
+        email: novoUsuario.email,
+        crm: novoMedico.crm,
+        specialty: novoMedico.especialidade
       }
     });
   } catch (error) {

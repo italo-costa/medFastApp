@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 MediApp - Lista de Médicos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .navigation {
+            background: #ffffff;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .nav-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            background: #3182ce;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .search-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4299e1;
+        }
+
+        .stat-card .stat-label {
+            color: #718096;
+            margin-top: 0.5rem;
+        }
+
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .doctor-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .doctor-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .doctor-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .doctor-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .doctor-info h3 {
+            color: #2d3748;
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .doctor-info .specialty {
+            color: #4299e1;
+            font-weight: 500;
+        }
+
+        .doctor-details {
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .detail-item i {
+            width: 16px;
+            color: #4299e1;
+        }
+
+        .doctor-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3182ce;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+        }
+
+        .error {
+            text-align: center;
+            padding: 3rem;
+            color: #e53e3e;
+            background: #fed7d7;
+            border-radius: 0.5rem;
+            margin: 2rem 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #718096;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #cbd5e0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .doctors-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navigation">
+        <button class="nav-btn" id="voltar-dashboard">
+            <i class="fas fa-arrow-left"></i>
+            Voltar ao Dashboard
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-stethoscope"></i> Lista de Médicos</h1>
+            <p>Visualize e gerencie todos os médicos cadastrados no sistema</p>
+        </div>
+
+        <div class="search-section">
+            <input type="text" class="search-input" id="searchInput" placeholder="Buscar médico por nome, CRM ou especialidade...">
+        </div>
+
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-number" id="totalMedicos">-</div>
+                <div class="stat-label">Total de Médicos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="medicosAtivos">-</div>
+                <div class="stat-label">Médicos Ativos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="especialidades">-</div>
+                <div class="stat-label">Especialidades</div>
+            </div>
+        </div>
+
+        <div id="loadingState" class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Carregando médicos...</p>
+        </div>
+
+        <div id="errorState" class="error" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Erro ao carregar lista de médicos. Tente novamente.</p>
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <i class="fas fa-user-md"></i>
+            <h3>Nenhum médico cadastrado</h3>
+            <p>Não há médicos cadastrados no sistema ainda.</p>
+        </div>
+
+        <div id="doctorsGrid" class="doctors-grid" style="display: none;">
+            <!-- Os médicos serão carregados aqui via JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        let allDoctors = [];
+        let filteredDoctors = [];
+
+        // Função para buscar médicos
+        async function fetchDoctors() {
+            try {
+                showLoading();
+                const response = await fetch('/api/medicos');
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar médicos');
+                }
+
+                const data = await response.json();
+                allDoctors = data.data || [];
+                filteredDoctors = [...allDoctors];
+                
+                updateStats();
+                displayDoctors();
+                hideLoading();
+            } catch (error) {
+                console.error('Erro ao buscar médicos:', error);
+                showError();
+            }
+        }
+
+        // Função para exibir loading
+        function showLoading() {
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('errorState').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('doctorsGrid').style.display = 'none';
+        }
+
+        // Função para esconder loading
+        function hideLoading() {
+            document.getElementById('loadingState').style.display = 'none';
+        }
+
+        // Função para mostrar erro
+        function showError() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('doctorsGrid').style.display = 'none';
+        }
+
+        // Função para atualizar estatísticas
+        function updateStats() {
+            const totalMedicos = allDoctors.length;
+            const medicosAtivos = allDoctors.filter(doctor => doctor.ativo !== false).length;
+            // Contar especialidades únicas
+            const especialidadesUnicas = [...new Set(allDoctors.map(doctor => 
+                doctor.especialidade ? doctor.especialidade.toLowerCase().trim() : ''
+            ).filter(specialty => specialty !== ''))];
+            const especialidades = especialidadesUnicas.length;
+
+            document.getElementById('totalMedicos').textContent = totalMedicos;
+            document.getElementById('medicosAtivos').textContent = medicosAtivos;
+            document.getElementById('especialidades').textContent = especialidades;
+        }
+
+        // Função para exibir médicos
+        function displayDoctors() {
+            console.log('📋 Exibindo médicos... Total:', filteredDoctors.length);
+            
+            const grid = document.getElementById('doctorsGrid');
+            
+            if (filteredDoctors.length === 0) {
+                console.log('⚠️ Nenhum médico para exibir');
+                document.getElementById('emptyState').style.display = 'block';
+                grid.style.display = 'none';
+                return;
+            }
+
+            console.log('✅ Criando cards para', filteredDoctors.length, 'médicos');
+            document.getElementById('emptyState').style.display = 'none';
+            grid.style.display = 'grid';
+            
+            grid.innerHTML = filteredDoctors.map(doctor => createDoctorCard(doctor)).join('');
+            
+            // Adicionar event listeners para os botões
+            addDoctorButtonListeners();
+            
+            console.log('🎯 Cards criados e inseridos no DOM');
+        }
+
+        // Função para criar card de médico
+        function createDoctorCard(doctor) {
+            // Corrigir acesso aos dados do usuário
+            const nome = doctor.usuario?.nome || 'Nome não disponível';
+            const email = doctor.usuario?.email || 'Email não disponível';
+            
+            console.log('📋 Criando card para médico:', nome, 'ID:', doctor.id);
+            
+            const initials = nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            const createdDate = new Date(doctor.criado_em).toLocaleDateString('pt-BR');
+            
+            const cardHTML = `
+                <div class="doctor-card">
+                    <div class="doctor-header">
+                        <div class="doctor-avatar">${initials}</div>
+                        <div class="doctor-info">
+                            <h3>${nome}</h3>
+                            <div class="specialty">${doctor.especialidade}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="doctor-details">
+                        <div class="detail-item">
+                            <i class="fas fa-id-card"></i>
+                            <span>CRM: ${doctor.crm}/${doctor.crm_uf}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>${email}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-phone"></i>
+                            <span>${doctor.telefone || 'Não informado'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>${doctor.celular || 'Não informado'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Cadastrado em: ${createdDate}</span>
+                        </div>
+                        ${doctor.formacao ? `
+                        <div class="detail-item">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>${doctor.formacao}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="doctor-actions">
+                        <button class="btn btn-primary" data-action="view-details" data-doctor-id="${doctor.id}">
+                            <i class="fas fa-eye"></i> Ver Detalhes
+                        </button>
+                        <button class="btn btn-secondary" data-action="edit-doctor" data-doctor-id="${doctor.id}" title="Editar dados do médico">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            console.log('✅ Card criado com botão Editar para ID:', doctor.id);
+            return cardHTML;
+        }
+
+        // Função para adicionar event listeners aos botões dos médicos
+        function addDoctorButtonListeners() {
+            // Event listeners para botões "Ver Detalhes"
+            document.querySelectorAll('[data-action="view-details"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const doctorId = this.getAttribute('data-doctor-id');
+                    viewDoctorDetails(doctorId);
+                });
+            });
+
+            // Event listeners para botões "Editar"
+            document.querySelectorAll('[data-action="edit-doctor"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const doctorId = this.getAttribute('data-doctor-id');
+                    editDoctor(doctorId);
+                });
+            });
+            
+            console.log('✅ Event listeners adicionados aos botões dos médicos');
+        }
+
+        // Função para filtrar médicos
+        function filterDoctors(searchTerm) {
+            const term = searchTerm.toLowerCase();
+            filteredDoctors = allDoctors.filter(doctor => {
+                const nome = doctor.usuario?.nome || '';
+                const email = doctor.usuario?.email || '';
+                return nome.toLowerCase().includes(term) ||
+                       doctor.crm.toLowerCase().includes(term) ||
+                       doctor.especialidade.toLowerCase().includes(term) ||
+                       email.toLowerCase().includes(term);
+            });
+            displayDoctors();
+        }
+
+        // Função para ver detalhes do médico
+        function viewDoctorDetails(doctorId) {
+            console.log('👁️ Visualizando detalhes do médico ID:', doctorId);
+            
+            if (!doctorId) {
+                console.error('❌ ID do médico não fornecido');
+                alert('Erro: ID do médico não encontrado');
+                return;
+            }
+            
+            // Redirecionar para página de detalhes
+            const url = `/detalhes-medico.html?id=${doctorId}`;
+            console.log('🌐 URL de destino:', url);
+            
+            window.location.href = url;
+        }
+
+        // Função para editar médico
+        function editDoctor(doctorId) {
+            console.log('🔧 Função editDoctor chamada com ID:', doctorId);
+            
+            if (!doctorId) {
+                console.error('❌ ID do médico não fornecido');
+                alert('Erro: ID do médico não encontrado');
+                return;
+            }
+            
+            // Mostrar feedback visual
+            console.log('🔄 Redirecionando para edição...');
+            
+            // Redirecionar para página de edição com o ID do médico
+            const url = `/editar-medico.html?id=${doctorId}`;
+            console.log('🌐 URL de destino:', url);
+            
+            window.location.href = url;
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Página de lista de médicos carregada');
+            console.log('🔧 Função editDoctor disponível:', typeof editDoctor === 'function');
+            
+            // Buscar médicos ao carregar a página
+            fetchDoctors();
+
+            // Event listener para busca
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                filterDoctors(e.target.value);
+            });
+
+            // Event listener para voltar ao dashboard
+            document.getElementById('voltar-dashboard').addEventListener('click', function() {
+                console.log('🔙 Voltando ao dashboard');
+                window.location.href = '/app.html';
+            });
+            
+            console.log('✅ Todos os event listeners configurados');
+        });
+    </script>
+</body>
+</html>

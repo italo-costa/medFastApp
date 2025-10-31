@@ -881,7 +881,7 @@
                 params.append('page', page);
                 params.append('limit', limit);
                 
-                const response = await fetch(`http://localhost:3002/api/patients?${params}`);
+                const response = await fetch(`http://localhost:3001/api/patients?${params}`);
                 const data = await response.json();
                 
                 if (response.ok && data.success) {
@@ -985,18 +985,37 @@
             }
 
             container.innerHTML = lista.map(paciente => {
-                const idade = calcularIdade(paciente.dataNascimento);
+                const idade = calcularIdade(paciente.data_nascimento || paciente.dataNascimento);
+                const nomeCompleto = paciente.nome || paciente.nomeCompleto;
+                
+                // Formatar informações da última consulta
+                let infoUltimaConsulta = '';
+                if (paciente.ultimaConsulta) {
+                    const dataConsulta = new Date(paciente.ultimaConsulta.data).toLocaleDateString('pt-BR');
+                    infoUltimaConsulta = `
+                        <div style="margin-top: 8px; padding: 8px 12px; background: #e8f5e8; border-radius: 5px; font-size: 0.9rem;">
+                            <i class="fas fa-user-md" style="color: #28a745;"></i>
+                            <strong>Última consulta:</strong> ${dataConsulta} - Dr(a). ${paciente.ultimaConsulta.medico}
+                        </div>`;
+                } else {
+                    infoUltimaConsulta = `
+                        <div style="margin-top: 8px; padding: 8px 12px; background: #f8f9fa; border-radius: 5px; font-size: 0.9rem; color: #6c757d;">
+                            <i class="fas fa-info-circle"></i>
+                            Nenhuma consulta registrada
+                        </div>`;
+                }
+                
                 return `
                     <div class="patient-card">
                         <div class="patient-header">
                             <div class="patient-info">
-                                <h3>${paciente.nomeCompleto}</h3>
+                                <h3>${nomeCompleto}</h3>
                                 <div class="patient-meta">
                                     <span><i class="fas fa-id-card"></i> ${paciente.cpf}</span> • 
                                     <span><i class="fas fa-birthday-cake"></i> ${idade} anos</span> • 
-                                    <span><i class="fas fa-tint"></i> ${paciente.tipoSanguineo || 'N/I'}</span>
-                                    ${paciente.ultimaConsulta ? `<br><span><i class="fas fa-calendar"></i> Última consulta: ${formatarData(paciente.ultimaConsulta)}</span>` : ''}
+                                    <span><i class="fas fa-tint"></i> ${paciente.tipo_sanguineo || paciente.tipoSanguineo || 'N/I'}</span>
                                 </div>
+                                ${infoUltimaConsulta}
                             </div>
                             <div class="patient-actions">
                                 <button class="btn btn-primary" data-action="selecionar-paciente" data-paciente-id="${paciente.id}">

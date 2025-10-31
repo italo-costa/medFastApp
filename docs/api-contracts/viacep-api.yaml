@@ -1,0 +1,382 @@
+openapi: 3.0.3
+info:
+  title: ViaCEP - API de Consulta de CEP
+  description: |
+    API para consulta de endereços através do CEP (Código de Endereçamento Postal) brasileiro.
+    
+    O ViaCEP é um webservice gratuito e de alto desempenho para consulta de CEP do Brasil,
+    baseado nos dados oficiais dos Correios.
+    
+    **Características:**
+    - ✅ Gratuito e sem autenticação
+    - ✅ Alto desempenho e disponibilidade
+    - ✅ Dados atualizados dos Correios  
+    - ✅ Suporte a CORS
+    - ✅ Múltiplos formatos de resposta
+    
+    **Limitações:**
+    - ⚠️ Uso massivo pode resultar em bloqueio temporário
+    - ⚠️ Não possui SLA garantido (serviço terceirizado)
+    
+    **Base de dados:** 1.529.777 CEPs (atualizado em 27/10/2025)
+  version: 1.0.0
+  contact:
+    name: ViaCEP
+    url: https://viacep.com.br
+    email: contato@viacep.com.br
+  license:
+    name: Gratuito
+    url: https://viacep.com.br
+  termsOfService: https://viacep.com.br
+
+servers:
+  - url: https://viacep.com.br/ws
+    description: Servidor principal do ViaCEP
+
+paths:
+  /{cep}/json/:
+    get:
+      summary: Consultar endereço por CEP
+      description: |
+        Retorna as informações de endereço completas para um CEP específico.
+        
+        **Formato do CEP:** 8 dígitos numéricos (com ou sem hífen)
+        
+        **Exemplos válidos:**
+        - 01001000
+        - 01001-000
+        
+        **Resposta de erro:** Quando CEP não existe, retorna `{"erro": true}`
+      operationId: consultarCepJson
+      tags:
+        - Consulta por CEP
+      parameters:
+        - name: cep
+          in: path
+          required: true
+          description: |
+            CEP a ser consultado (8 dígitos).
+            
+            **Formato:** XXXXXXXX ou XXXXX-XXX
+          schema:
+            type: string
+            pattern: '^[0-9]{5}-?[0-9]{3}$'
+            example: "01001000"
+          examples:
+            cep_sem_hifen:
+              summary: CEP sem hífen
+              value: "01001000"
+            cep_com_hifen:
+              summary: CEP com hífen
+              value: "01001-000"
+      responses:
+        '200':
+          description: CEP encontrado com sucesso
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/EnderecoCompleto'
+                  - $ref: '#/components/schemas/CepNaoEncontrado'
+              examples:
+                endereco_completo:
+                  summary: CEP válido encontrado
+                  value:
+                    cep: "01001-000"
+                    logradouro: "Praça da Sé"
+                    complemento: "lado ímpar"
+                    unidade: ""
+                    bairro: "Sé"
+                    localidade: "São Paulo"
+                    uf: "SP"
+                    estado: "São Paulo"
+                    regiao: "Sudeste"
+                    ibge: "3550308"
+                    gia: "1004"
+                    ddd: "11"
+                    siafi: "7107"
+                cep_nao_encontrado:
+                  summary: CEP não encontrado
+                  value:
+                    erro: true
+        '400':
+          description: CEP em formato inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroFormato'
+              examples:
+                formato_invalido:
+                  summary: CEP com formato incorreto
+                  value:
+                    erro: "CEP deve conter exatamente 8 dígitos"
+
+  /{cep}/xml/:
+    get:
+      summary: Consultar endereço por CEP (XML)
+      description: Mesma funcionalidade de consulta por CEP, retornando dados em formato XML
+      operationId: consultarCepXml
+      tags:
+        - Consulta por CEP
+      parameters:
+        - name: cep
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9]{5}-?[0-9]{3}$'
+            example: "01001000"
+      responses:
+        '200':
+          description: CEP encontrado
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/EnderecoXml'
+
+  /{uf}/{cidade}/{logradouro}/json/:
+    get:
+      summary: Pesquisar CEPs por endereço
+      description: |
+        Busca CEPs através de dados de endereço (busca reversa).
+        
+        **Parâmetros obrigatórios:**
+        - UF: 2 caracteres
+        - Cidade: mínimo 3 caracteres  
+        - Logradouro: mínimo 3 caracteres
+        
+        **Limitações:**
+        - Máximo 50 resultados
+        - Resultados ordenados por proximidade
+        - Quanto mais específico, maior a precisão
+      operationId: pesquisarCepPorEndereco
+      tags:
+        - Pesquisa por Endereço
+      parameters:
+        - name: uf
+          in: path
+          required: true
+          description: Unidade Federativa (estado) - 2 caracteres
+          schema:
+            type: string
+            pattern: '^[A-Z]{2}$'
+            example: "SP"
+        - name: cidade
+          in: path
+          required: true
+          description: Nome da cidade (mínimo 3 caracteres)
+          schema:
+            type: string
+            minLength: 3
+            example: "São Paulo"
+        - name: logradouro
+          in: path
+          required: true
+          description: Nome do logradouro (mínimo 3 caracteres)
+          schema:
+            type: string
+            minLength: 3
+            example: "Praça da Sé"
+      responses:
+        '200':
+          description: Endereços encontrados
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 50
+                items:
+                  $ref: '#/components/schemas/EnderecoCompleto'
+              examples:
+                resultados_encontrados:
+                  summary: Múltiplos endereços encontrados
+                  value:
+                    - cep: "01001-000"
+                      logradouro: "Praça da Sé"
+                      complemento: "lado ímpar"
+                      bairro: "Sé"
+                      localidade: "São Paulo"
+                      uf: "SP"
+                      estado: "São Paulo"
+                      regiao: "Sudeste"
+                      ibge: "3550308"
+                      gia: "1004"
+                      ddd: "11"
+                      siafi: "7107"
+        '400':
+          description: Parâmetros insuficientes ou inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErroFormato'
+
+components:
+  schemas:
+    EnderecoCompleto:
+      type: object
+      description: Dados completos de um endereço brasileiro
+      required:
+        - cep
+        - logradouro
+        - bairro
+        - localidade
+        - uf
+        - estado
+        - regiao
+      properties:
+        cep:
+          type: string
+          description: CEP formatado (XXXXX-XXX)
+          pattern: '^[0-9]{5}-[0-9]{3}$'
+          example: "01001-000"
+        logradouro:
+          type: string
+          description: Nome da rua/avenida/praça
+          example: "Praça da Sé"
+        complemento:
+          type: string
+          description: Informações adicionais do logradouro
+          example: "lado ímpar"
+          nullable: true
+        unidade:
+          type: string
+          description: Unidade (geralmente vazio)
+          example: ""
+          nullable: true
+        bairro:
+          type: string
+          description: Nome do bairro
+          example: "Sé"
+        localidade:
+          type: string
+          description: Nome da cidade
+          example: "São Paulo"
+        uf:
+          type: string
+          description: Sigla do estado (2 caracteres)
+          pattern: '^[A-Z]{2}$'
+          example: "SP"
+        estado:
+          type: string
+          description: Nome completo do estado
+          example: "São Paulo"
+        regiao:
+          type: string
+          description: Nome da região geográfica
+          enum: [Norte, Nordeste, Centro-Oeste, Sudeste, Sul]
+          example: "Sudeste"
+        ibge:
+          type: string
+          description: Código IBGE do município
+          pattern: '^[0-9]{7}$'
+          example: "3550308"
+        gia:
+          type: string
+          description: Código GIA (somente SP)
+          example: "1004"
+          nullable: true
+        ddd:
+          type: string
+          description: Código DDD da região
+          pattern: '^[0-9]{2}$'
+          example: "11"
+        siafi:
+          type: string
+          description: Código SIAFI do município
+          example: "7107"
+
+    CepNaoEncontrado:
+      type: object
+      description: Resposta quando CEP não é encontrado
+      required:
+        - erro
+      properties:
+        erro:
+          type: boolean
+          description: Indica que houve erro na consulta
+          example: true
+
+    ErroFormato:
+      type: object
+      description: Erro de formato ou validação
+      properties:
+        erro:
+          type: string
+          description: Descrição do erro
+          example: "CEP deve conter exatamente 8 dígitos"
+
+    EnderecoXml:
+      type: object
+      description: Estrutura XML para resposta de endereço
+      xml:
+        name: xmlcep
+      properties:
+        cep:
+          type: string
+          xml:
+            name: cep
+        logradouro:
+          type: string
+          xml:
+            name: logradouro
+        complemento:
+          type: string
+          xml:
+            name: complemento
+        bairro:
+          type: string
+          xml:
+            name: bairro
+        localidade:
+          type: string
+          xml:
+            name: localidade
+        uf:
+          type: string
+          xml:
+            name: uf
+        estado:
+          type: string
+          xml:
+            name: estado
+        regiao:
+          type: string
+          xml:
+            name: regiao
+        ibge:
+          type: string
+          xml:
+            name: ibge
+        gia:
+          type: string
+          xml:
+            name: gia
+        ddd:
+          type: string
+          xml:
+            name: ddd
+        siafi:
+          type: string
+          xml:
+            name: siafi
+
+  examples:
+    CepSaoPaulo:
+      summary: CEP do centro de São Paulo
+      value: "01001000"
+    CepRioDeJaneiro:
+      summary: CEP do centro do Rio de Janeiro  
+      value: "20040020"
+    CepInvalido:
+      summary: CEP com formato inválido
+      value: "123456"
+
+tags:
+  - name: Consulta por CEP
+    description: Operações para consultar endereços através do CEP
+  - name: Pesquisa por Endereço
+    description: Operações para buscar CEPs através de dados de endereço
+
+externalDocs:
+  description: Documentação oficial do ViaCEP
+  url: https://viacep.com.br
