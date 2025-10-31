@@ -1,0 +1,126 @@
+{
+  "timestamp": "2025-10-31T19:23:52.354Z",
+  "summary": {
+    "total": 21,
+    "passed": 1,
+    "failed": 20,
+    "successRate": 4.761904761904762,
+    "totalTime": 3192
+  },
+  "performance": {
+    "mobile": [
+      {
+        "name": "Mobile - Estrutura de pastas",
+        "duration": 3
+      }
+    ]
+  },
+  "errors": [
+    {
+      "name": "Health Check - Status do Sistema",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "backend"
+    },
+    {
+      "name": "API Médicos - Listar todos",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "backend"
+    },
+    {
+      "name": "API Pacientes - Listar todos",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "backend"
+    },
+    {
+      "name": "API Estatísticas - Dashboard",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "backend"
+    },
+    {
+      "name": "CRUD Médicos - Criar novo médico",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "backend"
+    },
+    {
+      "name": "Frontend - Página de gestão de médicos",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "frontend"
+    },
+    {
+      "name": "Frontend - Página de gestão de pacientes",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "frontend"
+    },
+    {
+      "name": "Frontend - Recursos estáticos (CSS/JS)",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "frontend"
+    },
+    {
+      "name": "Mobile - Estrutura do projeto React Native",
+      "error": "package.json não encontrado",
+      "category": "mobile"
+    },
+    {
+      "name": "Mobile - Dependências React Native",
+      "error": "ENOENT: no such file or directory, open 'c:\\workspace/aplicativo/mediapp-refined/apps/mobile/package.json'",
+      "category": "mobile"
+    },
+    {
+      "name": "Database - Conexão PostgreSQL",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "database"
+    },
+    {
+      "name": "Database - Operações CRUD Médicos",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "database"
+    },
+    {
+      "name": "Database - Integridade dos dados",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "database"
+    },
+    {
+      "name": "Performance - Tempo de resposta da API",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "performance"
+    },
+    {
+      "name": "Performance - Carregamento das páginas",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "performance"
+    },
+    {
+      "name": "Performance - Múltiplas requisições simultâneas",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "performance"
+    },
+    {
+      "name": "Security - Headers de segurança",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "security"
+    },
+    {
+      "name": "Security - CORS configurado",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "security"
+    },
+    {
+      "name": "Integration - Frontend consome API corretamente",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "integration"
+    },
+    {
+      "name": "Integration - Dados consistentes entre APIs",
+      "error": "connect ECONNREFUSED 127.0.0.1:3002",
+      "category": "integration"
+    }
+  ],
+  "architecture": {
+    "backend": "Node.js + Express + PostgreSQL + Prisma",
+    "frontend": "HTML5 + CSS3 + JavaScript",
+    "mobile": "React Native + Redux Toolkit",
+    "environment": "Ubuntu WSL"
+  }
+}

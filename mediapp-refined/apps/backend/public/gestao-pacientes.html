@@ -1284,8 +1284,8 @@
                     '<i class="fas fa-user-plus"></i> Novo Paciente';
                 
                 // Limpar componentes
-                if (patientPhotoManager) {
-                    patientPhotoManager.clearData();
+                if (photoManager) {
+                    photoManager.clearData();
                 }
                 
                 if (addressManager) {
@@ -1441,40 +1441,53 @@
         async function editarPaciente(id) {
             try {
                 // Buscar dados completos do paciente
-                const response = await fetch(`http://localhost:3002/api/patients/${id}`);
+                const response = await fetch(`/api/patients/${id}`);
                 const result = await response.json();
                 
                 if (response.ok && result.success) {
                     const paciente = result.patient;
                     
-                    // Pré-preencher formulário
+                    // Pré-preencher formulário com dados da API
                     const form = document.getElementById('formNovoPaciente');
-                    form.querySelector('[name="nomeCompleto"]').value = paciente.name || '';
-                    form.querySelector('[name="cpf"]').value = paciente.cpf || '';
-                    form.querySelector('[name="dataNascimento"]').value = paciente.birthDate ? paciente.birthDate.split('T')[0] : '';
-                    form.querySelector('[name="telefone"]').value = paciente.phone || '';
-                    form.querySelector('[name="email"]').value = paciente.email || '';
-                    form.querySelector('[name="tipoSanguineo"]').value = paciente.bloodType || '';
-                    form.querySelector('[name="observacoes"]').value = paciente.observations || '';
                     
-                    // Carregar dados nos novos componentes
+                    // Campos básicos
+                    form.querySelector('[name="nomeCompleto"]').value = paciente.nomeCompleto || paciente.name || '';
+                    form.querySelector('[name="cpf"]').value = paciente.cpf || '';
+                    form.querySelector('[name="rg"]').value = paciente.rg || '';
+                    form.querySelector('[name="dataNascimento"]').value = paciente.dataNascimento ? paciente.dataNascimento.split('T')[0] : 
+                                                                          (paciente.birthDate ? paciente.birthDate.split('T')[0] : '');
+                    form.querySelector('[name="telefone"]').value = paciente.telefone || paciente.phone || '';
+                    form.querySelector('[name="email"]').value = paciente.email || '';
+                    form.querySelector('[name="tipoSanguineo"]').value = paciente.tipoSanguineo || paciente.bloodType || '';
+                    form.querySelector('[name="alergias"]').value = paciente.alergias || paciente.allergies || '';
+                    form.querySelector('[name="observacoes"]').value = paciente.observacoes || paciente.observations || '';
+                    
+                    // Campos adicionais se existirem
+                    const profissaoField = form.querySelector('[name="profissao"]');
+                    if (profissaoField) profissaoField.value = paciente.profissao || '';
+                    
+                    const estadoCivilField = form.querySelector('[name="estadoCivil"]');
+                    if (estadoCivilField) estadoCivilField.value = paciente.estadoCivil || '';
+                    
+                    // Carregar dados nos componentes especializados
                     
                     // 1. Foto do paciente
-                    if (patientPhotoManager && paciente.photo) {
-                        patientPhotoManager.loadExistingPhoto(paciente.photo);
+                    if (photoManager && paciente.photo) {
+                        photoManager.loadExistingPhoto(paciente.photo);
                     }
                     
-                    // 2. Dados de endereço
-                    if (addressManager && paciente.address) {
-                        addressManager.loadAddress({
-                            cep: paciente.address.cep || '',
-                            rua: paciente.address.street || '',
-                            numero: paciente.address.number || '',
-                            complemento: paciente.address.complement || '',
-                            bairro: paciente.address.neighborhood || '',
-                            cidade: paciente.address.city || '',
-                            estado: paciente.address.state || ''
-                        });
+                    // 2. Dados de endereço - mapear para estrutura esperada
+                    if (addressManager) {
+                        const addressData = {
+                            cep: paciente.cep || (paciente.address ? paciente.address.cep : '') || '',
+                            rua: paciente.endereco || (paciente.address ? paciente.address.street : '') || '',
+                            numero: paciente.numero || (paciente.address ? paciente.address.number : '') || '',
+                            complemento: paciente.complemento || (paciente.address ? paciente.address.complement : '') || '',
+                            bairro: paciente.bairro || (paciente.address ? paciente.address.neighborhood : '') || '',
+                            cidade: paciente.cidade || (paciente.address ? paciente.address.city : '') || '',
+                            estado: paciente.uf || (paciente.address ? paciente.address.state : '') || ''
+                        };
+                        addressManager.loadAddress(addressData);
                     }
                     
                     // 3. Dados de plano de saúde
@@ -1496,6 +1509,8 @@
                     
                     // Abrir modal
                     abrirModalNovoPaciente();
+                    
+                    console.log('✅ Dados do paciente carregados para edição:', paciente);
                 } else {
                     throw new Error(result.message || 'Erro ao buscar dados do paciente');
                 }

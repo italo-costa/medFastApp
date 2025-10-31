@@ -18,6 +18,7 @@ const { errorHandler, notFoundHandler } = require('./middleware/errorHandling');
 
 // Importar rotas
 const medicosRoutes = require('./routes/medicosRoutes');
+const patientsRoutes = require('./routes/patients');
 
 // Criar aplicação Express
 const app = express();
@@ -89,6 +90,7 @@ app.get('/health', async (req, res) => {
 
 // Rotas da API
 app.use('/api/medicos', medicosRoutes);
+app.use('/api/patients', patientsRoutes);
 
 // Rota para estatísticas do dashboard
 app.get('/api/statistics/dashboard', async (req, res) => {

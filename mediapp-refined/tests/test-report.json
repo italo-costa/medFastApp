@@ -1,0 +1,67 @@
+{
+  "timestamp": "2025-10-31T18:11:23.069Z",
+  "results": {
+    "total": 14,
+    "passed": 0,
+    "failed": 14,
+    "errors": [
+      {
+        "name": "Health Check do servidor",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      },
+      {
+        "name": "API de estatísticas do dashboard",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      },
+      {
+        "name": "Listagem de médicos",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      },
+      {
+        "name": "Listagem de pacientes",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      },
+      {
+        "name": "Página principal (index)",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      },
+      {
+        "name": "Página de gestão de médicos",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      },
+      {
+        "name": "Página de gestão de pacientes",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      },
+      {
+        "name": "Dashboard com estatísticas",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      },
+      {
+        "name": "Buscar médico específico para testes",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      },
+      {
+        "name": "Integração ViaCEP",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      },
+      {
+        "name": "Estatísticas de pacientes",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      },
+      {
+        "name": "Tempo de resposta da API (< 500ms)",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      },
+      {
+        "name": "Carregamento de assets estáticos",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      },
+      {
+        "name": "Consistência de dados de médicos",
+        "error": "connect ECONNREFUSED 127.0.0.1:3002"
+      }
+    ]
+  },
+  "successRate": 0
+}
