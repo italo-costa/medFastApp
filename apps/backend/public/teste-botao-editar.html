@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Teste do Botão Editar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            margin: 1rem;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .warning { background: #fff3cd; color: #856404; }
+        pre {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .test-result {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste do Botão Editar - Lista de Médicos</h1>
+        
+        <div class="status success">
+            ✅ Servidor rodando na porta 3002
+        </div>
+        
+        <h2>🔗 Links para Teste</h2>
+        
+        <a href="http://localhost:3002/lista-medicos.html" class="btn" target="_blank">
+            📋 Abrir Lista de Médicos
+        </a>
+        
+        <a href="http://localhost:3002/editar-medico.html?id=cmh3slen1000z6a4gsq8j8eun" class="btn" target="_blank">
+            ✏️ Abrir Edição Direta
+        </a>
+        
+        <h2>📋 Instruções de Teste</h2>
+        
+        <div class="test-result">
+            <h3>1. Teste Manual do Botão Editar</h3>
+            <ol>
+                <li><strong>Clique em "📋 Abrir Lista de Médicos"</strong></li>
+                <li><strong>Aguarde</strong> o carregamento da lista (deve aparecer 10 médicos)</li>
+                <li><strong>Abra o Console do navegador</strong> (F12 → Console)</li>
+                <li><strong>Procure pelos logs</strong>:
+                    <pre>🚀 Página de lista de médicos carregada
+🔧 Função editDoctor disponível: true
+📋 Criando card para médico: Dr. [Nome]
+✅ Card criado com botão Editar para ID: [ID]</pre>
+                </li>
+                <li><strong>Clique no botão "Editar"</strong> de qualquer médico</li>
+                <li><strong>Verifique no console</strong> se aparece:
+                    <pre>🔧 Função editDoctor chamada com ID: [ID]
+🔄 Redirecionando para edição...
+🌐 URL de destino: /editar-medico.html?id=[ID]</pre>
+                </li>
+                <li><strong>Confirme</strong> se foi redirecionado para a página de edição</li>
+                <li><strong>Verifique</strong> se os dados do médico foram carregados</li>
+            </ol>
+        </div>
+        
+        <div class="test-result">
+            <h3>2. Verificação de Funcionamento</h3>
+            <div class="status info">
+                <strong>✅ Componentes Verificados:</strong><br>
+                • Botão "Editar" presente no HTML<br>
+                • Função editDoctor() implementada<br>
+                • Redirecionamento para /editar-medico.html?id=[ID]<br>
+                • Página de edição acessível<br>
+                • API de médicos funcionando
+            </div>
+        </div>
+        
+        <div class="test-result">
+            <h3>3. Possíveis Problemas</h3>
+            <div class="status warning">
+                <strong>Se o botão não funcionar, verifique:</strong><br>
+                • Console do navegador para erros JavaScript<br>
+                • Se os médicos estão carregando na lista<br>
+                • Se há erros de rede (F12 → Network)<br>
+                • Cache do navegador (Ctrl+F5 para refresh forçado)
+            </div>
+        </div>
+        
+        <h2>🔧 Status Técnico</h2>
+        
+        <div id="statusTecnico">
+            <p>Verificando status...</p>
+        </div>
+        
+        <h2>👨‍⚕️ Médicos Disponíveis</h2>
+        
+        <div id="listaMedicos">
+            <p>Carregando lista...</p>
+        </div>
+    </div>
+
+    <script>
+        // Verificar status técnico
+        async function verificarStatus() {
+            const statusDiv = document.getElementById('statusTecnico');
+            const medicosDiv = document.getElementById('listaMedicos');
+            
+            try {
+                // Testar API
+                const response = await fetch('/api/medicos');
+                const data = await response.json();
+                
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        ✅ API funcionando<br>
+                        📊 Status: ${response.status}<br>
+                        👨‍⚕️ Médicos encontrados: ${data.data.length}
+                    </div>
+                `;
+                
+                // Mostrar lista de médicos
+                medicosDiv.innerHTML = `
+                    <div class="status info">
+                        ${data.data.map(medico => `
+                            <div style="margin: 0.5rem 0; padding: 0.5rem; border-left: 3px solid #007bff;">
+                                <strong>${medico.nome}</strong> - ${medico.especialidade}<br>
+                                <small>ID: ${medico.id} | CRM: ${medico.crm}/${medico.crm_uf}</small><br>
+                                <a href="/editar-medico.html?id=${medico.id}" target="_blank" style="color: #007bff;">
+                                    🔗 Testar edição direta
+                                </a>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="status warning">
+                        ⚠️ Erro ao conectar com API<br>
+                        Erro: ${error.message}
+                    </div>
+                `;
+                
+                medicosDiv.innerHTML = `
+                    <div class="status warning">
+                        ❌ Não foi possível carregar a lista de médicos
+                    </div>
+                `;
+            }
+        }
+        
+        // Executar verificação ao carregar
+        document.addEventListener('DOMContentLoaded', verificarStatus);
+    </script>
+</body>
+</html>

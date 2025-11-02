@@ -1,11 +1,11 @@
 {
-  "timestamp": "2025-10-31T19:23:34.329Z",
+  "timestamp": "2025-10-31T20:20:18.006Z",
   "summary": {
     "total": 30,
     "passed": 8,
     "failed": 22,
     "successRate": 26.666666666666668,
-    "totalTime": 3220,
+    "totalTime": 3197,
     "criticalErrors": 6
   },
   "categoryStats": {
@@ -54,7 +54,7 @@
     "security": [
       {
         "name": "Security - SQL Injection prevention",
-        "duration": 2,
+        "duration": 3,
         "critical": false
       },
       {
@@ -66,7 +66,7 @@
     "mobile": [
       {
         "name": "Mobile - Project structure validation",
-        "duration": 7,
+        "duration": 6,
         "critical": false
       },
       {

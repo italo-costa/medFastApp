@@ -1,225 +1,446 @@
-# 🏥 MediApp - Sistema de Gestão Médica Completo
+# 🏥 MediApp - Sistema Médico Completo v2.0# 🏥 MediApp - Sistema de Gestão Médica Completo
 
-Sistema médico moderno e completo com arquitetura robusta para gestão de pacientes, prontuários digitais e dados clínicos. **Versão 2.0** com funcionalidades avançadas de gestão de pacientes.
 
-## 🚀 Funcionalidades
+
+[![Node.js](https://img.shields.io/badge/Node.js-18.0%2B-green.svg)](https://nodejs.org/)Sistema médico moderno e completo com arquitetura robusta para gestão de pacientes, prontuários digitais e dados clínicos. **Versão 2.0** com funcionalidades avançadas de gestão de pacientes.
+
+[![React Native](https://img.shields.io/badge/React%20Native-0.72.6-blue.svg)](https://reactnative.dev/)
+
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13%2B-blue.svg)](https://postgresql.org/)## 🚀 Funcionalidades
+
+[![Status](https://img.shields.io/badge/Status-Refatorado-success.svg)](https://github.com/mediapp/workspace)
 
 ### ⭐ **Gestão Avançada de Pacientes** (NOVO!)
-- **📸 Gerenciamento de Fotos**: Upload, crop e otimização automática
-- **🏠 Endereços Inteligentes**: Integração ViaCEP para auto-complete brasileiro
-- **🏥 Planos de Saúde**: Gestão completa de convênios e SUS
-- **📋 Dados Completos**: Informações pessoais, médicas e de contato
-- **🔍 Busca Avançada**: Filtros inteligentes com paginação
-- **📊 Estatísticas**: Dashboard com métricas em tempo real
 
-### ✅ Gestão de Médicos
-- Cadastro completo com CRM, especialidades e validações
-- Sistema de autenticação seguro com JWT
-- Perfis detalhados com formação e experiência
+**Sistema médico completo para gestão de prontuários, médicos e pacientes com tecnologia moderna e arquitetura limpa.**- **📸 Gerenciamento de Fotos**: Upload, crop e otimização automática
+
+- **🏠 Endereços Inteligentes**: Integração ViaCEP para auto-complete brasileiro
+
+## 🎯 Visão Geral- **🏥 Planos de Saúde**: Gestão completa de convênios e SUS
+
+- **📋 Dados Completos**: Informações pessoais, médicas e de contato
+
+MediApp é uma solução completa para gestão médica que inclui:- **🔍 Busca Avançada**: Filtros inteligentes com paginação
+
+- 👨‍⚕️ **Gestão de Médicos** - Cadastro, edição e controle- **📊 Estatísticas**: Dashboard com métricas em tempo real
+
+- 👥 **Gestão de Pacientes** - Prontuários eletrônicos completos  
+
+- 🗺️ **Analytics Geográfico** - Mapas interativos e visualizações### ✅ Gestão de Médicos
+
+- 📊 **Dashboard Analytics** - Métricas e relatórios avançados- Cadastro completo com CRM, especialidades e validações
+
+- 🔗 **Integrações Externas** - SUS, ANS, ViaCEP- Sistema de autenticação seguro com JWT
+
+- 📱 **App Mobile** - React Native para iOS/Android- Perfis detalhados com formação e experiência
+
 - Dashboard personalizado por profissional
 
+## 🏗️ Arquitetura Refatorada
+
 ### ✅ Prontuários Digitais
-- Sistema de anamnese completo e estruturado
-- Relacionamento médico-paciente com histórico
-- Consultas organizadas por data e especialidade
-- Diagnósticos integrados com sistema médico
 
-### ✅ Sistema de Exames e Arquivos
-- Upload de arquivos médicos (PDF, imagens)
-- Organização por paciente e tipo de exame
-- Controle de resultados e laudos
-- Sistema de anexos e observações
+```- Sistema de anamnese completo e estruturado
 
-### ✅ Dashboard e Analytics
-- Visão geral do sistema com estatísticas
-- Métricas de atendimento em tempo real
-- Interface moderna e totalmente responsiva
-- Relatórios personalizados e exportação
+📦 mediapp/- Relacionamento médico-paciente com histórico
 
-## 🛠️ Tecnologias
+├── 📄 package.json                 # Workspace principal- Consultas organizadas por data e especialidade
 
-### **Backend (Node.js + Express)**
-- **API RESTful**: Endpoints padronizados e documentados  
-- **PostgreSQL + Prisma ORM**: Banco de dados robusto com ORM moderno
-- **Autenticação JWT**: Sistema seguro com refresh tokens
-- **Validações**: CPF, telefone, CEP, dados médicos
-- **Segurança**: Helmet, CORS, Rate limiting
-- **Upload de Arquivos**: Sistema de upload com validação
+├── 📄 README.md                    # Este arquivo- Diagnósticos integrados com sistema médico
+
+├── 🚀 start-mediapp-unified.sh     # Script de inicialização
+
+├── 📁 apps/### ✅ Sistema de Exames e Arquivos
+
+│   ├── 📁 backend/                 # Backend Node.js unificado- Upload de arquivos médicos (PDF, imagens)
+
+│   │   ├── 📄 package.json- Organização por paciente e tipo de exame
+
+│   │   ├── 📁 src/- Controle de resultados e laudos
+
+│   │   │   ├── 📄 app.js           # ✅ Servidor principal ÚNICO- Sistema de anexos e observações
+
+│   │   │   ├── 📁 routes/          # Rotas da API
+
+│   │   │   ├── 📁 services/        # Serviços de negócio### ✅ Dashboard e Analytics
+
+│   │   │   ├── 📁 middleware/      # Middlewares Express- Visão geral do sistema com estatísticas
+
+│   │   │   ├── 📁 config/          # Configurações- Métricas de atendimento em tempo real
+
+│   │   │   └── 📁 utils/           # Utilitários- Interface moderna e totalmente responsiva
+
+│   │   ├── 📁 public/              # Arquivos estáticos- Relatórios personalizados e exportação
+
+│   │   ├── 📁 tests/               # Testes automatizados
+
+│   │   └── 📁 prisma/              # Schema do banco## 🛠️ Tecnologias
+
+│   └── 📁 mobile/                  # App React Native
+
+│       ├── 📄 package.json### **Backend (Node.js + Express)**
+
+│       ├── 📁 src/                 # Código fonte mobile- **API RESTful**: Endpoints padronizados e documentados  
+
+│       ├── 📁 android/             # Configuração Android- **PostgreSQL + Prisma ORM**: Banco de dados robusto com ORM moderno
+
+│       └── 📁 ios/                 # Configuração iOS- **Autenticação JWT**: Sistema seguro com refresh tokens
+
+├── 📁 docs/                        # Documentação consolidada- **Validações**: CPF, telefone, CEP, dados médicos
+
+├── 📁 scripts/                     # Scripts de build/deploy- **Segurança**: Helmet, CORS, Rate limiting
+
+└── 📁 tests/                       # Testes de integração- **Upload de Arquivos**: Sistema de upload com validação
+
+```
 
 ### **Frontend Web (HTML5 + JavaScript)**
-- **Interface Moderna**: Design responsivo e intuitivo
+
+## 🚀 Quick Start- **Interface Moderna**: Design responsivo e intuitivo
+
 - **Componentes Modulares**: PatientPhotoManager, AddressManager, InsuranceManager
-- **Integrações**: ViaCEP (endereços), validações brasileiras
+
+### 1. Pré-requisitos- **Integrações**: ViaCEP (endereços), validações brasileiras
+
 - **Upload de Fotos**: Sistema de crop e otimização
-- **Formulários Inteligentes**: Validação em tempo real
 
-### **Mobile App (React Native)**
+```bash- **Formulários Inteligentes**: Validação em tempo real
+
+# Node.js 18+
+
+node --version### **Mobile App (React Native)**
+
 - **Framework**: React Native 0.72.6 + TypeScript
-- **Estado**: Redux Toolkit para gerenciamento global
-- **UI**: React Native Paper - Material Design
+
+# PostgreSQL 13+- **Estado**: Redux Toolkit para gerenciamento global
+
+pg_config --version- **UI**: React Native Paper - Material Design
+
 - **Navegação**: React Navigation 6.x
-- **Status**: Estrutura base pronta, em expansão
 
-### **Database (PostgreSQL + Prisma)**
+# Git- **Status**: Estrutura base pronta, em expansão
+
+git --version
+
+```### **Database (PostgreSQL + Prisma)**
+
 - **Schema Completo**: 8 tabelas com relacionamentos
-- **Dados Reais**: 5 pacientes de exemplo com consultas
-- **Migrations**: Controle de versão do banco
-- **Validações**: Constraints e índices otimizados
 
-## 📊 Dados Implementados (Database Real)
+### 2. Clonagem e Setup- **Dados Reais**: 5 pacientes de exemplo com consultas
+
+- **Migrations**: Controle de versão do banco
+
+```bash- **Validações**: Constraints e índices otimizados
+
+# Clonar repositório
+
+git clone https://github.com/mediapp/workspace.git## 📊 Dados Implementados (Database Real)
+
+cd mediapp
 
 ### **Médicos Cadastrados (1)**
-- Dr. João Silva - CRM 123456-SP - Cardiologia
 
-### **Pacientes Completos (5)**
-- Maria Silva Santos - CPF: 123.456.789-00 - A+ 
-- João Pedro Oliveira - CPF: 987.654.321-00 - O+
+# Setup automático- Dr. João Silva - CRM 123456-SP - Cardiologia
+
+chmod +x start-mediapp-unified.sh
+
+./start-mediapp-unified.sh### **Pacientes Completos (5)**
+
+# Escolha opção 3 (Setup inicial)- Maria Silva Santos - CPF: 123.456.789-00 - A+ 
+
+```- João Pedro Oliveira - CPF: 987.654.321-00 - O+
+
 - Ana Costa Lima - CPF: 456.789.123-00 - B+
-- Carlos Eduardo Santos - CPF: 789.123.456-00 - AB+
+
+### 3. Inicialização- Carlos Eduardo Santos - CPF: 789.123.456-00 - AB+
+
 - Patricia Rodrigues Almeida - CPF: 321.654.987-00 - A-
 
-### **Consultas e Prontuários (3)**
-- Consulta Cardiológica - Maria Silva (Set/2024)
-- Consulta Preventiva - João Pedro (Out/2024)  
+```bash
+
+# Servidor de produção### **Consultas e Prontuários (3)**
+
+./start-mediapp-unified.sh- Consulta Cardiológica - Maria Silva (Set/2024)
+
+# Escolha opção 1- Consulta Preventiva - João Pedro (Out/2024)  
+
 - Acompanhamento - Ana Costa (Nov/2024)
 
-### **Exames e Arquivos (3)**
-- Eletrocardiograma - Maria Silva
-- Hemograma Completo - João Pedro
+# Ou servidor de desenvolvimento
+
+./start-mediapp-unified.sh  ### **Exames e Arquivos (3)**
+
+# Escolha opção 2- Eletrocardiograma - Maria Silva
+
+```- Hemograma Completo - João Pedro
+
 - Ultrassom - Ana Costa
 
+### 4. Acessar Aplicação
+
 ### **Alergias Registradas (3)**
-- Penicilina - Severity: HIGH
-- Dipirona - Severity: MEDIUM  
-- Ácido Acetilsalicílico - Severity: LOW
 
-## 🏗️ Arquitetura do Sistema
+🌐 **Web Interface**: http://localhost:3001/  - Penicilina - Severity: HIGH
 
-### **Visão Geral**
+⚡ **Health Check**: http://localhost:3001/health  - Dipirona - Severity: MEDIUM  
+
+👨‍⚕️ **Gestão Médicos**: http://localhost:3001/gestao-medicos.html  - Ácido Acetilsalicílico - Severity: LOW
+
+👥 **Gestão Pacientes**: http://localhost:3001/gestao-pacientes.html  
+
+🗺️ **Analytics Geográfico**: http://localhost:3001/src/pages/analytics-geografico.html  ## 🏗️ Arquitetura do Sistema
+
+
+
+## 📋 Funcionalidades### **Visão Geral**
+
 ```
-🌐 Frontend Web (HTML5/JS) + 📱 Mobile (React Native)
+
+### 🎯 Core Features🌐 Frontend Web (HTML5/JS) + 📱 Mobile (React Native)
+
                     ↓
-🔗 API Gateway (Express.js) - PORT 3001
-                    ↓  
-🧠 Business Logic (Prisma ORM + Validators)
-                    ↓
-💾 PostgreSQL Database - PORT 5432
+
+| Funcionalidade | Status | Descrição |🔗 API Gateway (Express.js) - PORT 3001
+
+|----------------|--------|-----------|                    ↓  
+
+| **Gestão de Médicos** | ✅ | CRUD completo, especialidades, CRM |🧠 Business Logic (Prisma ORM + Validators)
+
+| **Gestão de Pacientes** | ✅ | Prontuários, histórico, documentos |                    ↓
+
+| **Analytics Dashboard** | ✅ | Métricas, gráficos, relatórios |💾 PostgreSQL Database - PORT 5432
+
+| **Mapas Geográficos** | ✅ | Leaflet.js, markers interativos |```
+
+| **Integração SUS** | ✅ | Dados DATASUS, estabelecimentos |
+
+| **Integração ANS** | ✅ | Operadoras, beneficiários |### **Componentes Principais**
+
+| **API ViaCEP** | ✅ | Busca de endereços |
+
+| **App Mobile** | ✅ | React Native 0.72.6 |#### **1. API Layer (Node.js + Express)**
+
 ```
 
-### **Componentes Principais**
+### 🔧 Technical Features/api/auth/*         → Autenticação JWT
 
-#### **1. API Layer (Node.js + Express)**
-```
-/api/auth/*         → Autenticação JWT
 /api/users/*        → Gestão de médicos  
-/api/patients/*     → Gestão de pacientes (NOVO!)
-/api/records/*      → Prontuários médicos
-/api/exams/*        → Exames e arquivos
-/api/allergies/*    → Controle de alergias
-/api/analytics/*    → Dashboard e estatísticas
-```
+
+- **Servidor Unificado**: Um único `app.js` substitui 15+ servidores duplicados/api/patients/*     → Gestão de pacientes (NOVO!)
+
+- **Workspace Monorepo**: Estrutura limpa com backend e mobile/api/records/*      → Prontuários médicos
+
+- **Database ORM**: Prisma com PostgreSQL  /api/exams/*        → Exames e arquivos
+
+- **Testes Automatizados**: Jest + Supertest/api/allergies/*    → Controle de alergias
+
+- **Docker Support**: Containerização opcional/api/analytics/*    → Dashboard e estatísticas
+
+- **CI/CD Ready**: GitHub Actions configurado```
+
+- **Mobile APK**: Build automático Android
 
 #### **2. Frontend Components (Web)**
-- `PatientPhotoManager` - Gerenciamento de fotos com crop
+
+## 🧹 Refatoração Realizada- `PatientPhotoManager` - Gerenciamento de fotos com crop
+
 - `AddressManager` - Integração ViaCEP para endereços
-- `InsuranceManager` - Gestão de planos de saúde brasileiros
+
+### ❌ Removido (Duplicações)- `InsuranceManager` - Gestão de planos de saúde brasileiros
+
 - Interface responsiva e moderna
 
-#### **3. Database Schema (PostgreSQL)**
-```sql
-users (médicos) → medical_records ← patients
-                      ↓
-                  anamnesis, exams, allergies, patient_photos
-```
+- 🗂️ `backend/`, `mediapp/`, `mediapp-refined/` (pastas duplicadas)
 
-### **Segurança & Compliance**
-- ✅ **JWT Authentication** - Tokens seguros com refresh
-- 🔐 **Data Validation** - CPF, telefone, CEP, dados médicos
-- 🛡️ **CORS + Helmet** - Headers de segurança
-- 📝 **Request Logging** - Auditoria completa
+- 🖥️ 15+ servidores diferentes (`robust-server.js`, `persistent-server.js`, etc.)#### **3. Database Schema (PostgreSQL)**
+
+- 📦 6 arquivos `package.json` duplicados```sql
+
+- 📜 30+ scripts de inicialização redundantesusers (médicos) → medical_records ← patients
+
+- 📝 50+ arquivos de documentação repetida                      ↓
+
+                  anamnesis, exams, allergies, patient_photos
+
+### ✅ Consolidado```
+
+
+
+- 🏗️ **Estrutura Única**: `/apps/backend` e `/apps/mobile`### **Segurança & Compliance**
+
+- 🖥️ **Servidor Único**: `apps/backend/src/app.js`- ✅ **JWT Authentication** - Tokens seguros com refresh
+
+- 📦 **3 Package.json**: Workspace + Backend + Mobile- 🔐 **Data Validation** - CPF, telefone, CEP, dados médicos
+
+- 🚀 **1 Script Start**: `start-mediapp-unified.sh`- 🛡️ **CORS + Helmet** - Headers de segurança
+
+- 📚 **Documentação Limpa**: Este README.md- 📝 **Request Logging** - Auditoria completa
+
 - 🚫 **Rate Limiting** - Proteção contra ataques
 
-### 👥 Colaboração
-- Múltiplos médicos por paciente
-- Notificações de alterações
-- Comentários e observações
-- Logs de atividade
+### 📈 Resultado
 
-## 📱 Compatibilidade
-- **Android**: 7.0+ (API 24+)
+### 👥 Colaboração
+
+| Métrica | Antes | Depois | Melhoria |- Múltiplos médicos por paciente
+
+|---------|-------|--------|----------|- Notificações de alterações
+
+| **Pastas Backend** | 6 | 1 | -83% |- Comentários e observações
+
+| **Servidores** | 15+ | 1 | -93% |- Logs de atividade
+
+| **Package.json** | 6 | 3 | -50% |
+
+| **Scripts Start** | 30+ | 1 | -96% |## 📱 Compatibilidade
+
+| **Docs MD** | 100+ | 10 | -90% |- **Android**: 7.0+ (API 24+)
+
 - **iOS**: 12.0+
-- **Tablets**: Suporte completo
+
+## 🛠️ Desenvolvimento- **Tablets**: Suporte completo
+
 - **Offline**: Sincronização automática
+
+### Scripts Disponíveis
 
 ## 🛠️ Setup do Projeto
 
-### Pré-requisitos
-- Node.js 18+
-- React Native CLI
-- Android Studio / Xcode
-- PostgreSQL 14+
+```bash
+
+# Workspace principal### Pré-requisitos
+
+npm run dev                 # Backend + Mobile em paralelo- Node.js 18+
+
+npm run backend:start       # Só o backend- React Native CLI
+
+npm run mobile:android      # Build Android- Android Studio / Xcode
+
+npm run test               # Todos os testes- PostgreSQL 14+
+
+npm run setup              # Setup completo
 
 ### Instalação
-```bash
-# Clone o projeto
-git clone <repo-url>
-cd aplicativo
 
-# Instale dependências
+# Backend específico```bash
+
+cd apps/backend# Clone o projeto
+
+npm start                  # Produçãogit clone <repo-url>
+
+npm run dev               # Desenvolvimento com nodemoncd aplicativo
+
+npm test                  # Testes
+
+npm run db:migrate        # Migração do banco# Instale dependências
+
 npm install
 
-## 🚀 Instalação e Execução
+# Mobile específico  
 
-### **Pré-requisitos**
-- Node.js 18+
-- PostgreSQL 16+
+cd apps/mobile## 🚀 Instalação e Execução
+
+npm run android           # Build Android
+
+npm run ios              # Build iOS### **Pré-requisitos**
+
+npm test                 # Testes mobile- Node.js 18+
+
+```- PostgreSQL 16+
+
 - Git
 
+## 📊 API Documentation
+
 ### **Configuração Rápida**
-```bash
+
+### 🔗 Endpoints Principais```bash
+
 # 1. Clone o repositório
-git clone <repo-url>
-cd aplicativo
 
-# 2. Configure o backend
-cd backend
-npm install
+| Método | Endpoint | Descrição |git clone <repo-url>
 
-# 3. Configure o banco de dados
-createdb mediapp
-npx prisma generate
-npx prisma db push
+|--------|----------|-----------|cd aplicativo
 
-# 4. Insira dados de exemplo (opcional)
+| `GET` | `/health` | Status do sistema |
+
+| `GET` | `/api/medicos` | Listar médicos |# 2. Configure o backend
+
+| `POST` | `/api/medicos` | Criar médico |cd backend
+
+| `PUT` | `/api/medicos/:id` | Atualizar médico |npm install
+
+| `DELETE` | `/api/medicos/:id` | Remover médico |
+
+| `GET` | `/api/patients` | Listar pacientes |# 3. Configure o banco de dados
+
+| `POST` | `/api/patients` | Criar paciente |createdb mediapp
+
+| `GET` | `/api/statistics/dashboard` | Métricas |npx prisma generate
+
+| `GET` | `/api/viacep/:cep` | Buscar CEP |npx prisma db push
+
+
+
+### 📈 Analytics Endpoints# 4. Insira dados de exemplo (opcional)
+
 npx prisma db seed
 
-# 5. Inicie o servidor
-npm run dev
-```
+| Método | Endpoint | Descrição |
 
-### **Acessar o Sistema**
+|--------|----------|-----------|# 5. Inicie o servidor
+
+| `POST` | `/api/external/analytics/consolidated` | Dados consolidados |npm run dev
+
+| `GET` | `/api/external/analytics/maps/establishments` | Estabelecimentos para mapa |```
+
+| `POST` | `/api/external/analytics/maps/marker/create` | Criar marker |
+
+| `GET` | `/api/external/analytics/maps/heatmap/:tipo` | Dados heatmap |### **Acessar o Sistema**
+
 - **Dashboard**: http://localhost:3001
-- **Gestão de Pacientes**: http://localhost:3001/gestao-pacientes.html
+
+## 🔒 Segurança- **Gestão de Pacientes**: http://localhost:3001/gestao-pacientes.html
+
 - **Health Check**: http://localhost:3001/health
-- **API Docs**: http://localhost:3001/api
 
-### **Mobile (Opcional)**
-```bash
-# Configure o mobile
+- Autenticação JWT- **API Docs**: http://localhost:3001/api
+
+- Criptografia de senhas com bcrypt
+
+- Validação de dados com Joi### **Mobile (Opcional)**
+
+- Rate limiting```bash
+
+- Helmet para headers de segurança# Configure o mobile
+
 cd mobile
-npm install
 
-# Execute no simulador
+## 📄 Licençanpm install
+
+
+
+Este projeto está licenciado sob a [MIT License](LICENSE).# Execute no simulador
+
 npm run android  # ou npm run ios
-```
 
-## 📊 Estrutura do Projeto
-```
-aplicativo/
+## 🆘 Suporte```
+
+
+
+- 🐛 **Issues**: [GitHub Issues](https://github.com/mediapp/workspace/issues)## 📊 Estrutura do Projeto
+
+- 💬 **Discussões**: [GitHub Discussions](https://github.com/mediapp/workspace/discussions)```
+
+- 📧 **Email**: suporte@mediapp.com.braplicativo/
+
 ├── backend/                      # API Node.js + Express
-│   ├── src/
+
+---│   ├── src/
+
 │   │   ├── routes/              # Rotas da API (/api/*)
-│   │   ├── utils/               # Validadores e utilitários
+
+**MediApp v2.0** - Sistema médico completo, refatorado e otimizado 🏥✨│   │   ├── utils/               # Validadores e utilitários
 │   │   └── middleware/          # Autenticação e logging
 │   ├── public/                  # Frontend web estático
 │   │   ├── gestao-pacientes.html # ⭐ Gestão avançada de pacientes

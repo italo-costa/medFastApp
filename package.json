@@ -1,24 +1,30 @@
 {
-  "name": "mediapp",
-  "version": "1.0.0",
-  "description": "Sistema de Prontuários Médicos - App móvel para gestão completa de pacientes",
-  "main": "index.js",
+  "name": "mediapp-workspace",
+  "version": "2.0.0",
+  "description": "🏥 MediApp - Sistema Médico Completo Unificado",
+  "private": true,
   "scripts": {
     "dev": "concurrently \"npm run backend:dev\" \"npm run mobile:start\"",
-    "backend:dev": "cd backend && npm run dev",
-    "mobile:start": "cd mobile && npm start",
-    "mobile:android": "cd mobile && npm run android",
-    "mobile:ios": "cd mobile && npm run ios",
+    "backend:dev": "cd apps/backend && npm run dev",
+    "backend:start": "cd apps/backend && npm start",
+    "mobile:start": "cd apps/mobile && npm start",
+    "mobile:android": "cd apps/mobile && npm run android",
+    "mobile:ios": "cd apps/mobile && npm run ios",
     "setup": "npm run setup:backend && npm run setup:mobile",
-    "setup:backend": "cd backend && npm install && npm run db:migrate",
-    "setup:mobile": "cd mobile && npm install",
+    "setup:backend": "cd apps/backend && npm install && npm run db:migrate",
+    "setup:mobile": "cd apps/mobile && npm install",
     "test": "npm run test:backend && npm run test:mobile",
-    "test:backend": "cd backend && npm test",
-    "test:mobile": "cd mobile && npm test",
-    "build:mobile": "cd mobile && npm run build",
+    "test:backend": "cd apps/backend && npm test",
+    "test:mobile": "cd apps/mobile && npm test",
+    "test:integration": "cd apps/backend && npm run test:integration",
+    "build:mobile": "cd apps/mobile && npm run build",
     "lint": "npm run lint:backend && npm run lint:mobile",
-    "lint:backend": "cd backend && npm run lint",
-    "lint:mobile": "cd mobile && npm run lint"
+    "lint:backend": "cd apps/backend && npm run lint",
+    "lint:mobile": "cd apps/mobile && npm run lint",
+    "health": "cd apps/backend && npm run health",
+    "clean": "npm run clean:backend && npm run clean:mobile",
+    "clean:backend": "cd apps/backend && rm -rf node_modules package-lock.json",
+    "clean:mobile": "cd apps/mobile && rm -rf node_modules package-lock.json"
   },
   "keywords": [
     "react-native",
@@ -26,9 +32,10 @@
     "healthcare",
     "prontuario",
     "mobile-app",
-    "typescript",
     "nodejs",
-    "postgresql"
+    "postgresql",
+    "unified-system",
+    "refactored"
   ],
   "author": "MediApp Team",
   "license": "MIT",
@@ -40,7 +47,11 @@
     "npm": ">=8.0.0"
   },
   "workspaces": [
-    "backend",
-    "mobile"
-  ]
+    "apps/backend",
+    "apps/mobile"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mediapp/workspace.git"
+  }
 }

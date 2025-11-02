@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Debug Lista Médicos</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 2rem; }
+        .debug-info { background: #f0f8ff; padding: 1rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .error { background: #ffe6e6; color: #d00; }
+        .success { background: #e6ffe6; color: #090; }
+        button { background: #007bff; color: white; padding: 0.5rem 1rem; border: none; border-radius: 0.25rem; cursor: pointer; margin: 0.25rem; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug - Lista de Médicos</h1>
+    
+    <div class="debug-info">
+        <h3>Status da API</h3>
+        <div id="apiStatus">Verificando...</div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>Teste dos Botões</h3>
+        <div id="buttonsTest">Carregando...</div>
+    </div>
+    
+    <div class="debug-info">
+        <h3>Console de Debug</h3>
+        <div id="debugConsole"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const console = document.getElementById('debugConsole');
+            const timestamp = new Date().toLocaleTimeString();
+            console.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+            console.scrollTop = console.scrollHeight;
+        }
+
+        async function checkAPI() {
+            try {
+                log('🔄 Verificando API...');
+                const response = await fetch('/api/medicos');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('apiStatus').innerHTML = `
+                        <div class="success">✅ API funcionando - ${data.data.length} médicos</div>
+                    `;
+                    log(`✅ API OK - ${data.data.length} médicos encontrados`, 'success');
+                    return data.data;
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                document.getElementById('apiStatus').innerHTML = `
+                    <div class="error">❌ Erro: ${error.message}</div>
+                `;
+                log(`❌ Erro na API: ${error.message}`, 'error');
+                return [];
+            }
+        }
+
+        function createTestButtons(doctors) {
+            if (doctors.length === 0) {
+                document.getElementById('buttonsTest').innerHTML = '<div class="error">Nenhum médico disponível para teste</div>';
+                return;
+            }
+
+            const testDoctor = doctors[0];
+            log(`🧪 Criando botão de teste para: ${testDoctor.nome}`);
+            
+            document.getElementById('buttonsTest').innerHTML = `
+                <p><strong>Médico de teste:</strong> ${testDoctor.nome}</p>
+                <p><strong>ID:</strong> ${testDoctor.id}</p>
+                <button onclick="testEditFunction('${testDoctor.id}', '${testDoctor.nome}')">
+                    🔧 Testar Função editDoctor
+                </button>
+                <button onclick="testDirectLink('${testDoctor.id}')">
+                    🔗 Testar Link Direto
+                </button>
+                <button onclick="openListPage()">
+                    📋 Abrir Lista Original
+                </button>
+            `;
+        }
+
+        // Simular a função editDoctor exatamente como na lista-medicos.html
+        function testEditFunction(doctorId, doctorName) {
+            log(`🔧 Testando editDoctor com ID: ${doctorId}`);
+            
+            if (!doctorId) {
+                log('❌ ID do médico não fornecido', 'error');
+                alert('Erro: ID do médico não encontrado');
+                return;
+            }
+            
+            log('🔄 Redirecionando para edição...');
+            const url = `/editar-medico.html?id=${doctorId}`;
+            log(`🌐 URL de destino: ${url}`);
+            
+            // Confirmar antes de redirecionar
+            if (confirm(`Redirecionar para edição de ${doctorName}?\\nURL: ${url}`)) {
+                log('✅ Redirecionando...', 'success');
+                window.location.href = url;
+            } else {
+                log('⏹️ Redirecionamento cancelado pelo usuário');
+            }
+        }
+
+        function testDirectLink(doctorId) {
+            const url = `/editar-medico.html?id=${doctorId}`;
+            log(`🔗 Abrindo link direto: ${url}`);
+            window.open(url, '_blank');
+        }
+
+        function openListPage() {
+            log('📋 Abrindo página de lista original');
+            window.open('/lista-medicos.html', '_blank');
+        }
+
+        // Inicializar quando carregar
+        window.addEventListener('load', async function() {
+            log('🚀 Página de debug carregada');
+            const doctors = await checkAPI();
+            createTestButtons(doctors);
+            log('✅ Debug completo');
+        });
+    </script>
+</body>
+</html>

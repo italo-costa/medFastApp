@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗺️ Analytics Geográfico - MediApp</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f7fafc;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4f46e5;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .map-container {
+            height: 500px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .full-width-card {
+            grid-column: 1 / -1;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: #4f46e5;
+            border-bottom-color: #4f46e5;
+        }
+
+        .tab:hover {
+            color: #4f46e5;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: white;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .popup-content {
+            max-width: 300px;
+        }
+
+        .popup-content h3 {
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+
+        .popup-details {
+            margin: 1rem 0;
+            font-size: 0.875rem;
+        }
+
+        .especialidade-tag {
+            display: inline-block;
+            background: #e5e7eb;
+            color: #374151;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin: 0.125rem;
+        }
+
+        .popup-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .popup-actions button {
+            padding: 0.25rem 0.75rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🗺️ Analytics Geográfico - MediApp</h1>
+        <p>Visualização e edição de dados médicos em mapas interativos</p>
+    </div>
+
+    <div class="container">
+        <!-- Estatísticas Resumidas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalEstabelecimentos">-</div>
+                <div class="stat-label">Estabelecimentos Mapeados</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalOperadoras">-</div>
+                <div class="stat-label">Operadoras Ativas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="regioesCobertas">-</div>
+                <div class="stat-label">Regiões Cobertas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="pontosCalor">-</div>
+                <div class="stat-label">Pontos de Calor</div>
+            </div>
+        </div>
+
+        <!-- Abas de Mapas -->
+        <div class="card full-width-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Mapas Interativos
+                </h2>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchMap('estabelecimentos')">
+                    🏥 Estabelecimentos SUS
+                </button>
+                <button class="tab" onclick="switchMap('operadoras')">
+                    🩺 Operadoras ANS
+                </button>
+                <button class="tab" onclick="switchMap('densidade')">
+                    📊 Densidade de Atendimento
+                </button>
+                <button class="tab" onclick="switchMap('consultas')">
+                    🔥 Mapa de Calor - Consultas
+                </button>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>Modo Edição:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="editModeToggle" onchange="toggleEditMode()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="control-group">
+                    <label>Clusters:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="clustersToggle" checked onchange="toggleClusters()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="control-group">
+                    <label>Heatmap:</label>
+                    <label class="switch">
+                        <input type="checkbox" id="heatmapToggle" onchange="toggleHeatmap()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <button class="btn btn-primary" onclick="refreshMapData()">
+                    <i class="fas fa-sync-alt"></i> Atualizar Dados
+                </button>
+
+                <button class="btn btn-success" onclick="exportMapData()">
+                    <i class="fas fa-download"></i> Exportar
+                </button>
+            </div>
+
+            <!-- Legenda -->
+            <div class="legend" id="mapLegend" style="display: none;">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #e74c3c;"></div>
+                    <span>🏥 Hospitais</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #3498db;"></div>
+                    <span>🏪 UBS</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #2ecc71;"></div>
+                    <span>🏢 Clínicas</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #f39c12;"></div>
+                    <span>🔬 Laboratórios</span>
+                </div>
+            </div>
+
+            <!-- Container do Mapa -->
+            <div class="map-container">
+                <div id="map"></div>
+                <div id="loadingMap" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+    <script>
+        // Variáveis globais
+        let map;
+        let markersLayer;
+        let heatmapLayer;
+        let currentMapType = 'estabelecimentos';
+        let editMode = false;
+        let clustersEnabled = true;
+        let heatmapEnabled = false;
+        let mapData = {};
+
+        // Inicializar mapa
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMap();
+            loadInitialData();
+        });
+
+        function initializeMap() {
+            // Criar mapa centrado no Brasil
+            map = L.map('map').setView([-14.2350, -51.9253], 5);
+
+            // Adicionar tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors | MediApp Analytics'
+            }).addTo(map);
+
+            // Configurar eventos
+            map.on('click', onMapClick);
+        }
+
+        async function loadInitialData() {
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/external/analytics/consolidated', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        incluirSUS: true,
+                        incluirANS: true,
+                        municipios: ['355030', '431490', '230440'],
+                        ufs: ['SP', 'RJ', 'MG', 'RS', 'CE']
+                    })
+                });
+
+                const data = await response.json();
+                mapData = data.data;
+
+                updateStats();
+                loadMapData(currentMapType);
+                
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                alert('Erro ao carregar dados do mapa. Verifique a conexão.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function updateStats() {
+            if (mapData.mapas) {
+                document.getElementById('totalEstabelecimentos').textContent = 
+                    mapData.mapas.estabelecimentosSUS?.markers?.length || 0;
+                
+                document.getElementById('totalOperadoras').textContent = 
+                    Object.keys(mapData.mapas.operadorasANS?.regions || {}).length;
+                
+                document.getElementById('regioesCobertas').textContent = '27'; // Estados brasileiros
+                
+                document.getElementById('pontosCalor').textContent = 
+                    mapData.mapas.distribuicaoConsultas?.data?.length || 0;
+            }
+        }
+
+        function switchMap(mapType) {
+            // Atualizar abas ativas
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            currentMapType = mapType;
+            loadMapData(mapType);
+        }
+
+        function loadMapData(type) {
+            clearMapLayers();
+
+            switch (type) {
+                case 'estabelecimentos':
+                    loadEstabelecimentos();
+                    showLegend(true);
+                    break;
+                case 'operadoras':
+                    loadOperadoras();
+                    showLegend(false);
+                    break;
+                case 'densidade':
+                    loadDensidade();
+                    showLegend(false);
+                    break;
+                case 'consultas':
+                    loadConsultas();
+                    showLegend(false);
+                    break;
+            }
+        }
+
+        function loadEstabelecimentos() {
+            if (!mapData.mapas?.estabelecimentosSUS?.markers) return;
+
+            const markers = mapData.mapas.estabelecimentosSUS.markers;
+            markersLayer = clustersEnabled ? L.markerClusterGroup() : L.layerGroup();
+
+            markers.forEach(markerData => {
+                const icon = createCustomIcon(markerData);
+                const marker = L.marker(markerData.position, { icon })
+                    .bindPopup(createPopupContent(markerData))
+                    .on('click', () => onMarkerClick(markerData));
+
+                if (editMode) {
+                    marker.dragging.enable();
+                    marker.on('dragend', (e) => onMarkerDrag(e, markerData));
+                }
+
+                markersLayer.addLayer(marker);
+            });
+
+            markersLayer.addTo(map);
+
+            // Adicionar heatmap se habilitado
+            if (heatmapEnabled && mapData.mapas.estabelecimentosSUS.heatmapData) {
+                loadHeatmapOverlay(mapData.mapas.estabelecimentosSUS.heatmapData);
+            }
+        }
+
+        function loadOperadoras() {
+            if (!mapData.mapas?.operadorasANS?.regions) return;
+
+            Object.entries(mapData.mapas.operadorasANS.regions).forEach(([uf, dados]) => {
+                const center = getStateCenter(uf);
+                const radius = Math.sqrt(dados.quantidadeOperadoras) * 10000;
+                
+                const circle = L.circle(center, {
+                    color: getColorForOperadoras(dados.quantidadeOperadoras),
+                    fillColor: getColorForOperadoras(dados.quantidadeOperadoras),
+                    fillOpacity: 0.6,
+                    radius: radius
+                }).addTo(map);
+
+                circle.bindPopup(`
+                    <div class="popup-content">
+                        <h3>${uf}</h3>
+                        <div class="popup-details">
+                            <p><strong>Operadoras:</strong> ${dados.quantidadeOperadoras}</p>
+                            <p><strong>Ativas:</strong> ${dados.operadorasAtivas}</p>
+                            <p><strong>Beneficiários:</strong> ${dados.beneficiarios?.toLocaleString()}</p>
+                            <p><strong>Modalidade Principal:</strong> ${dados.modalidadePrincipal}</p>
+                        </div>
+                    </div>
+                `);
+            });
+        }
+
+        function loadDensidade() {
+            // Implementar visualização choropleth para densidade
+            if (mapData.mapas?.densidadeAtendimento?.data) {
+                // Simulação de choropleth
+                console.log('Carregando mapa de densidade...');
+            }
+        }
+
+        function loadConsultas() {
+            if (mapData.mapas?.distribuicaoConsultas?.data) {
+                loadHeatmapOverlay(mapData.mapas.distribuicaoConsultas.data);
+            }
+        }
+
+        function loadHeatmapOverlay(heatData) {
+            const formattedData = heatData.map(point => [point.lat, point.lng, point.weight]);
+            
+            heatmapLayer = L.heatLayer(formattedData, {
+                radius: 25,
+                blur: 15,
+                maxZoom: 17,
+                gradient: {
+                    0.2: 'blue',
+                    0.4: 'cyan',
+                    0.6: 'lime',
+                    0.8: 'yellow',
+                    1.0: 'red'
+                }
+            }).addTo(map);
+        }
+
+        function createCustomIcon(markerData) {
+            const iconHtml = `
+                <div style="
+                    background-color: ${markerData.color};
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    border: 3px solid white;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 16px;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+                ">
+                    ${markerData.icon}
+                </div>
+            `;
+
+            return L.divIcon({
+                html: iconHtml,
+                className: 'custom-div-icon',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+        }
+
+        function createPopupContent(markerData) {
+            return `
+                <div class="popup-content">
+                    <h3>${markerData.title}</h3>
+                    <p>${markerData.description}</p>
+                    ${markerData.dados ? `
+                        <div class="popup-details">
+                            <p><strong>CNES:</strong> ${markerData.dados.cnes}</p>
+                            <p><strong>Tipo:</strong> ${markerData.dados.tipo}</p>
+                            <p><strong>Telefone:</strong> ${markerData.dados.telefone}</p>
+                            <p><strong>Horários:</strong> ${markerData.dados.horarios}</p>
+                            <div>
+                                <strong>Especialidades:</strong><br>
+                                ${markerData.dados.especialidades?.map(esp => 
+                                    `<span class="especialidade-tag">${esp}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    ${editMode ? `
+                        <div class="popup-actions">
+                            <button onclick="editMarker('${markerData.id}')">✏️ Editar</button>
+                            <button onclick="deleteMarker('${markerData.id}')">🗑️ Excluir</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Funções de controle
+        function toggleEditMode() {
+            editMode = document.getElementById('editModeToggle').checked;
+            loadMapData(currentMapType);
+        }
+
+        function toggleClusters() {
+            clustersEnabled = document.getElementById('clustersToggle').checked;
+            if (currentMapType === 'estabelecimentos') {
+                loadMapData(currentMapType);
+            }
+        }
+
+        function toggleHeatmap() {
+            heatmapEnabled = document.getElementById('heatmapToggle').checked;
+            
+            if (heatmapEnabled) {
+                if (currentMapType === 'estabelecimentos' && mapData.mapas?.estabelecimentosSUS?.heatmapData) {
+                    loadHeatmapOverlay(mapData.mapas.estabelecimentosSUS.heatmapData);
+                }
+            } else {
+                if (heatmapLayer) {
+                    map.removeLayer(heatmapLayer);
+                    heatmapLayer = null;
+                }
+            }
+        }
+
+        function showLegend(show) {
+            document.getElementById('mapLegend').style.display = show ? 'flex' : 'none';
+        }
+
+        function clearMapLayers() {
+            if (markersLayer) {
+                map.removeLayer(markersLayer);
+                markersLayer = null;
+            }
+            if (heatmapLayer) {
+                map.removeLayer(heatmapLayer);
+                heatmapLayer = null;
+            }
+            
+            // Remover outros layers que não sejam o tile layer
+            map.eachLayer(layer => {
+                if (layer !== map._layers[Object.keys(map._layers)[0]]) {
+                    map.removeLayer(layer);
+                }
+            });
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingMap').style.display = show ? 'flex' : 'none';
+        }
+
+        // Event handlers
+        function onMapClick(e) {
+            if (editMode && currentMapType === 'estabelecimentos') {
+                addNewMarker(e.latlng.lat, e.latlng.lng);
+            }
+        }
+
+        function onMarkerClick(markerData) {
+            console.log('Marker clicado:', markerData);
+        }
+
+        function onMarkerDrag(e, markerData) {
+            const newPosition = [e.target.getLatLng().lat, e.target.getLatLng().lng];
+            updateMarkerPosition(markerData.id, newPosition);
+        }
+
+        async function addNewMarker(lat, lng) {
+            try {
+                const response = await fetch('/api/external/analytics/maps/marker/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        position: [lat, lng],
+                        title: 'Novo Estabelecimento',
+                        description: 'Estabelecimento adicionado pelo usuário',
+                        category: 'clinica'
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    console.log('Novo marker criado:', result.data);
+                    refreshMapData();
+                }
+            } catch (error) {
+                console.error('Erro ao criar marker:', error);
+            }
+        }
+
+        async function updateMarkerPosition(markerId, position) {
+            try {
+                const response = await fetch('/api/external/analytics/maps/marker/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        markerId,
+                        position
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    console.log('Marker atualizado:', result.data);
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar marker:', error);
+            }
+        }
+
+        function editMarker(markerId) {
+            console.log('Editando marker:', markerId);
+            // Implementar modal de edição
+        }
+
+        async function deleteMarker(markerId) {
+            if (confirm('Tem certeza que deseja excluir este estabelecimento?')) {
+                try {
+                    const response = await fetch(`/api/external/analytics/maps/marker/${markerId}`, {
+                        method: 'DELETE'
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        console.log('Marker removido');
+                        refreshMapData();
+                    }
+                } catch (error) {
+                    console.error('Erro ao remover marker:', error);
+                }
+            }
+        }
+
+        function refreshMapData() {
+            loadInitialData();
+        }
+
+        function exportMapData() {
+            const exportData = {
+                type: currentMapType,
+                timestamp: new Date().toISOString(),
+                data: mapData
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+                type: 'application/json'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mediapp-map-${currentMapType}-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Funções auxiliares
+        function getStateCenter(uf) {
+            const centros = {
+                'SP': [-23.5505, -46.6333],
+                'RJ': [-22.9068, -43.1729],
+                'MG': [-19.9191, -43.9386],
+                'RS': [-30.0346, -51.2177],
+                'PR': [-25.4284, -49.2733],
+                'SC': [-27.5954, -48.5480],
+                'BA': [-12.9714, -38.5014],
+                'CE': [-3.7319, -38.5267],
+                'PE': [-8.0476, -34.8770],
+                'GO': [-16.6869, -49.2648]
+            };
+            return centros[uf] || [-14.2350, -51.9253];
+        }
+
+        function getColorForOperadoras(quantidade) {
+            if (quantidade > 200) return '#e74c3c';
+            if (quantidade > 100) return '#f39c12';
+            if (quantidade > 50) return '#f1c40f';
+            return '#2ecc71';
+        }
+    </script>
+</body>
+</html>

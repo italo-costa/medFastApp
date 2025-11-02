@@ -1,0 +1,459 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  senha         String
+  nome          String
+  tipo          TipoUsuario
+  ativo         Boolean      @default(true)
+  ultimo_login  DateTime?
+  criado_em     DateTime     @default(now())
+  atualizado_em DateTime     @updatedAt
+  enfermeiro    Enfermeiro?
+  logs          LogSistema[]
+  medico        Medico?
+  sessoes       Sessao[]
+
+  @@map("usuarios")
+}
+
+model Medico {
+  id                  String        @id @default(cuid())
+  usuario_id          String        @unique
+  crm                 String        @unique
+  crm_uf              String
+  especialidade       String
+  telefone            String?
+  celular             String?
+  endereco            String?
+  formacao            String?
+  experiencia         String?
+  horario_atendimento String?
+  criado_em           DateTime      @default(now())
+  atualizado_em       DateTime      @updatedAt
+  agendamentos        Agendamento[]
+  consultas           Consulta[]
+  usuario             Usuario       @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  prescricoes         Prescricao[]
+  prontuarios         Prontuario[]
+
+  @@map("medicos")
+}
+
+model Enfermeiro {
+  id            String        @id @default(cuid())
+  usuario_id    String        @unique
+  coren         String        @unique
+  coren_uf      String
+  telefone      String?
+  celular       String?
+  endereco      String?
+  criado_em     DateTime      @default(now())
+  atualizado_em DateTime      @updatedAt
+  atendimentos  Atendimento[]
+  usuario       Usuario       @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@map("enfermeiros")
+}
+
+model Paciente {
+  id               String               @id @default(cuid())
+  nome             String
+  cpf              String               @unique
+  rg               String?
+  data_nascimento  DateTime
+  sexo             Sexo
+  telefone         String?
+  celular          String?
+  email            String?
+  endereco         String?
+  cep              String?
+  cidade           String?
+  uf               String?
+  profissao        String?
+  estado_civil     EstadoCivil?
+  nome_contato     String?
+  telefone_contato String?
+  convenio         String?
+  numero_convenio  String?
+  observacoes      String?
+  ativo            Boolean              @default(true)
+  criado_em        DateTime             @default(now())
+  atualizado_em    DateTime             @updatedAt
+  agendamentos     Agendamento[]
+  alergias         Alergia[]
+  arquivos         Arquivo[]
+  consultas        Consulta[]
+  doencas          DoencaPreexistente[]
+  exames           Exame[]
+  medicamentos     MedicamentoUso[]
+  prontuarios      Prontuario[]
+
+  @@map("pacientes")
+}
+
+model Prontuario {
+  id                    String            @id @default(cuid())
+  paciente_id           String
+  medico_id             String
+  data_consulta         DateTime
+  tipo_consulta         TipoConsulta
+  queixa_principal      String?
+  historia_doenca_atual String?
+  exame_clinico         String?
+  hipotese_diagnostica  String?
+  conduta               String?
+  cid                   String?
+  data_retorno          DateTime?
+  observacoes           String?
+  criado_em             DateTime          @default(now())
+  atualizado_em         DateTime          @updatedAt
+  exames_solicitados    ExameSolicitado[]
+  prescricoes           Prescricao[]
+  medico                Medico            @relation(fields: [medico_id], references: [id])
+  paciente              Paciente          @relation(fields: [paciente_id], references: [id])
+  sinais_vitais         SinalVital[]
+
+  @@map("prontuarios")
+}
+
+model Consulta {
+  id            String         @id @default(cuid())
+  paciente_id   String
+  medico_id     String
+  data_hora     DateTime
+  tipo          TipoConsulta
+  status        StatusConsulta
+  observacoes   String?
+  valor         Decimal?       @db.Decimal(10, 2)
+  criado_em     DateTime       @default(now())
+  atualizado_em DateTime       @updatedAt
+  medico        Medico         @relation(fields: [medico_id], references: [id])
+  paciente      Paciente       @relation(fields: [paciente_id], references: [id])
+
+  @@map("consultas")
+}
+
+model Exame {
+  id                    String   @id @default(cuid())
+  paciente_id           String
+  tipo_exame            String
+  nome_exame            String
+  data_realizacao       DateTime
+  resultado             String?
+  observacoes           String?
+  laboratorio           String?
+  medico_solicitante    String?
+  arquivo_url           String?
+  criado_em             DateTime @default(now())
+  atualizado_em         DateTime @updatedAt
+  nome_arquivo_original String?
+  tamanho_arquivo       Int?
+  tipo_arquivo          String?
+  paciente              Paciente @relation(fields: [paciente_id], references: [id])
+
+  @@map("exames")
+}
+
+model ExameSolicitado {
+  id            String     @id @default(cuid())
+  prontuario_id String
+  tipo_exame    String
+  nome_exame    String
+  observacoes   String?
+  urgente       Boolean    @default(false)
+  criado_em     DateTime   @default(now())
+  prontuario    Prontuario @relation(fields: [prontuario_id], references: [id])
+
+  @@map("exames_solicitados")
+}
+
+model Alergia {
+  id            String           @id @default(cuid())
+  paciente_id   String
+  substancia    String
+  tipo_reacao   String?
+  gravidade     GravidadeAlergia
+  observacoes   String?
+  criado_em     DateTime         @default(now())
+  atualizado_em DateTime         @updatedAt
+  paciente      Paciente         @relation(fields: [paciente_id], references: [id])
+
+  @@map("alergias")
+}
+
+model MedicamentoUso {
+  id                String    @id @default(cuid())
+  paciente_id       String
+  nome_medicamento  String
+  dosagem           String
+  frequencia        String
+  via_administracao String?
+  data_inicio       DateTime?
+  data_fim          DateTime?
+  observacoes       String?
+  ativo             Boolean   @default(true)
+  criado_em         DateTime  @default(now())
+  atualizado_em     DateTime  @updatedAt
+  paciente          Paciente  @relation(fields: [paciente_id], references: [id])
+
+  @@map("medicamentos_uso")
+}
+
+model DoencaPreexistente {
+  id               String       @id @default(cuid())
+  paciente_id      String
+  nome_doenca      String
+  cid              String?
+  data_diagnostico DateTime?
+  status           StatusDoenca
+  observacoes      String?
+  criado_em        DateTime     @default(now())
+  atualizado_em    DateTime     @updatedAt
+  paciente         Paciente     @relation(fields: [paciente_id], references: [id])
+
+  @@map("doencas_preexistentes")
+}
+
+model Prescricao {
+  id            String     @id @default(cuid())
+  prontuario_id String
+  medico_id     String
+  medicamentos  Json
+  observacoes   String?
+  data_validade DateTime?
+  criado_em     DateTime   @default(now())
+  medico        Medico     @relation(fields: [medico_id], references: [id])
+  prontuario    Prontuario @relation(fields: [prontuario_id], references: [id])
+
+  @@map("prescricoes")
+}
+
+model SinalVital {
+  id                  String     @id @default(cuid())
+  prontuario_id       String
+  pressao_arterial    String?
+  frequencia_cardiaca Int?
+  temperatura         Decimal?   @db.Decimal(4, 1)
+  peso                Decimal?   @db.Decimal(5, 2)
+  altura              Decimal?   @db.Decimal(3, 2)
+  imc                 Decimal?   @db.Decimal(4, 2)
+  observacoes         String?
+  criado_em           DateTime   @default(now())
+  prontuario          Prontuario @relation(fields: [prontuario_id], references: [id])
+
+  @@map("sinais_vitais")
+}
+
+model Agendamento {
+  id              String            @id @default(cuid())
+  paciente_id     String
+  medico_id       String
+  data_hora       DateTime
+  duracao_minutos Int               @default(30)
+  tipo_consulta   TipoConsulta
+  status          StatusAgendamento
+  observacoes     String?
+  criado_em       DateTime          @default(now())
+  atualizado_em   DateTime          @updatedAt
+  medico          Medico            @relation(fields: [medico_id], references: [id])
+  paciente        Paciente          @relation(fields: [paciente_id], references: [id])
+
+  @@map("agendamentos")
+}
+
+model Atendimento {
+  id               String     @id @default(cuid())
+  enfermeiro_id    String
+  paciente_nome    String
+  tipo_atendimento String
+  descricao        String
+  data_hora        DateTime
+  observacoes      String?
+  criado_em        DateTime   @default(now())
+  enfermeiro       Enfermeiro @relation(fields: [enfermeiro_id], references: [id])
+
+  @@map("atendimentos")
+}
+
+model Arquivo {
+  id            String      @id @default(cuid())
+  paciente_id   String
+  nome_original String
+  nome_arquivo  String
+  tipo_arquivo  TipoArquivo
+  tamanho_bytes Int
+  caminho       String
+  descricao     String?
+  criado_em     DateTime    @default(now())
+  paciente      Paciente    @relation(fields: [paciente_id], references: [id])
+
+  @@map("arquivos")
+}
+
+model Sessao {
+  id             String   @id @default(cuid())
+  usuario_id     String
+  token          String   @unique
+  data_expiracao DateTime
+  ip_address     String?
+  user_agent     String?
+  dispositivo    String?
+  ativo          Boolean  @default(true)
+  criado_em      DateTime @default(now())
+  usuario        Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+
+  @@map("sessoes")
+}
+
+model LogSistema {
+  id           String   @id @default(cuid())
+  usuario_id   String?
+  acao         String
+  descricao    String
+  ip_address   String?
+  user_agent   String?
+  dispositivo  String?
+  dados_extras Json?
+  criado_em    DateTime @default(now())
+  usuario      Usuario? @relation(fields: [usuario_id], references: [id])
+
+  @@map("logs_sistema")
+}
+
+model Configuracao {
+  id            String   @id @default(cuid())
+  chave         String   @unique
+  valor         String
+  descricao     String?
+  categoria     String?
+  atualizado_em DateTime @updatedAt
+
+  @@map("configuracoes")
+}
+
+model SincronizacaoMobile {
+  id              String    @id @default(cuid())
+  usuario_id      String
+  tabela          String
+  registro_id     String
+  acao            AcaoSync
+  dados           Json
+  sincronizado    Boolean   @default(false)
+  tentativas      Int       @default(0)
+  criado_em       DateTime  @default(now())
+  sincronizado_em DateTime?
+
+  @@map("sincronizacao_mobile")
+}
+
+model EstatisticaDashboard {
+  id               String          @id @default(cuid())
+  tipo_estatistica TipoEstatistica
+  valor            String
+  valor_numerico   Int?
+  label            String
+  trend            String?
+  icon             String?
+  color            String?
+  dados_reais      Boolean         @default(false)
+  metadados        Json?
+  data_calculo     DateTime        @default(now())
+  ativo            Boolean         @default(true)
+  criado_em        DateTime        @default(now())
+  atualizado_em    DateTime        @updatedAt
+
+  @@map("estatisticas_dashboard")
+}
+
+enum TipoUsuario {
+  ADMIN
+  MEDICO
+  ENFERMEIRO
+}
+
+enum Sexo {
+  MASCULINO
+  FEMININO
+  OUTRO
+}
+
+enum EstadoCivil {
+  SOLTEIRO
+  CASADO
+  DIVORCIADO
+  VIUVO
+  UNIAO_ESTAVEL
+}
+
+enum TipoConsulta {
+  CONSULTA_ROTINA
+  CONSULTA_RETORNO
+  CONSULTA_URGENCIA
+  EXAME_PERIODICO
+  CONSULTA_PREVENTIVA
+  TELECONSULTA
+}
+
+enum StatusConsulta {
+  AGENDADA
+  EM_ANDAMENTO
+  CONCLUIDA
+  CANCELADA
+  NAO_COMPARECEU
+}
+
+enum StatusAgendamento {
+  AGENDADO
+  CONFIRMADO
+  REAGENDADO
+  CANCELADO
+  CONCLUIDO
+}
+
+enum GravidadeAlergia {
+  LEVE
+  MODERADA
+  GRAVE
+  MUITO_GRAVE
+}
+
+enum StatusDoenca {
+  ATIVA
+  CONTROLADA
+  CURADA
+  EM_TRATAMENTO
+}
+
+enum TipoArquivo {
+  IMAGEM
+  PDF
+  AUDIO
+  VIDEO
+  DOCUMENTO
+}
+
+enum AcaoSync {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum TipoEstatistica {
+  PACIENTES_CADASTRADOS
+  PRONTUARIOS_CRIADOS
+  EXAMES_REGISTRADOS
+  MEDICOS_ATIVOS
+  CONSULTAS_HOJE
+  AGENDAMENTOS_PENDENTES
+  ALERGIAS_REGISTRADAS
+  MEDICAMENTOS_PRESCRITOS
+}

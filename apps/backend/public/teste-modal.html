@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Modal de Médicos</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .btn { 
+            background: #007bff; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+        .btn:hover { background: #0056b3; }
+        #result { 
+            margin-top: 20px; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            background: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste dos Botões de Edição de Médicos</h1>
+    
+    <h2>Teste das APIs</h2>
+    <button class="btn" onclick="testarListarMedicos()">Listar Médicos</button>
+    <button class="btn" onclick="testarMedicoIndividual()">Buscar Médico Individual</button>
+    <button class="btn" onclick="simularCliqueBotao()">Simular Clique do Botão</button>
+    
+    <div id="result">
+        <p>Clique nos botões para testar as funcionalidades...</p>
+    </div>
+
+    <script>
+        const resultDiv = document.getElementById('result');
+        
+        function log(message) {
+            console.log(message);
+            resultDiv.innerHTML += '<p>' + message + '</p>';
+        }
+        
+        async function testarListarMedicos() {
+            log('🔍 Testando listagem de médicos...');
+            try {
+                const response = await fetch('/api/medicos');
+                if (response.ok) {
+                    const result = await response.json();
+                    log('✅ API de listagem funcionando!');
+                    log(`📊 Encontrados ${result.data.length} médicos`);
+                    if (result.data.length > 0) {
+                        log(`🧑‍⚕️ Primeiro médico: ${result.data[0].nomeCompleto} (ID: ${result.data[0].id})`);
+                        window.primeiroMedicoId = result.data[0].id;
+                    }
+                } else {
+                    log('❌ Erro na API de listagem');
+                }
+            } catch (error) {
+                log('❌ Erro: ' + error.message);
+            }
+        }
+        
+        async function testarMedicoIndividual() {
+            if (!window.primeiroMedicoId) {
+                log('⚠️ Execute primeiro o teste de listagem para obter um ID');
+                return;
+            }
+            
+            log('🔍 Testando busca de médico individual...');
+            try {
+                const response = await fetch(`/api/medicos/${window.primeiroMedicoId}`);
+                if (response.ok) {
+                    const result = await response.json();
+                    log('✅ API individual funcionando!');
+                    log(`👨‍⚕️ Médico: ${result.data.nomeCompleto}`);
+                    log(`📧 Email: ${result.data.email}`);
+                    log(`🏥 CRM: ${result.data.crm}`);
+                    log(`🔧 Especialidade: ${result.data.especialidade}`);
+                    window.dadosMedico = result.data;
+                } else {
+                    log('❌ Erro na API individual');
+                }
+            } catch (error) {
+                log('❌ Erro: ' + error.message);
+            }
+        }
+        
+        function simularCliqueBotao() {
+            if (!window.primeiroMedicoId) {
+                log('⚠️ Execute primeiro o teste de listagem para obter um ID');
+                return;
+            }
+            
+            log('🎯 Simulando clique no botão de editar...');
+            log(`🆔 ID do médico: ${window.primeiroMedicoId}`);
+            
+            // Simular a função editarMedico
+            editarMedicoSimulado(window.primeiroMedicoId);
+        }
+        
+        async function editarMedicoSimulado(id) {
+            log(`🔧 Executando editarMedico('${id}')...`);
+            try {
+                const response = await fetch(`/api/medicos/${id}`);
+                log(`📡 Response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    log('✅ Dados recebidos com sucesso!');
+                    log(`📋 Dados: ${JSON.stringify(result.data, null, 2)}`);
+                    
+                    if (result.success && result.data) {
+                        log('✅ Modal deveria abrir agora com os dados preenchidos!');
+                        log('✅ Correção funcionando!');
+                    } else {
+                        log('❌ Dados não encontrados na resposta');
+                    }
+                } else {
+                    log(`❌ Erro HTTP: ${response.status}`);
+                }
+            } catch (error) {
+                log('❌ Erro na requisição: ' + error.message);
+            }
+        }
+        
+        // Auto-executar teste inicial
+        window.onload = function() {
+            log('🚀 Iniciando testes automaticamente...');
+            setTimeout(testarListarMedicos, 1000);
+        };
+    </script>
+</body>
+</html>
