@@ -11,7 +11,7 @@ const { uploadImportacao, handleUploadErrors, validateFilePresence } = require('
 const router = express.Router();
 
 // GET /api/medicos - Listar médicos com filtros e paginação
-router.get('/', centralMiddleware.centralMiddleware.asyncHandler(medicosController.listar));
+router.get('/', centralMiddleware.asyncHandler(medicosController.listar));
 
 // GET /api/medicos/:id - Buscar médico por ID
 router.get('/:id', centralMiddleware.asyncHandler(medicosController.buscarPorId));
