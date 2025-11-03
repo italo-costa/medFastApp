@@ -14,8 +14,13 @@ const centralMiddleware = require('./middleware/centralMiddleware');
 
 // Importar rotas
 const medicosRoutes = require('./routes/medicosRoutes');
-const patientsRoutes = require('./routes/patients');
+const patientsRoutes = require('./routes/patients-db');
 const authRoutes = require('./routes/auth');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const validacaoRoutes = require('./routes/validacaoRoutes');
+const historicoRoutes = require('./routes/historicoRoutes');
+const analyticsRoutes = require('./routes/analytics');
+const statisticsRoutes = require('./routes/statistics');
 
 // Criar aplicação Express
 const app = express();
@@ -50,6 +55,30 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
   etag: true
 }));
 
+// Servir arquivos de dados gerados (mapas, relatórios, etc.)
+const dataPath = path.join(__dirname, '..', '..', 'data');
+app.use('/data', express.static(dataPath, {
+  setHeaders: (res, filePath) => {
+    // Headers específicos para arquivos de imagem
+    if (filePath.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+    }
+    if (filePath.endsWith('.csv')) {
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment');
+    }
+    if (filePath.endsWith('.json')) {
+      res.setHeader('Content-Type', 'application/json');
+    }
+  }
+}));
+
+// Favicon fallback
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
+});
+
 // ========================================
 // ROTAS DA APLICAÇÃO
 // ========================================
@@ -80,6 +109,11 @@ app.get('/health', centralMiddleware.asyncHandler(async (req, res) => {
 app.use('/api/auth', centralMiddleware.rateLimits.auth, authRoutes);
 app.use('/api/medicos', medicosRoutes);
 app.use('/api/patients', patientsRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/validacao', validacaoRoutes);
+app.use('/api/historico', historicoRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/statistics', statisticsRoutes);
 
 // Rota para estatísticas do dashboard  
 app.get('/api/statistics/dashboard', centralMiddleware.asyncHandler(async (req, res) => {
