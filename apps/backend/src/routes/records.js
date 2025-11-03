@@ -1,8 +1,6 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const databaseService = require('../services/database');
 const router = express.Router();
-
-const prisma = new PrismaClient();
 
 // ====================================
 // ROTAS DE PRONTUÁRIOS MÉDICOS
@@ -38,7 +36,7 @@ router.get('/', async (req, res) => {
     }
 
     // Buscar prontuários com relacionamentos
-    const prontuarios = await prisma.prontuario.findMany({
+    const prontuarios = await databaseService.client.prontuario.findMany({
       where,
       skip,
       take,
@@ -74,7 +72,7 @@ router.get('/', async (req, res) => {
     });
 
     // Contar total para paginação
-    const total = await prisma.prontuario.count({ where });
+    const total = await databaseService.client.prontuario.count({ where });
     
     res.json({
       success: true,
@@ -102,7 +100,7 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const prontuario = await prisma.prontuario.findUnique({
+    const prontuario = await databaseService.client.prontuario.findUnique({
       where: { id },
       include: {
         paciente: {
@@ -191,7 +189,7 @@ router.post('/', async (req, res) => {
     }
 
     // Criar prontuário em transação
-    const resultado = await prisma.$transaction(async (tx) => {
+    const resultado = await databaseService.client.$transaction(async (tx) => {
       // Criar prontuário principal
       const prontuario = await tx.prontuario.create({
         data: {
@@ -285,7 +283,7 @@ router.put('/:id', async (req, res) => {
     } = req.body;
 
     // Verificar se prontuário existe
-    const prontuarioExistente = await prisma.prontuario.findUnique({
+    const prontuarioExistente = await databaseService.client.prontuario.findUnique({
       where: { id }
     });
 
@@ -297,7 +295,7 @@ router.put('/:id', async (req, res) => {
     }
 
     // Atualizar prontuário
-    const prontuarioAtualizado = await prisma.prontuario.update({
+    const prontuarioAtualizado = await databaseService.client.prontuario.update({
       where: { id },
       data: {
         queixa_principal,
@@ -353,7 +351,7 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
     // Verificar se prontuário existe
-    const prontuarioExistente = await prisma.prontuario.findUnique({
+    const prontuarioExistente = await databaseService.client.prontuario.findUnique({
       where: { id }
     });
 
@@ -365,7 +363,7 @@ router.delete('/:id', async (req, res) => {
     }
 
     // Excluir prontuário e registros relacionados em transação
-    await prisma.$transaction(async (tx) => {
+    await databaseService.client.$transaction(async (tx) => {
       // Excluir prescrições
       await tx.prescricao.deleteMany({
         where: { prontuario_id: id }
@@ -407,7 +405,7 @@ router.get('/patient/:paciente_id', async (req, res) => {
   try {
     const { paciente_id } = req.params;
     
-    const prontuarios = await prisma.prontuario.findMany({
+    const prontuarios = await databaseService.client.prontuario.findMany({
       where: { paciente_id },
       include: {
         medico: {

@@ -21,6 +21,7 @@ model Usuario {
   logs          LogSistema[]
   medico        Medico?
   sessoes       Sessao[]
+  historico_alteracoes HistoricoAlteracao[] @relation("UsuarioAlteracoes")
 
   @@map("usuarios")
 }
@@ -33,10 +34,28 @@ model Medico {
   especialidade       String
   telefone            String?
   celular             String?
-  endereco            String?
+  // Campos pessoais adicionais
+  cpf                 String?
+  data_nascimento     DateTime?
+  sexo                Sexo?
+  // Endereço estruturado
+  endereco            String?       // Mantido para compatibilidade
+  cep                 String?
+  logradouro          String?
+  numero_endereco     String?
+  complemento_endereco String?
+  bairro              String?
+  cidade              String?
+  uf                  String?
+  // Campos profissionais
+  outras_especialidades String?
   formacao            String?
   experiencia         String?
   horario_atendimento String?
+  observacoes         String?
+  // Foto do médico
+  foto_url            String?
+  foto_nome_original  String?
   criado_em           DateTime      @default(now())
   atualizado_em       DateTime      @updatedAt
   agendamentos        Agendamento[]
@@ -44,6 +63,7 @@ model Medico {
   usuario             Usuario       @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
   prescricoes         Prescricao[]
   prontuarios         Prontuario[]
+  historico           HistoricoAlteracao[]
 
   @@map("medicos")
 }
@@ -456,4 +476,25 @@ enum TipoEstatistica {
   AGENDAMENTOS_PENDENTES
   ALERGIAS_REGISTRADAS
   MEDICAMENTOS_PRESCRITOS
+}
+
+model HistoricoAlteracao {
+  id                    String    @id @default(cuid())
+  medico_id             String
+  usuario_alteracao_id  String
+  operacao              String    // CREATE, UPDATE, DELETE
+  dados_anteriores      Json?
+  dados_novos           Json?
+  campos_alterados      Json?
+  observacoes           String?
+  data_alteracao        DateTime  @default(now())
+  
+  // Relacionamentos
+  medico                Medico    @relation(fields: [medico_id], references: [id], onDelete: Cascade)
+  usuario_alteracao     Usuario   @relation("UsuarioAlteracoes", fields: [usuario_alteracao_id], references: [id])
+  
+  @@map("historico_alteracoes")
+  @@index([medico_id])
+  @@index([data_alteracao])
+  @@index([operacao])
 }

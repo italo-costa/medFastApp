@@ -1,7 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
-
-const prisma = new PrismaClient();
+const databaseService = require('../services/database');
 
 async function main() {
     console.log('🌱 Iniciando seed do banco de dados...');
@@ -81,7 +79,7 @@ async function main() {
     for (const medicoData of medicos) {
         const hashedPassword = await bcrypt.hash('123456', 12);
         
-        const usuario = await prisma.usuario.create({
+        const usuario = await databaseService.client.usuario.create({
             data: {
                 email: medicoData.email,
                 senha: hashedPassword,
@@ -90,7 +88,7 @@ async function main() {
             }
         });
 
-        const medico = await prisma.medico.create({
+        const medico = await databaseService.client.medico.create({
             data: {
                 usuario_id: usuario.id,
                 crm: medicoData.crm,
@@ -241,7 +239,7 @@ async function main() {
 
     const pacientesCreated = [];
     for (const pacienteData of pacientes) {
-        const paciente = await prisma.paciente.create({
+        const paciente = await databaseService.client.paciente.create({
             data: pacienteData
         });
         pacientesCreated.push(paciente);
@@ -251,7 +249,7 @@ async function main() {
     console.log('💊 Criando alergias e medicamentos...');
     
     // Alergias
-    await prisma.alergia.create({
+    await databaseService.client.alergia.create({
         data: {
             paciente_id: pacientesCreated[0].id,
             substancia: 'Dipirona',
@@ -261,7 +259,7 @@ async function main() {
         }
     });
 
-    await prisma.alergia.create({
+    await databaseService.client.alergia.create({
         data: {
             paciente_id: pacientesCreated[0].id,
             substancia: 'Penicilina',
@@ -272,7 +270,7 @@ async function main() {
     });
 
     // Medicamentos em uso
-    await prisma.medicamentoUso.create({
+    await databaseService.client.medicamentoUso.create({
         data: {
             paciente_id: pacientesCreated[0].id,
             nome_medicamento: 'Losartana',
@@ -284,7 +282,7 @@ async function main() {
         }
     });
 
-    await prisma.medicamentoUso.create({
+    await databaseService.client.medicamentoUso.create({
         data: {
             paciente_id: pacientesCreated[2].id,
             nome_medicamento: 'Metformina',
@@ -297,7 +295,7 @@ async function main() {
     });
 
     // Doenças preexistentes
-    await prisma.doencaPreexistente.create({
+    await databaseService.client.doencaPreexistente.create({
         data: {
             paciente_id: pacientesCreated[0].id,
             nome_doenca: 'Hipertensao arterial',
@@ -308,7 +306,7 @@ async function main() {
         }
     });
 
-    await prisma.doencaPreexistente.create({
+    await databaseService.client.doencaPreexistente.create({
         data: {
             paciente_id: pacientesCreated[2].id,
             nome_doenca: 'Diabetes mellitus tipo 2',
@@ -331,5 +329,5 @@ main()
         process.exit(1);
     })
     .finally(async () => {
-        await prisma.$disconnect();
+        await databaseService.client.$disconnect();
     });

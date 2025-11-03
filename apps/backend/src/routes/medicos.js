@@ -1,81 +1,23 @@
+/**
+ * Router de Médicos - Refatorado com Serviços Centralizados
+ * Usa AuthService, ValidationService, FileService e ResponseService
+ */
+
 const express = require('express');
-const bcrypt = require('bcryptjs');
-const { PrismaClient } = require('@prisma/client');
-const { logger } = require('../utils/logger');
-const { body, validationResult } = require('express-validator');
+const databaseService = require('../services/database');
+const AuthService = require('../services/authService');
+const ValidationService = require('../services/validationService');
+const FileService = require('../services/fileService');
+const ResponseService = require('../services/responseService');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // ========================================
-// VALIDAÇÕES
+// MIDDLEWARE DE AUTENTICAÇÃO
 // ========================================
 
-const validarCadastroMedico = [
-  body('nome')
-    .trim()
-    .isLength({ min: 2 })
-    .withMessage('Nome deve ter pelo menos 2 caracteres'),
-  
-  body('email')
-    .isEmail()
-    .normalizeEmail()
-    .withMessage('Email deve ser válido'),
-  
-  body('crm')
-    .isLength({ min: 4, max: 10 })
-    .isAlphanumeric()
-    .withMessage('CRM deve ter entre 4 e 10 caracteres alfanuméricos'),
-  
-  body('crm_uf')
-    .isLength({ min: 2, max: 2 })
-    .isAlpha()
-    .toUpperCase()
-    .withMessage('UF do CRM deve ter 2 letras'),
-  
-  body('especialidade')
-    .trim()
-    .isLength({ min: 2 })
-    .withMessage('Especialidade deve ter pelo menos 2 caracteres'),
-  
-  body('telefone')
-    .optional()
-    .isMobilePhone('pt-BR')
-    .withMessage('Telefone deve ser válido'),
-  
-  body('celular')
-    .optional()
-    .isMobilePhone('pt-BR')
-    .withMessage('Celular deve ser válido'),
-  
-  body('senha')
-    .isLength({ min: 6 })
-    .withMessage('Senha deve ter pelo menos 6 caracteres')
-];
-
-const validarAtualizacaoMedico = [
-  body('nome')
-    .optional()
-    .trim()
-    .isLength({ min: 2 })
-    .withMessage('Nome deve ter pelo menos 2 caracteres'),
-  
-  body('especialidade')
-    .optional()
-    .trim()
-    .isLength({ min: 2 })
-    .withMessage('Especialidade deve ter pelo menos 2 caracteres'),
-  
-  body('telefone')
-    .optional()
-    .isMobilePhone('pt-BR')
-    .withMessage('Telefone deve ser válido'),
-  
-  body('celular')
-    .optional()
-    .isMobilePhone('pt-BR')
-    .withMessage('Celular deve ser válido')
-];
+// Aplicar autenticação em todas as rotas
+router.use(AuthService.authMiddleware());
 
 // ========================================
 // ROTAS CRUD DE MÉDICOS
@@ -83,7 +25,7 @@ const validarAtualizacaoMedico = [
 
 // GET /api/medicos - Listar todos os médicos
 router.get('/', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const { 
       page = 1, 
       limit = 10, 
@@ -115,7 +57,7 @@ router.get('/', async (req, res) => {
 
     // Buscar médicos com paginação
     const [medicos, total] = await Promise.all([
-      prisma.medico.findMany({
+      databaseService.client.medico.findMany({
         where,
         include: {
           usuario: {
@@ -133,11 +75,11 @@ router.get('/', async (req, res) => {
         take: parseInt(limit),
         orderBy: { usuario: { nome: 'asc' } }
       }),
-      prisma.medico.count({ where })
+      databaseService.client.medico.count({ where })
     ]);
 
-    // Formatar resposta
-    const medicosFormatados = medicos.map(medico => ({
+    // Formatar resposta usando ResponseService
+    const medicosFormatados = medicos.map(medico => ResponseService.formatData({
       id: medico.id,
       usuario_id: medico.usuario_id,
       nome: medico.usuario.nome,
@@ -157,33 +99,21 @@ router.get('/', async (req, res) => {
       atualizado_em: medico.atualizado_em
     }));
 
-    res.json({
-      success: true,
-      data: medicosFormatados,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / parseInt(limit))
-      }
+    return ResponseService.paginated(res, medicosFormatados, {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total
     });
 
-  } catch (error) {
-    logger.error('Erro ao listar médicos:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
+  });
 });
 
 // GET /api/medicos/:id - Buscar médico específico
 router.get('/:id', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const { id } = req.params;
 
-    const medico = await prisma.medico.findUnique({
+    const medico = await databaseService.client.medico.findUnique({
       where: { id },
       include: {
         usuario: {
@@ -229,14 +159,11 @@ router.get('/:id', async (req, res) => {
     });
 
     if (!medico) {
-      return res.status(404).json({
-        success: false,
-        message: 'Médico não encontrado'
-      });
+      return ResponseService.notFound(res, 'Médico', id);
     }
 
     // Formatar resposta
-    const medicoFormatado = {
+    const medicoFormatado = ResponseService.formatData({
       id: medico.id,
       usuario_id: medico.usuario_id,
       nome: medico.usuario.nome,
@@ -256,36 +183,16 @@ router.get('/:id', async (req, res) => {
       atualizado_em: medico.atualizado_em,
       consultas_recentes: medico.consultas,
       prontuarios_recentes: medico.prontuarios
-    };
-
-    res.json({
-      success: true,
-      data: medicoFormatado
     });
 
-  } catch (error) {
-    logger.error('Erro ao buscar médico:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
+    return medicoFormatado;
+
+  }, 'Médico encontrado com sucesso');
 });
 
 // POST /api/medicos - Cadastrar novo médico
-router.post('/', validarCadastroMedico, async (req, res) => {
-  try {
-    // Verificar erros de validação
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Dados inválidos',
-        errors: errors.array()
-      });
-    }
-
+router.post('/', async (req, res) => {
+  return ResponseService.handle(res, async () => {
     const {
       nome,
       email,
@@ -301,58 +208,73 @@ router.post('/', validarCadastroMedico, async (req, res) => {
       horario_atendimento
     } = req.body;
 
-    // Verificar se email já existe
-    const emailExistente = await prisma.usuario.findUnique({
-      where: { email }
-    });
+    // Validações usando ValidationService
+    const medicoData = {
+      nome,
+      email,
+      crm,
+      telefone: telefone || celular
+    };
 
-    if (emailExistente) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email já está em uso'
-      });
+    const validation = ValidationService.validateMedicoData(medicoData);
+    if (!validation.valid) {
+      return ResponseService.validationError(res, validation.errors);
+    }
+
+    // Validar senha
+    const senhaValidation = ValidationService.validatePassword(senha, { minLength: 6 });
+    if (!senhaValidation.valid) {
+      return ResponseService.validationError(res, senhaValidation.errors);
+    }
+
+    // Validar especialidade
+    if (!especialidade || especialidade.trim().length < 2) {
+      return ResponseService.validationError(res, 'Especialidade deve ter pelo menos 2 caracteres');
+    }
+
+    // Verificar se email já existe
+    const emailDisponivel = await AuthService.isEmailAvailable(validation.sanitized.email);
+    if (!emailDisponivel) {
+      return ResponseService.conflict(res, 'Email já está cadastrado', 'email');
     }
 
     // Verificar se CRM já existe
-    const crmExistente = await prisma.medico.findUnique({
-      where: { crm }
+    const crmExistente = await databaseService.client.medico.findUnique({
+      where: { crm: validation.sanitized.crm }
     });
 
     if (crmExistente) {
-      return res.status(400).json({
-        success: false,
-        message: 'CRM já está cadastrado'
-      });
+      return ResponseService.conflict(res, 'CRM já está cadastrado', 'crm');
     }
 
-    // Criptografar senha
-    const senhaHash = await bcrypt.hash(senha, 12);
+    // Criptografar senha usando AuthService
+    const senhaHash = await AuthService.hashPassword(senha);
 
     // Criar usuário e médico em transação
-    const resultado = await prisma.$transaction(async (prismaTransaction) => {
+    const resultado = await databaseService.client.$transaction(async (transaction) => {
       // Criar usuário
-      const usuario = await prismaTransaction.usuario.create({
+      const usuario = await transaction.usuario.create({
         data: {
-          nome,
-          email,
+          nome: validation.sanitized.nome,
+          email: validation.sanitized.email,
           senha: senhaHash,
           tipo: 'MEDICO'
         }
       });
 
       // Criar médico
-      const medico = await prismaTransaction.medico.create({
+      const medico = await transaction.medico.create({
         data: {
           usuario_id: usuario.id,
-          crm,
-          crm_uf: crm_uf.toUpperCase(),
-          especialidade,
-          telefone,
-          celular,
-          endereco,
-          formacao,
-          experiencia,
-          horario_atendimento
+          crm: validation.sanitized.crm,
+          crm_uf: (crm_uf || 'SP').toUpperCase(),
+          especialidade: ValidationService.sanitizeText(especialidade, { maxLength: 100 }),
+          telefone: validation.sanitized.telefone,
+          celular: validation.sanitized.telefone,
+          endereco: ValidationService.sanitizeText(endereco, { maxLength: 255 }),
+          formacao: ValidationService.sanitizeText(formacao, { maxLength: 200 }) || 'Não informado',
+          experiencia: ValidationService.sanitizeText(experiencia, { maxLength: 500 }),
+          horario_atendimento: ValidationService.sanitizeText(horario_atendimento, { maxLength: 200 })
         },
         include: {
           usuario: {
@@ -371,11 +293,10 @@ router.post('/', validarCadastroMedico, async (req, res) => {
       return medico;
     });
 
-    // Log de auditoria
-    logger.info(`Médico cadastrado: ${resultado.usuario.nome} (CRM: ${resultado.crm})`);
+    console.log(`✅ [MEDICOS] Médico cadastrado: ${resultado.usuario.nome} (CRM: ${resultado.crm})`);
 
-    // Formatar resposta (sem dados sensíveis)
-    const medicoResposta = {
+    // Formatar resposta usando ResponseService
+    const medicoResposta = ResponseService.formatData({
       id: resultado.id,
       usuario_id: resultado.usuario_id,
       nome: resultado.usuario.nome,
@@ -391,61 +312,55 @@ router.post('/', validarCadastroMedico, async (req, res) => {
       horario_atendimento: resultado.horario_atendimento,
       ativo: resultado.usuario.ativo,
       criado_em: resultado.criado_em
-    };
-
-    res.status(201).json({
-      success: true,
-      message: 'Médico cadastrado com sucesso',
-      data: medicoResposta
     });
 
-  } catch (error) {
-    logger.error('Erro ao cadastrar médico:', error);
-    
-    // Tratamento de erros específicos do Prisma
-    if (error.code === 'P2002') {
-      const campo = error.meta?.target?.[0];
-      return res.status(400).json({
-        success: false,
-        message: `${campo === 'crm' ? 'CRM' : 'Email'} já está em uso`
-      });
-    }
+    return medicoResposta;
 
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
+  }, 'Médico cadastrado com sucesso');
 });
 
 // PUT /api/medicos/:id - Atualizar médico
-router.put('/:id', validarAtualizacaoMedico, async (req, res) => {
-  try {
-    // Verificar erros de validação
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Dados inválidos',
-        errors: errors.array()
-      });
-    }
-
+router.put('/:id', async (req, res) => {
+  return ResponseService.handle(res, async () => {
     const { id } = req.params;
     const dadosAtualizacao = req.body;
 
     // Verificar se médico existe
-    const medicoExistente = await prisma.medico.findUnique({
+    const medicoExistente = await databaseService.client.medico.findUnique({
       where: { id },
       include: { usuario: true }
     });
 
     if (!medicoExistente) {
-      return res.status(404).json({
-        success: false,
-        message: 'Médico não encontrado'
-      });
+      return ResponseService.notFound(res, 'Médico', id);
+    }
+
+    // Validar dados se fornecidos
+    const errors = [];
+
+    if (dadosAtualizacao.nome) {
+      const nomeValidation = ValidationService.validateName(dadosAtualizacao.nome);
+      if (!nomeValidation.valid) {
+        errors.push(...nomeValidation.errors);
+      }
+    }
+
+    if (dadosAtualizacao.telefone) {
+      const telefoneValidation = ValidationService.validatePhone(dadosAtualizacao.telefone);
+      if (!telefoneValidation.valid) {
+        errors.push(...telefoneValidation.errors);
+      }
+    }
+
+    if (dadosAtualizacao.celular) {
+      const celularValidation = ValidationService.validatePhone(dadosAtualizacao.celular);
+      if (!celularValidation.valid) {
+        errors.push(...celularValidation.errors);
+      }
+    }
+
+    if (errors.length > 0) {
+      return ResponseService.validationError(res, errors);
     }
 
     // Separar dados do usuário e do médico
@@ -453,21 +368,34 @@ router.put('/:id', validarAtualizacaoMedico, async (req, res) => {
     const dadosMedico = {};
 
     // Campos que pertencem ao usuário
-    if (dadosAtualizacao.nome !== undefined) dadosUsuario.nome = dadosAtualizacao.nome;
+    if (dadosAtualizacao.nome !== undefined) {
+      dadosUsuario.nome = ValidationService.sanitizeText(dadosAtualizacao.nome, { maxLength: 100 });
+    }
 
     // Campos que pertencem ao médico
     const camposMedico = ['especialidade', 'telefone', 'celular', 'endereco', 'formacao', 'experiencia', 'horario_atendimento'];
     camposMedico.forEach(campo => {
       if (dadosAtualizacao[campo] !== undefined) {
-        dadosMedico[campo] = dadosAtualizacao[campo];
+        if (campo === 'telefone' || campo === 'celular') {
+          // Validar e sanitizar telefone
+          const phoneValidation = ValidationService.validatePhone(dadosAtualizacao[campo]);
+          if (phoneValidation.valid) {
+            dadosMedico[campo] = phoneValidation.sanitized;
+          }
+        } else {
+          // Sanitizar outros campos de texto
+          dadosMedico[campo] = ValidationService.sanitizeText(dadosAtualizacao[campo], { 
+            maxLength: campo === 'endereco' ? 255 : campo === 'experiencia' ? 500 : 200 
+          });
+        }
       }
     });
 
     // Atualizar em transação
-    const medicoAtualizado = await prisma.$transaction(async (prismaTransaction) => {
+    const medicoAtualizado = await databaseService.client.$transaction(async (transaction) => {
       // Atualizar usuário se necessário
       if (Object.keys(dadosUsuario).length > 0) {
-        await prismaTransaction.usuario.update({
+        await transaction.usuario.update({
           where: { id: medicoExistente.usuario_id },
           data: dadosUsuario
         });
@@ -475,14 +403,14 @@ router.put('/:id', validarAtualizacaoMedico, async (req, res) => {
 
       // Atualizar médico se necessário
       if (Object.keys(dadosMedico).length > 0) {
-        await prismaTransaction.medico.update({
+        await transaction.medico.update({
           where: { id },
           data: dadosMedico
         });
       }
 
       // Buscar dados atualizados
-      return await prismaTransaction.medico.findUnique({
+      return await transaction.medico.findUnique({
         where: { id },
         include: {
           usuario: {
@@ -498,11 +426,10 @@ router.put('/:id', validarAtualizacaoMedico, async (req, res) => {
       });
     });
 
-    // Log de auditoria
-    logger.info(`Médico atualizado: ${medicoAtualizado.usuario.nome} (CRM: ${medicoAtualizado.crm})`);
+    console.log(`✅ [MEDICOS] Médico atualizado: ${medicoAtualizado.usuario.nome} (CRM: ${medicoAtualizado.crm})`);
 
     // Formatar resposta
-    const medicoResposta = {
+    const medicoResposta = ResponseService.formatData({
       id: medicoAtualizado.id,
       usuario_id: medicoAtualizado.usuario_id,
       nome: medicoAtualizado.usuario.nome,
@@ -518,111 +445,109 @@ router.put('/:id', validarAtualizacaoMedico, async (req, res) => {
       horario_atendimento: medicoAtualizado.horario_atendimento,
       ativo: medicoAtualizado.usuario.ativo,
       atualizado_em: medicoAtualizado.atualizado_em
-    };
-
-    res.json({
-      success: true,
-      message: 'Médico atualizado com sucesso',
-      data: medicoResposta
     });
 
-  } catch (error) {
-    logger.error('Erro ao atualizar médico:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
+    return medicoResposta;
+
+  }, 'Médico atualizado com sucesso');
 });
 
 // DELETE /api/medicos/:id - Desativar médico (soft delete)
 router.delete('/:id', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const { id } = req.params;
 
     // Verificar se médico existe
-    const medicoExistente = await prisma.medico.findUnique({
+    const medicoExistente = await databaseService.client.medico.findUnique({
       where: { id },
       include: { usuario: true }
     });
 
     if (!medicoExistente) {
-      return res.status(404).json({
-        success: false,
-        message: 'Médico não encontrado'
-      });
+      return ResponseService.notFound(res, 'Médico', id);
     }
 
     // Desativar usuário (soft delete)
-    await prisma.usuario.update({
+    await databaseService.client.usuario.update({
       where: { id: medicoExistente.usuario_id },
       data: { ativo: false }
     });
 
-    // Log de auditoria
-    logger.info(`Médico desativado: ${medicoExistente.usuario.nome} (CRM: ${medicoExistente.crm})`);
+    console.log(`🗑️ [MEDICOS] Médico desativado: ${medicoExistente.usuario.nome} (CRM: ${medicoExistente.crm})`);
 
-    res.json({
-      success: true,
-      message: 'Médico desativado com sucesso'
-    });
+    return null; // Sem dados para retornar
 
-  } catch (error) {
-    logger.error('Erro ao desativar médico:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
+  }, 'Médico desativado com sucesso');
 });
 
 // POST /api/medicos/:id/reativar - Reativar médico
 router.post('/:id/reativar', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const { id } = req.params;
 
     // Verificar se médico existe
-    const medicoExistente = await prisma.medico.findUnique({
+    const medicoExistente = await databaseService.client.medico.findUnique({
       where: { id },
       include: { usuario: true }
     });
 
     if (!medicoExistente) {
-      return res.status(404).json({
-        success: false,
-        message: 'Médico não encontrado'
-      });
+      return ResponseService.notFound(res, 'Médico', id);
     }
 
     // Reativar usuário
-    await prisma.usuario.update({
+    await databaseService.client.usuario.update({
       where: { id: medicoExistente.usuario_id },
       data: { ativo: true }
     });
 
-    // Log de auditoria
-    logger.info(`Médico reativado: ${medicoExistente.usuario.nome} (CRM: ${medicoExistente.crm})`);
+    console.log(`♻️ [MEDICOS] Médico reativado: ${medicoExistente.usuario.nome} (CRM: ${medicoExistente.crm})`);
 
-    res.json({
-      success: true,
-      message: 'Médico reativado com sucesso'
+    return null; // Sem dados para retornar
+
+  }, 'Médico reativado com sucesso');
+});
+
+// POST /api/medicos/:id/foto - Upload de foto do médico
+router.post('/:id/foto', FileService.uploadProfilePhoto(), async (req, res) => {
+  return ResponseService.handle(res, async () => {
+    const { id } = req.params;
+
+    // Verificar se médico existe
+    const medicoExistente = await databaseService.client.medico.findUnique({
+      where: { id }
     });
 
-  } catch (error) {
-    logger.error('Erro ao reativar médico:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    if (!medicoExistente) {
+      return ResponseService.notFound(res, 'Médico', id);
+    }
+
+    if (!req.file) {
+      return ResponseService.validationError(res, 'Nenhuma foto foi enviada');
+    }
+
+    // Atualizar médico com caminho da foto
+    await databaseService.client.medico.update({
+      where: { id },
+      data: {
+        foto_url: req.file.publicUrl
+      }
     });
-  }
+
+    console.log(`📷 [MEDICOS] Foto atualizada para médico: ${id}`);
+
+    return {
+      foto_url: req.file.publicUrl,
+      filename: req.file.filename,
+      size: req.file.size
+    };
+
+  }, 'Foto atualizada com sucesso');
 });
 
 // GET /api/medicos/estatisticas/dashboard - Estatísticas para dashboard
 router.get('/estatisticas/dashboard', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const [
       totalMedicos,
       medicosAtivos,
@@ -632,20 +557,20 @@ router.get('/estatisticas/dashboard', async (req, res) => {
       consultasMes
     ] = await Promise.all([
       // Total de médicos
-      prisma.medico.count(),
+      databaseService.client.medico.count(),
       
       // Médicos ativos
-      prisma.medico.count({
+      databaseService.client.medico.count({
         where: { usuario: { ativo: true } }
       }),
       
       // Médicos inativos
-      prisma.medico.count({
+      databaseService.client.medico.count({
         where: { usuario: { ativo: false } }
       }),
       
       // Distribuição por especialidades
-      prisma.medico.groupBy({
+      databaseService.client.medico.groupBy({
         by: ['especialidade'],
         _count: { especialidade: true },
         where: { usuario: { ativo: true } },
@@ -654,53 +579,43 @@ router.get('/estatisticas/dashboard', async (req, res) => {
       }),
       
       // Consultas hoje
-      prisma.consulta.count({
+      databaseService.client.consulta.count({
         where: {
           data_hora: {
             gte: new Date(new Date().setHours(0, 0, 0, 0)),
             lt: new Date(new Date().setHours(23, 59, 59, 999))
           }
         }
-      }),
+      }).catch(() => 0), // Se tabela não existir
       
       // Consultas este mês
-      prisma.consulta.count({
+      databaseService.client.consulta.count({
         where: {
           data_hora: {
             gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
             lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
           }
         }
-      })
+      }).catch(() => 0) // Se tabela não existir
     ]);
 
-    res.json({
-      success: true,
-      data: {
-        medicos: {
-          total: totalMedicos,
-          ativos: medicosAtivos,
-          inativos: medicosInativos
-        },
-        especialidades: especialidades.map(esp => ({
-          nome: esp.especialidade,
-          quantidade: esp._count.especialidade
-        })),
-        consultas: {
-          hoje: consultasHoje,
-          mes: consultasMes
-        }
+    return ResponseService.statistics(res, {
+      medicos: {
+        total: totalMedicos,
+        ativos: medicosAtivos,
+        inativos: medicosInativos
+      },
+      especialidades: especialidades.map(esp => ({
+        nome: esp.especialidade,
+        quantidade: esp._count.especialidade
+      })),
+      consultas: {
+        hoje: consultasHoje,
+        mes: consultasMes
       }
     });
 
-  } catch (error) {
-    logger.error('Erro ao buscar estatísticas:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
+  });
 });
 
 module.exports = router;

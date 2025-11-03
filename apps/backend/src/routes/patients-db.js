@@ -1,10 +1,8 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
 const { logger } = require('../utils/logger');
+const databaseService = require('../services/database');
 
 const router = express.Router();
-const prisma = new PrismaClient();
-
 // ============================================
 // ROTAS DE PACIENTES - VERSÃO BANCO REAL
 // ============================================
@@ -29,7 +27,7 @@ router.get('/', async (req, res) => {
     }
 
     const [patients, total] = await Promise.all([
-      prisma.paciente.findMany({
+      databaseService.client.paciente.findMany({
         where,
         skip,
         take,
@@ -47,7 +45,7 @@ router.get('/', async (req, res) => {
           }
         }
       }),
-      prisma.paciente.count({ where })
+      databaseService.client.paciente.count({ where })
     ]);
 
     // Formatar dados para compatibilidade com o frontend
@@ -106,7 +104,7 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const patient = await prisma.paciente.findUnique({
+    const patient = await databaseService.client.paciente.findUnique({
       where: { id: id },
       include: {
         alergias: true,
@@ -202,7 +200,7 @@ router.post('/', async (req, res) => {
     } = req.body;
 
     // Verificar se CPF já existe
-    const existingPatient = await prisma.paciente.findUnique({
+    const existingPatient = await databaseService.client.paciente.findUnique({
       where: { cpf: cpf }
     });
 
@@ -214,7 +212,7 @@ router.post('/', async (req, res) => {
     }
 
     // Criar paciente
-    const newPatient = await prisma.paciente.create({
+    const newPatient = await databaseService.client.paciente.create({
       data: {
         nome: nomeCompleto,
         cpf: cpf,
@@ -237,7 +235,7 @@ router.post('/', async (req, res) => {
 
     // Se há foto, criar arquivo
     if (photo) {
-      await prisma.arquivo.create({
+      await databaseService.client.arquivo.create({
         data: {
           paciente_id: newPatient.id,
           nome_original: 'foto_paciente.jpg',
@@ -293,7 +291,7 @@ router.put('/:id', async (req, res) => {
     } = req.body;
 
     // Verificar se paciente existe
-    const existingPatient = await prisma.paciente.findUnique({
+    const existingPatient = await databaseService.client.paciente.findUnique({
       where: { id: id }
     });
 
@@ -306,7 +304,7 @@ router.put('/:id', async (req, res) => {
 
     // Verificar se CPF alterado já existe
     if (cpf !== existingPatient.cpf) {
-      const cpfExists = await prisma.paciente.findUnique({
+      const cpfExists = await databaseService.client.paciente.findUnique({
         where: { cpf: cpf }
       });
 
@@ -319,7 +317,7 @@ router.put('/:id', async (req, res) => {
     }
 
     // Atualizar paciente
-    const updatedPatient = await prisma.paciente.update({
+    const updatedPatient = await databaseService.client.paciente.update({
       where: { id: id },
       data: {
         nome: nomeCompleto,
@@ -341,7 +339,7 @@ router.put('/:id', async (req, res) => {
     // Atualizar foto se fornecida
     if (photo) {
       // Remover foto antiga
-      await prisma.arquivo.deleteMany({
+      await databaseService.client.arquivo.deleteMany({
         where: {
           paciente_id: id,
           tipo_arquivo: 'IMAGEM'
@@ -349,7 +347,7 @@ router.put('/:id', async (req, res) => {
       });
 
       // Adicionar nova foto
-      await prisma.arquivo.create({
+      await databaseService.client.arquivo.create({
         data: {
           paciente_id: id,
           nome_original: 'foto_paciente.jpg',
@@ -391,7 +389,7 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
     // Verificar se paciente existe
-    const existingPatient = await prisma.paciente.findUnique({
+    const existingPatient = await databaseService.client.paciente.findUnique({
       where: { id: id }
     });
 
@@ -403,7 +401,7 @@ router.delete('/:id', async (req, res) => {
     }
 
     // Marcar como inativo em vez de deletar (soft delete)
-    await prisma.paciente.update({
+    await databaseService.client.paciente.update({
       where: { id: id },
       data: { ativo: false }
     });
@@ -432,8 +430,8 @@ router.get('/stats/overview', async (req, res) => {
       recentConsults,
       activeRecords
     ] = await Promise.all([
-      prisma.paciente.count({ where: { ativo: true } }),
-      prisma.paciente.count({
+      databaseService.client.paciente.count({ where: { ativo: true } }),
+      databaseService.client.paciente.count({
         where: {
           ativo: true,
           alergias: {
@@ -441,14 +439,14 @@ router.get('/stats/overview', async (req, res) => {
           }
         }
       }),
-      prisma.consulta.count({
+      databaseService.client.consulta.count({
         where: {
           data_hora: {
             gte: new Date(new Date().setHours(0, 0, 0, 0))
           }
         }
       }),
-      prisma.prontuario.count()
+      databaseService.client.prontuario.count()
     ]);
 
     logger.info('Consultando estatísticas de pacientes');

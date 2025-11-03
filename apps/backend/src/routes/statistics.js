@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs').promises;
 const { logger } = require('../utils/logger');
+const databaseService = require('../services/database');
 
 // Caminho para o arquivo de estatísticas
 const STATS_FILE = path.join(__dirname, '../../data/statistics.json');
@@ -20,10 +21,7 @@ async function loadStatistics() {
 
 // Function to get real data from database directly
 async function getRealDataFromDatabase() {
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-    
-    const realData = {
+            const realData = {
         pacientes: { total: 0, novosEsteMes: 0, ativosUltimos30Dias: 0 },
         prontuarios: { total: 0, criadosEsteMes: 0, atualizadosHoje: 0 },
         exames: { total: 0, pendentes: 0, realizadosEsteMes: 0 },
@@ -35,13 +33,13 @@ async function getRealDataFromDatabase() {
     try {
         // Get patients data from database
         try {
-            const totalPacientes = await prisma.paciente.count({ where: { ativo: true } });
+            const totalPacientes = await databaseService.client.paciente.count({ where: { ativo: true } });
             realData.pacientes.total = totalPacientes;
             
             // Count new patients this month
             const now = new Date();
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const novosEsteMes = await prisma.paciente.count({
+            const novosEsteMes = await databaseService.client.paciente.count({
                 where: {
                     ativo: true,
                     criado_em: { gte: startOfMonth }
@@ -51,7 +49,7 @@ async function getRealDataFromDatabase() {
             
             // Count active patients (with recent consultations)
             const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-            const ativosUltimos30Dias = await prisma.paciente.count({
+            const ativosUltimos30Dias = await databaseService.client.paciente.count({
                 where: {
                     ativo: true,
                     consultas: {
@@ -70,11 +68,11 @@ async function getRealDataFromDatabase() {
 
         // Get doctors data from database
         try {
-            const totalMedicos = await prisma.medico.count();
-            const medicosAtivos = await prisma.medico.count({ where: { ativo: true } });
+            const totalMedicos = await databaseService.client.medico.count();
+            const medicosAtivos = await databaseService.client.medico.count({ where: { ativo: true } });
             
             // Count unique specialties
-            const especialidades = await prisma.medico.findMany({
+            const especialidades = await databaseService.client.medico.findMany({
                 select: { especialidade: true },
                 distinct: ['especialidade'],
                 where: { ativo: true }
@@ -96,7 +94,7 @@ async function getRealDataFromDatabase() {
             const startOfWeek = new Date(today.getTime() - (today.getDay() * 24 * 60 * 60 * 1000));
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
             
-            const consultasHoje = await prisma.consulta.count({
+            const consultasHoje = await databaseService.client.consulta.count({
                 where: {
                     data_hora: {
                         gte: today,
@@ -105,13 +103,13 @@ async function getRealDataFromDatabase() {
                 }
             });
             
-            const consultasEstaSemana = await prisma.consulta.count({
+            const consultasEstaSemana = await databaseService.client.consulta.count({
                 where: {
                     data_hora: { gte: startOfWeek }
                 }
             });
             
-            const consultasEsteMes = await prisma.consulta.count({
+            const consultasEsteMes = await databaseService.client.consulta.count({
                 where: {
                     data_hora: { gte: startOfMonth }
                 }
@@ -128,7 +126,7 @@ async function getRealDataFromDatabase() {
 
         // Get allergies data from database
         try {
-            const pacientesComAlergias = await prisma.paciente.count({
+            const pacientesComAlergias = await databaseService.client.paciente.count({
                 where: {
                     ativo: true,
                     alergias: {
@@ -137,7 +135,7 @@ async function getRealDataFromDatabase() {
                 }
             });
             
-            const totalAlergias = await prisma.alergia.count();
+            const totalAlergias = await databaseService.client.alergia.count();
             
             realData.alergias.pacientesComAlergias = pacientesComAlergias;
             realData.alergias.contraindicacoes = Math.floor(totalAlergias * 0.6); // Estimativa
@@ -150,13 +148,13 @@ async function getRealDataFromDatabase() {
 
         // Get exams data from database
         try {
-            const totalExames = await prisma.exame.count();
-            const examesPendentes = await prisma.exameSolicitado.count();
+            const totalExames = await databaseService.client.exame.count();
+            const examesPendentes = await databaseService.client.exameSolicitado.count();
             
             // Count exams from this month
             const now = new Date();
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const examesEsteMes = await prisma.exame.count({
+            const examesEsteMes = await databaseService.client.exame.count({
                 where: {
                     criado_em: { gte: startOfMonth }
                 }
@@ -173,12 +171,12 @@ async function getRealDataFromDatabase() {
 
         // Get medical records data from database
         try {
-            const totalProntuarios = await prisma.prontuario.count();
+            const totalProntuarios = await databaseService.client.prontuario.count();
             
             // Count new records this month
             const now = new Date();
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const prontuariosEsteMes = await prisma.prontuario.count({
+            const prontuariosEsteMes = await databaseService.client.prontuario.count({
                 where: {
                     criado_em: { gte: startOfMonth }
                 }
@@ -186,7 +184,7 @@ async function getRealDataFromDatabase() {
             
             // Count records updated today
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const prontuariosHoje = await prisma.prontuario.count({
+            const prontuariosHoje = await databaseService.client.prontuario.count({
                 where: {
                     atualizado_em: {
                         gte: today,
@@ -211,7 +209,7 @@ async function getRealDataFromDatabase() {
         logger.error('Erro ao coletar dados reais do banco:', error);
         return null;
     } finally {
-        await prisma.$disconnect();
+        await databaseService.client.$disconnect();
     }
 }
 
@@ -321,10 +319,7 @@ function createDefaultStats() {
 
 // Function to save statistics to database
 async function saveStatisticsToDatabase(dashboardStats, metadata) {
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-    
-    try {
+            try {
         logger.info('💾 Salvando estatísticas no banco de dados...');
         
         // Salvar cada estatística na tabela
@@ -397,7 +392,7 @@ async function saveStatisticsToDatabase(dashboardStats, metadata) {
         logger.info(`📝 Preparando ${estadisticasParaSalvar.length} estatísticas para salvar`);
         
         // Desativar estatísticas antigas (manter histórico)
-        const desativadas = await prisma.estatisticaDashboard.updateMany({
+        const desativadas = await databaseService.client.estatisticaDashboard.updateMany({
             where: { ativo: true },
             data: { ativo: false }
         });
@@ -409,7 +404,7 @@ async function saveStatisticsToDatabase(dashboardStats, metadata) {
         
         for (const stat of estadisticasParaSalvar) {
             try {
-                const criada = await prisma.estatisticaDashboard.create({ data: stat });
+                const criada = await databaseService.client.estatisticaDashboard.create({ data: stat });
                 estatisticasCriadas.push(criada);
                 logger.info(`✅ Estatística criada: ${stat.tipo_estatistica} = ${stat.valor}`);
             } catch (error) {
@@ -424,17 +419,14 @@ async function saveStatisticsToDatabase(dashboardStats, metadata) {
         logger.error('❌ Erro ao salvar estatísticas no banco:', error);
         throw error;
     } finally {
-        await prisma.$disconnect();
+        await databaseService.client.$disconnect();
     }
 }
 
 // Function to get statistics from database
 async function getStatisticsFromDatabase() {
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-    
-    try {
-        const estatisticas = await prisma.estatisticaDashboard.findMany({
+            try {
+        const estatisticas = await databaseService.client.estatisticaDashboard.findMany({
             where: { ativo: true },
             orderBy: { criado_em: 'desc' }
         });
@@ -472,7 +464,7 @@ async function getStatisticsFromDatabase() {
         logger.error('Erro ao carregar estatísticas do banco:', error);
         return null;
     } finally {
-        await prisma.$disconnect();
+        await databaseService.client.$disconnect();
     }
 }
 async function saveStatistics(stats) {

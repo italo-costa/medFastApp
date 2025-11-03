@@ -1,10 +1,8 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
 const { logger } = require('../utils/logger');
+const databaseService = require('../services/database');
 
 const router = express.Router();
-const prisma = new PrismaClient();
-
 // Listar todos os médicos
 router.get('/doctors', async (req, res) => {
   try {
@@ -27,7 +25,7 @@ router.get('/doctors', async (req, res) => {
     }
 
     const [doctors, total] = await Promise.all([
-      prisma.user.findMany({
+      databaseService.client.user.findMany({
         where,
         skip,
         take,
@@ -47,7 +45,7 @@ router.get('/doctors', async (req, res) => {
           updatedAt: true
         }
       }),
-      prisma.user.count({ where })
+      databaseService.client.user.count({ where })
     ]);
 
     logger.info(`Listagem de médicos solicitada - ${doctors.length} encontrados`);
@@ -76,7 +74,7 @@ router.get('/doctors/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const doctor = await prisma.user.findFirst({
+    const doctor = await databaseService.client.user.findFirst({
       where: {
         id,
         role: 'DOCTOR'
@@ -125,18 +123,18 @@ router.get('/doctors/:id', async (req, res) => {
 // Estatísticas dos médicos
 router.get('/doctors/stats/overview', async (req, res) => {
   try {
-    const totalDoctors = await prisma.user.count({
+    const totalDoctors = await databaseService.client.user.count({
       where: { role: 'DOCTOR' }
     });
 
-    const activeDoctors = await prisma.user.count({
+    const activeDoctors = await databaseService.client.user.count({
       where: {
         role: 'DOCTOR',
         isActive: true
       }
     });
 
-    const specialties = await prisma.user.findMany({
+    const specialties = await databaseService.client.user.findMany({
       where: { role: 'DOCTOR' },
       select: { specialty: true },
       distinct: ['specialty']

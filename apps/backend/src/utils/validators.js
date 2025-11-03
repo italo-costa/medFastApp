@@ -141,6 +141,30 @@ function validateCRM(crm, uf) {
 }
 
 /**
+ * Hash de senha com bcrypt
+ * @param {string} password - Senha para hash
+ * @returns {Promise<string>} - Hash da senha
+ */
+async function hashPassword(password) {
+    if (!password) throw new Error('Senha é obrigatória');
+    
+    const bcrypt = require('bcryptjs');
+    const saltRounds = 12;
+    return await bcrypt.hash(password, saltRounds);
+}
+
+/**
+ * Verificar senha com bcrypt
+ * @param {string} password - Senha em texto
+ * @param {string} hashedPassword - Hash da senha
+ * @returns {Promise<boolean>} - True se senhas coincidirem
+ */
+async function verifyPassword(password, hashedPassword) {
+    const bcrypt = require('bcryptjs');
+    return await bcrypt.compare(password, hashedPassword);
+}
+
+/**
  * Valida COREN (Conselho Regional de Enfermagem)
  * @param {string} coren - COREN para validar
  * @param {string} uf - UF do COREN
@@ -325,10 +349,16 @@ function validatePatientData(data) {
 function validateDoctorData(data) {
     const errors = [];
     
-    // Validações básicas de usuário
-    const userValidation = validatePatientData(data);
-    if (!userValidation.isValid) {
-        errors.push(...userValidation.errors);
+    // Nome obrigatório
+    if (!data.nomeCompleto || data.nomeCompleto.trim().length < 2) {
+        errors.push('Nome completo é obrigatório (mínimo 2 caracteres)');
+    }
+    
+    // Email obrigatório e válido
+    if (!data.email) {
+        errors.push('Email é obrigatório');
+    } else if (!validateEmail(data.email)) {
+        errors.push('Email inválido');
     }
     
     // CRM obrigatório e válido
@@ -341,6 +371,33 @@ function validateDoctorData(data) {
     // Especialidade obrigatória
     if (!data.especialidade || data.especialidade.trim().length < 3) {
         errors.push('Especialidade é obrigatória (mínimo 3 caracteres)');
+    }
+    
+    // Telefone obrigatório e válido
+    if (!data.telefone) {
+        errors.push('Telefone é obrigatório');
+    } else if (!validatePhone(data.telefone)) {
+        errors.push('Formato de telefone inválido');
+    }
+    
+    // CPF opcional, mas se informado deve ser válido
+    if (data.cpf && !validateCPF(data.cpf)) {
+        errors.push('CPF inválido');
+    }
+    
+    // Celular opcional, mas se informado deve ser válido
+    if (data.celular && !validatePhone(data.celular)) {
+        errors.push('Formato de celular inválido');
+    }
+    
+    // Data de nascimento opcional, mas se informada deve ser válida
+    if (data.data_nascimento && !validateBirthDate(data.data_nascimento)) {
+        errors.push('Data de nascimento inválida');
+    }
+    
+    // CEP opcional, mas se informado deve ser válido
+    if (data.cep && !validateCEP(data.cep)) {
+        errors.push('CEP inválido');
     }
     
     return {
@@ -372,5 +429,9 @@ module.exports = {
     
     // Validadores de dados completos
     validatePatientData,
-    validateDoctorData
+    validateDoctorData,
+    
+    // Autenticação
+    hashPassword,
+    verifyPassword
 };

@@ -9,10 +9,7 @@
  * Uso: node src/scripts/cleanup-test-data.js
  */
 
-const { PrismaClient } = require('@prisma/client');
 const { logger } = require('../utils/logger');
-
-const prisma = new PrismaClient();
 
 async function cleanupTestData() {
     try {
@@ -32,37 +29,37 @@ async function cleanupTestData() {
         console.log('\n🗑️  Iniciando deleção de dados...\n');
 
         // Deletar registros dependentes primeiro
-        await deleteWithLog('SincronizacaoMobile', () => prisma.sincronizacaoMobile.deleteMany());
-        await deleteWithLog('LogSistema', () => prisma.logSistema.deleteMany());
-        await deleteWithLog('Sessao', () => prisma.sessao.deleteMany());
-        await deleteWithLog('Arquivo', () => prisma.arquivo.deleteMany());
+        await deleteWithLog('SincronizacaoMobile', () => databaseService.client.sincronizacaoMobile.deleteMany());
+        await deleteWithLog('LogSistema', () => databaseService.client.logSistema.deleteMany());
+        await deleteWithLog('Sessao', () => databaseService.client.sessao.deleteMany());
+        await deleteWithLog('Arquivo', () => databaseService.client.arquivo.deleteMany());
         
         // Atendimentos de enfermagem
-        await deleteWithLog('Atendimento', () => prisma.atendimento.deleteMany());
+        await deleteWithLog('Atendimento', () => databaseService.client.atendimento.deleteMany());
         
         // Dados médicos (prontuários e relacionados)
-        await deleteWithLog('SinalVital', () => prisma.sinalVital.deleteMany());
-        await deleteWithLog('Prescricao', () => prisma.prescricao.deleteMany());
-        await deleteWithLog('ExameSolicitado', () => prisma.exameSolicitado.deleteMany());
-        await deleteWithLog('Prontuario', () => prisma.prontuario.deleteMany());
+        await deleteWithLog('SinalVital', () => databaseService.client.sinalVital.deleteMany());
+        await deleteWithLog('Prescricao', () => databaseService.client.prescricao.deleteMany());
+        await deleteWithLog('ExameSolicitado', () => databaseService.client.exameSolicitado.deleteMany());
+        await deleteWithLog('Prontuario', () => databaseService.client.prontuario.deleteMany());
         
         // Consultas e agendamentos
-        await deleteWithLog('Consulta', () => prisma.consulta.deleteMany());
-        await deleteWithLog('Agendamento', () => prisma.agendamento.deleteMany());
+        await deleteWithLog('Consulta', () => databaseService.client.consulta.deleteMany());
+        await deleteWithLog('Agendamento', () => databaseService.client.agendamento.deleteMany());
         
         // Dados dos pacientes
-        await deleteWithLog('Exame', () => prisma.exame.deleteMany());
-        await deleteWithLog('DoencaPreexistente', () => prisma.doencaPreexistente.deleteMany());
-        await deleteWithLog('MedicamentoUso', () => prisma.medicamentoUso.deleteMany());
-        await deleteWithLog('Alergia', () => prisma.alergia.deleteMany());
-        await deleteWithLog('Paciente', () => prisma.paciente.deleteMany());
+        await deleteWithLog('Exame', () => databaseService.client.exame.deleteMany());
+        await deleteWithLog('DoencaPreexistente', () => databaseService.client.doencaPreexistente.deleteMany());
+        await deleteWithLog('MedicamentoUso', () => databaseService.client.medicamentoUso.deleteMany());
+        await deleteWithLog('Alergia', () => databaseService.client.alergia.deleteMany());
+        await deleteWithLog('Paciente', () => databaseService.client.paciente.deleteMany());
         
         // Médicos e enfermeiros
-        await deleteWithLog('Medico', () => prisma.medico.deleteMany());
-        await deleteWithLog('Enfermeiro', () => prisma.enfermeiro.deleteMany());
+        await deleteWithLog('Medico', () => databaseService.client.medico.deleteMany());
+        await deleteWithLog('Enfermeiro', () => databaseService.client.enfermeiro.deleteMany());
         
         // Usuários (por último)
-        await deleteWithLog('Usuario', () => prisma.usuario.deleteMany());
+        await deleteWithLog('Usuario', () => databaseService.client.usuario.deleteMany());
 
         // 4. Contar registros após a limpeza
         const afterCounts = await getTableCounts();
@@ -84,7 +81,7 @@ async function cleanupTestData() {
         logger.error('Erro na limpeza de dados de teste:', error);
         process.exit(1);
     } finally {
-        await prisma.$disconnect();
+        await databaseService.client.$disconnect();
     }
 }
 
@@ -104,24 +101,24 @@ async function getTableCounts() {
     const counts = {};
     
     try {
-        counts.usuarios = await prisma.usuario.count();
-        counts.medicos = await prisma.medico.count();
-        counts.enfermeiros = await prisma.enfermeiro.count();
-        counts.pacientes = await prisma.paciente.count();
-        counts.prontuarios = await prisma.prontuario.count();
-        counts.consultas = await prisma.consulta.count();
-        counts.exames = await prisma.exame.count();
-        counts.alergias = await prisma.alergia.count();
-        counts.medicamentos = await prisma.medicamentoUso.count();
-        counts.doencas = await prisma.doencaPreexistente.count();
-        counts.agendamentos = await prisma.agendamento.count();
-        counts.prescricoes = await prisma.prescricao.count();
-        counts.sinaisVitais = await prisma.sinalVital.count();
-        counts.atendimentos = await prisma.atendimento.count();
-        counts.arquivos = await prisma.arquivo.count();
-        counts.sessoes = await prisma.sessao.count();
-        counts.logs = await prisma.logSistema.count();
-        counts.sincronizacao = await prisma.sincronizacaoMobile.count();
+        counts.usuarios = await databaseService.client.usuario.count();
+        counts.medicos = await databaseService.client.medico.count();
+        counts.enfermeiros = await databaseService.client.enfermeiro.count();
+        counts.pacientes = await databaseService.client.paciente.count();
+        counts.prontuarios = await databaseService.client.prontuario.count();
+        counts.consultas = await databaseService.client.consulta.count();
+        counts.exames = await databaseService.client.exame.count();
+        counts.alergias = await databaseService.client.alergia.count();
+        counts.medicamentos = await databaseService.client.medicamentoUso.count();
+        counts.doencas = await databaseService.client.doencaPreexistente.count();
+        counts.agendamentos = await databaseService.client.agendamento.count();
+        counts.prescricoes = await databaseService.client.prescricao.count();
+        counts.sinaisVitais = await databaseService.client.sinalVital.count();
+        counts.atendimentos = await databaseService.client.atendimento.count();
+        counts.arquivos = await databaseService.client.arquivo.count();
+        counts.sessoes = await databaseService.client.sessao.count();
+        counts.logs = await databaseService.client.logSistema.count();
+        counts.sincronizacao = await databaseService.client.sincronizacaoMobile.count();
     } catch (error) {
         console.warn('⚠️ Algumas tabelas podem não existir ainda:', error.message);
     }
@@ -140,9 +137,10 @@ async function createDefaultAdmin() {
         console.log('👤 Criando usuário administrador padrão...');
         
         const bcrypt = require('bcryptjs');
+const databaseService = require('../services/database');
         const hashedPassword = await bcrypt.hash('admin123!@#', 12);
         
-        const admin = await prisma.usuario.create({
+        const admin = await databaseService.client.usuario.create({
             data: {
                 email: 'admin@medifast.com',
                 senha: hashedPassword,

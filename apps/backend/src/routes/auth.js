@@ -1,54 +1,48 @@
+/**
+ * Router de Autenticação - Refatorado com Serviços Centralizados
+ * Usa AuthService, ValidationService e ResponseService
+ */
+
 const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { PrismaClient } = require('@prisma/client');
-const { logger } = require('../utils/logger');
+const databaseService = require('../services/database');
+const AuthService = require('../services/authService');
+const ValidationService = require('../services/validationService');
+const ResponseService = require('../services/responseService');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
-// Verificar disponibilidade de nome de usuário
-router.post('/check-username', async (req, res) => {
-  try {
-    const { username } = req.body;
+// Verificar disponibilidade de email
+router.post('/check-email', async (req, res) => {
+  return ResponseService.handle(res, async () => {
+    const { email } = req.body;
 
-    if (!username) {
-      return res.status(400).json({
-        success: false,
-        message: 'Nome de usuário é obrigatório'
-      });
+    // Validar email
+    const emailValidation = ValidationService.validateEmail(email);
+    if (!emailValidation.valid) {
+      return ResponseService.validationError(res, emailValidation.errors);
     }
 
-    const existingUser = await prisma.usuario.findFirst({
-      where: { email: username }
-    });
+    // Verificar disponibilidade
+    const available = await AuthService.isEmailAvailable(emailValidation.sanitized);
 
-    res.json({
-      success: true,
-      available: !existingUser
-    });
-  } catch (error) {
-    logger.error('Erro ao verificar username:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+    return {
+      email: emailValidation.sanitized,
+      available
+    };
+  }, 'Verificação de disponibilidade realizada');
 });
 
 // Registrar novo médico
 router.post('/register-doctor', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const {
       nomeCompleto,
       cpf,
-      rg,
       dataNascimento,
       telefone,
       email,
       crm,
       especialidade,
-      rqe,
       instituicaoFormacao,
       anoFormacao,
       cep,
@@ -58,51 +52,95 @@ router.post('/register-doctor', async (req, res) => {
       bairro,
       cidade,
       estado,
-      usuario,
       senha
     } = req.body;
 
-    // Validações básicas
-    if (!nomeCompleto || !crm || !especialidade || !email || !senha) {
-      return res.status(400).json({
-        success: false,
-        message: 'Campos obrigatórios não preenchidos: nome, CRM, especialidade, email e senha'
-      });
+    // Validações usando ValidationService
+    const errors = [];
+
+    // Validar nome
+    const nomeValidation = ValidationService.validateName(nomeCompleto, { required: true });
+    if (!nomeValidation.valid) {
+      errors.push(...nomeValidation.errors);
+    }
+
+    // Validar email
+    const emailValidation = ValidationService.validateEmail(email);
+    if (!emailValidation.valid) {
+      errors.push(...emailValidation.errors);
+    }
+
+    // Validar CPF se fornecido
+    let cpfSanitized = null;
+    if (cpf) {
+      const cpfValidation = ValidationService.validateCPF(cpf);
+      if (!cpfValidation.valid) {
+        errors.push(...cpfValidation.errors);
+      } else {
+        cpfSanitized = cpfValidation.sanitized;
+      }
+    }
+
+    // Validar CRM
+    const crmValidation = ValidationService.validateCRM(crm, estado);
+    if (!crmValidation.valid) {
+      errors.push(...crmValidation.errors);
+    }
+
+    // Validar telefone se fornecido
+    let telefoneSanitized = null;
+    if (telefone) {
+      const telefoneValidation = ValidationService.validatePhone(telefone);
+      if (!telefoneValidation.valid) {
+        errors.push(...telefoneValidation.errors);
+      } else {
+        telefoneSanitized = telefoneValidation.sanitized;
+      }
+    }
+
+    // Validar senha
+    const senhaValidation = ValidationService.validatePassword(senha, {
+      minLength: 6,
+      requireNumbers: false,
+      requireSpecialChars: false
+    });
+    if (!senhaValidation.valid) {
+      errors.push(...senhaValidation.errors);
+    }
+
+    // Campos obrigatórios específicos
+    if (!especialidade) {
+      errors.push('Especialidade é obrigatória');
+    }
+
+    if (errors.length > 0) {
+      return ResponseService.validationError(res, errors);
     }
 
     // Verificar se email já existe
-    const existingUser = await prisma.usuario.findFirst({
-      where: { email }
-    });
-
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email já está cadastrado no sistema'
-      });
+    const emailAvailable = await AuthService.isEmailAvailable(emailValidation.sanitized);
+    if (!emailAvailable) {
+      return ResponseService.conflict(res, 'Email já cadastrado no sistema', 'email');
     }
 
     // Verificar se CRM já existe
-    const existingCRM = await prisma.medico.findFirst({
-      where: { crm }
+    const existingCRM = await databaseService.client.medico.findFirst({
+      where: { crm: crmValidation.sanitized }
     });
 
     if (existingCRM) {
-      return res.status(400).json({
-        success: false,
-        message: 'CRM já cadastrado no sistema'
-      });
+      return ResponseService.conflict(res, 'CRM já cadastrado no sistema', 'crm');
     }
 
-    // Hash da senha
-    const hashedPassword = await bcrypt.hash(senha, 10);
+    // Hash da senha usando AuthService
+    const hashedPassword = await AuthService.hashPassword(senha);
 
     // Criar usuário
-    const novoUsuario = await prisma.usuario.create({
+    const novoUsuario = await databaseService.client.usuario.create({
       data: {
-        email,
+        email: emailValidation.sanitized,
         senha: hashedPassword,
-        nome: nomeCompleto,
+        nome: nomeValidation.sanitized,
         tipo: 'MEDICO'
       }
     });
@@ -117,166 +155,133 @@ router.post('/register-doctor', async (req, res) => {
     ].filter(Boolean).join(', ');
 
     // Criar perfil médico
-    const novoMedico = await prisma.medico.create({
+    const novoMedico = await databaseService.client.medico.create({
       data: {
         usuario_id: novoUsuario.id,
-        crm,
+        crm: crmValidation.sanitized,
         crm_uf: estado || 'SP',
-        especialidade,
-        telefone,
-        celular: telefone,
+        especialidade: ValidationService.sanitizeText(especialidade, { maxLength: 100 }),
+        telefone: telefoneSanitized,
+        celular: telefoneSanitized,
         endereco: enderecoCompleto || null,
-        formacao: instituicaoFormacao || 'Não informado',
+        formacao: ValidationService.sanitizeText(instituicaoFormacao, { maxLength: 200 }) || 'Não informado',
         experiencia: `Formado em ${anoFormacao || new Date().getFullYear()}`
       }
     });
 
-    logger.info(`Novo médico cadastrado: ${novoUsuario.nome} (${novoMedico.crm})`);
+    console.log(`✅ [AUTH] Novo médico cadastrado: ${novoUsuario.nome} (${novoMedico.crm})`);
 
-    res.status(201).json({
-      success: true,
-      message: 'Médico cadastrado com sucesso',
-      user: {
-        id: novoUsuario.id,
-        name: novoUsuario.nome,
-        email: novoUsuario.email,
-        crm: novoMedico.crm,
-        specialty: novoMedico.especialidade
-      }
-    });
-  } catch (error) {
-    logger.error('Erro ao cadastrar médico:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+    return {
+      id: novoUsuario.id,
+      name: novoUsuario.nome,
+      email: novoUsuario.email,
+      crm: novoMedico.crm,
+      specialty: novoMedico.especialidade
+    };
+
+  }, 'Médico cadastrado com sucesso');
 });
 
 // Login
 router.post('/login', async (req, res) => {
-  try {
-    const { username, password } = req.body;
+  return ResponseService.handle(res, async () => {
+    const { email, password } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Usuário e senha são obrigatórios'
-      });
+    if (!email || !password) {
+      return ResponseService.validationError(res, 'Email e senha são obrigatórios');
     }
 
-    // Buscar usuário
-    const user = await prisma.user.findUnique({
-      where: { username }
-    });
+    // Login usando AuthService
+    const loginResult = await AuthService.login(email, password);
 
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Credenciais inválidas'
-      });
-    }
+    console.log(`✅ [AUTH] Login realizado: ${loginResult.user.email}`);
 
-    // Verificar senha
-    const validPassword = await bcrypt.compare(password, user.password);
+    return loginResult;
 
-    if (!validPassword) {
-      return res.status(401).json({
-        success: false,
-        message: 'Credenciais inválidas'
-      });
-    }
-
-    // Gerar JWT
-    const token = jwt.sign(
-      { 
-        userId: user.id, 
-        username: user.username,
-        role: user.role 
-      },
-      process.env.JWT_SECRET || 'mediapp-secret-key',
-      { expiresIn: '24h' }
-    );
-
-    logger.info(`Login realizado: ${user.username}`);
-
-    res.json({
-      success: true,
-      message: 'Login realizado com sucesso',
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        crm: user.crm,
-        specialty: user.specialty
-      }
-    });
-  } catch (error) {
-    logger.error('Erro no login:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+  }, 'Login realizado com sucesso');
 });
 
 // Logout
-router.post('/logout', (req, res) => {
-  // Com JWT, o logout é feito no frontend removendo o token
-  res.json({
-    success: true,
-    message: 'Logout realizado com sucesso'
-  });
+router.post('/logout', AuthService.authMiddleware(), async (req, res) => {
+  return ResponseService.handle(res, async () => {
+    await AuthService.logout(req.user.id);
+    return null; // Sem dados para retornar
+  }, 'Logout realizado com sucesso');
 });
 
-// Verificar token (middleware para rotas protegidas)
-router.get('/me', async (req, res) => {
-  try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
+// Verificar token e obter dados do usuário
+router.get('/me', AuthService.authMiddleware(), async (req, res) => {
+  return ResponseService.handle(res, async () => {
+    // O middleware já validou o token e populou req.user
+    console.log(`🔍 [AUTH] Verificação de token: ${req.user.email}`);
+    return req.user;
+  }, 'Dados do usuário obtidos com sucesso');
+});
 
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Token não fornecido'
-      });
+// Refresh token
+router.post('/refresh', async (req, res) => {
+  return ResponseService.handle(res, async () => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return ResponseService.validationError(res, 'Token de refresh é obrigatório');
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'mediapp-secret-key');
-    
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: {
-        id: true,
-        name: true,
-        username: true,
-        email: true,
-        role: true,
-        crm: true,
-        specialty: true
-      }
+    const refreshResult = await AuthService.refreshToken(refreshToken);
+
+    console.log(`🔄 [AUTH] Token renovado: ${refreshResult.user.email}`);
+
+    return refreshResult;
+
+  }, 'Token renovado com sucesso');
+});
+
+// Alterar senha
+router.post('/change-password', AuthService.authMiddleware(), async (req, res) => {
+  return ResponseService.handle(res, async () => {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return ResponseService.validationError(res, 'Senha atual e nova senha são obrigatórias');
+    }
+
+    // Buscar usuário atual
+    const user = await databaseService.client.usuario.findUnique({
+      where: { id: req.user.id }
     });
 
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'Usuário não encontrado'
-      });
+      throw new Error('Usuário não encontrado');
     }
 
-    res.json({
-      success: true,
-      user
+    // Verificar senha atual
+    const senhaValida = await AuthService.comparePassword(currentPassword, user.senha);
+    if (!senhaValida) {
+      throw new Error('Senha atual incorreta');
+    }
+
+    // Validar nova senha
+    const senhaValidation = ValidationService.validatePassword(newPassword, {
+      minLength: 6
     });
-  } catch (error) {
-    logger.error('Erro ao verificar token:', error);
-    res.status(401).json({
-      success: false,
-      message: 'Token inválido'
+    if (!senhaValidation.valid) {
+      return ResponseService.validationError(res, senhaValidation.errors);
+    }
+
+    // Hash da nova senha
+    const hashedNewPassword = await AuthService.hashPassword(newPassword);
+
+    // Atualizar senha
+    await databaseService.client.usuario.update({
+      where: { id: req.user.id },
+      data: { senha: hashedNewPassword }
     });
-  }
+
+    console.log(`🔐 [AUTH] Senha alterada: ${req.user.email}`);
+
+    return null; // Sem dados para retornar
+
+  }, 'Senha alterada com sucesso');
 });
 
 module.exports = router;

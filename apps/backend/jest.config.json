@@ -1,0 +1,28 @@
+{
+  "testEnvironment": "node",
+  "testMatch": [
+    "**/tests/**/*.test.js"
+  ],
+  "testTimeout": 30000,
+  "setupFilesAfterEnv": ["<rootDir>/tests/jest.setup.js"],
+  "collectCoverage": true,
+  "coverageDirectory": "coverage",
+  "coverageReporters": ["text", "lcov", "html"],
+  "collectCoverageFrom": [
+    "src/**/*.js",
+    "!src/test-server.js",
+    "!src/config/**",
+    "!src/**/*.config.js"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "branches": 60,
+      "functions": 70,
+      "lines": 70,
+      "statements": 70
+    }
+  },
+  "verbose": true,
+  "forceExit": true,
+  "detectOpenHandles": true
+}

@@ -1026,18 +1026,19 @@
         // Save doctor
         async function salvarMedico() {
             const form = document.getElementById('medicoForm');
-            const formData = new FormData(form);
             
             const medicoData = {
                 id: document.getElementById('medicoId').value || undefined,
                 nomeCompleto: document.getElementById('nomeCompleto').value,
                 cpf: document.getElementById('cpf').value,
-                dataNascimento: document.getElementById('dataNascimento').value || null,
+                data_nascimento: document.getElementById('dataNascimento').value || null,
                 sexo: document.getElementById('sexo').value || null,
                 crm: document.getElementById('crm').value,
+                crm_uf: extractCrmUf(document.getElementById('crm').value),
                 especialidade: document.getElementById('especialidade').value,
-                outrasEspecialidades: document.getElementById('outrasEspecialidades').value || null,
+                outras_especialidades: document.getElementById('outrasEspecialidades').value || null,
                 telefone: document.getElementById('telefone').value,
+                celular: document.getElementById('telefone').value, // Mapear para celular também
                 email: document.getElementById('email').value,
                 cep: document.getElementById('cep').value || null,
                 logradouro: document.getElementById('logradouro').value || null,
@@ -1051,7 +1052,7 @@
             };
 
             // Validation
-            if (!medicoData.nomeCompleto || !medicoData.cpf || !medicoData.crm || 
+            if (!medicoData.nomeCompleto || !medicoData.crm || 
                 !medicoData.especialidade || !medicoData.telefone || !medicoData.email) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
                 return;
@@ -1094,6 +1095,13 @@
                 saveBtn.innerHTML = originalText;
                 saveBtn.disabled = false;
             }
+        }
+
+        // Extract CRM UF from CRM field
+        function extractCrmUf(crm) {
+            if (!crm) return null;
+            const match = crm.match(/[\/-]([A-Z]{2})$/);
+            return match ? match[1] : null;
         }
 
         // Edit doctor
@@ -1148,8 +1156,8 @@
             document.getElementById('cpf').value = medico.cpf || '';
             
             // Format date for input[type="date"]
-            if (medico.dataNascimento) {
-                const date = new Date(medico.dataNascimento);
+            if (medico.data_nascimento) {
+                const date = new Date(medico.data_nascimento);
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const day = String(date.getDate()).padStart(2, '0');
@@ -1158,35 +1166,35 @@
                 document.getElementById('dataNascimento').value = '';
             }
             
-            document.getElementById('sexo').value = medico.sexo || '';
+            // Mapear sexo do backend para frontend
+            if (medico.sexo) {
+                const sexoMap = {
+                    'MASCULINO': 'M',
+                    'FEMININO': 'F',
+                    'OUTRO': 'O'
+                };
+                document.getElementById('sexo').value = sexoMap[medico.sexo] || medico.sexo;
+            } else {
+                document.getElementById('sexo').value = '';
+            }
+            
             document.getElementById('crm').value = medico.crm || '';
             document.getElementById('especialidade').value = medico.especialidade || '';
-            document.getElementById('outrasEspecialidades').value = medico.outrasEspecialidades || '';
+            document.getElementById('outrasEspecialidades').value = medico.outras_especialidades || '';
             
-            // Mapear telefone e celular corretamente
+            // Mapear telefone corretamente
             document.getElementById('telefone').value = medico.telefone || medico.celular || '';
             document.getElementById('email').value = medico.email || '';
             
-            // Mapear endereço se vier como string única ou campos separados
-            if (medico.endereco) {
-                // Se vier como string única, tentar parsear
-                const enderecoCompleto = medico.endereco;
-                document.getElementById('logradouro').value = enderecoCompleto.split(',')[0] || '';
-                document.getElementById('cep').value = medico.cep || '';
-                document.getElementById('bairro').value = medico.bairro || '';
-                document.getElementById('cidade').value = medico.cidade || '';
-                document.getElementById('estado').value = medico.estado || '';
-            } else {
-                // Campos separados
-                document.getElementById('cep').value = medico.cep || '';
-                document.getElementById('logradouro').value = medico.logradouro || '';
-                document.getElementById('bairro').value = medico.bairro || '';
-                document.getElementById('cidade').value = medico.cidade || '';
-                document.getElementById('estado').value = medico.estado || '';
-            }
-            
+            // Endereço estruturado
+            document.getElementById('cep').value = medico.cep || '';
+            document.getElementById('logradouro').value = medico.logradouro || '';
             document.getElementById('numero').value = medico.numero || '';
             document.getElementById('complemento').value = medico.complemento || '';
+            document.getElementById('bairro').value = medico.bairro || '';
+            document.getElementById('cidade').value = medico.cidade || '';
+            document.getElementById('estado').value = medico.estado || '';
+            
             document.getElementById('status').value = medico.status || 'ATIVO';
             document.getElementById('observacoes').value = medico.observacoes || medico.formacao || '';
         }

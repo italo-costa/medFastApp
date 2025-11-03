@@ -1,24 +1,21 @@
 /**
  * MediApp - Servidor Principal Unificado
- * Substitui todos os outros servidores (persistent-server.js, robust-server.js, etc.)
- * Arquitetura limpa e organizada
+ * Fase 4: Middleware Centralizado
+ * Arquitetura limpa com serviços centralizados
  */
 
 const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const compression = require('compression');
 const path = require('path');
 
 // Importar configurações e serviços
 const config = require('./config');
 const databaseService = require('./services/database');
-const responseFormatter = require('./middleware/responseFormatter');
-const { errorHandler, notFoundHandler } = require('./middleware/errorHandling');
+const centralMiddleware = require('./middleware/centralMiddleware');
 
 // Importar rotas
 const medicosRoutes = require('./routes/medicosRoutes');
 const patientsRoutes = require('./routes/patients');
+const authRoutes = require('./routes/auth');
 
 // Criar aplicação Express
 const app = express();
@@ -30,31 +27,16 @@ const log = (message, type = 'INFO') => {
   console.log(`[${timestamp}] ${emoji} [MEDIAPP] ${message}`);
 };
 
-// Middleware de segurança
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://viacep.com.br"]
-    }
-  }
-}));
+// ========================================
+// APLICAR MIDDLEWARES CENTRALIZADOS
+// ========================================
 
-// CORS configurado
-app.use(cors(config.cors));
-
-// Compressão
-app.use(compression());
+// Middlewares básicos (ordem é importante!)
+centralMiddleware.applyBasicMiddlewares(app);
 
 // Parse do body
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Middleware de resposta padronizada
-app.use(responseFormatter);
 
 // Servir arquivos estáticos
 app.use(express.static(path.join(__dirname, '../public'), {
@@ -62,66 +44,75 @@ app.use(express.static(path.join(__dirname, '../public'), {
   etag: true
 }));
 
-// Log de requests
-app.use((req, res, next) => {
-  log(`${req.method} ${req.originalUrl} - IP: ${req.ip}`);
-  next();
-});
+// Servir uploads (fotos de médicos)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
+  maxAge: config.server.env === 'production' ? '7d' : '0',
+  etag: true
+}));
+
+// ========================================
+// ROTAS DA APLICAÇÃO
+// ========================================
 
 // Health check
-app.get('/health', async (req, res) => {
-  try {
-    const dbStats = await databaseService.getSystemStats();
-    
-    res.success({
-      server: 'MediApp Unified Server',
-      status: 'OK',
-      version: '1.0.0',
-      environment: config.server.env,
-      uptime: Math.floor(process.uptime()),
-      database: dbStats,
-      timestamp: new Date().toISOString()
-    }, 'Sistema operacional');
-    
-  } catch (error) {
-    res.error('Erro no health check', 500, error.message);
-  }
-});
+app.get('/health', centralMiddleware.asyncHandler(async (req, res) => {
+  const dbStats = await databaseService.getSystemStats();
+  
+  const healthData = {
+    server: 'MediApp Unified Server',
+    status: 'OK',
+    version: '2.0.0',
+    environment: config.server.env,
+    uptime: Math.floor(process.uptime()),
+    database: dbStats,
+    timestamp: new Date().toISOString(),
+    middleware: 'Centralizado'
+  };
+  
+  return res.status(200).json({
+    success: true,
+    data: healthData,
+    message: 'Sistema operacional'
+  });
+}));
 
-// Rotas da API
+// Rotas da API com rate limiting específico
+app.use('/api/auth', centralMiddleware.rateLimits.auth, authRoutes);
 app.use('/api/medicos', medicosRoutes);
 app.use('/api/patients', patientsRoutes);
 
-// Rota para estatísticas do dashboard
-app.get('/api/statistics/dashboard', async (req, res) => {
-  try {
-    const stats = await databaseService.getSystemStats();
-    res.success(stats, 'Estatísticas obtidas com sucesso');
-  } catch (error) {
-    res.error('Erro ao obter estatísticas', 500, error.message);
-  }
-});
+// Rota para estatísticas do dashboard  
+app.get('/api/statistics/dashboard', centralMiddleware.asyncHandler(async (req, res) => {
+  const stats = await databaseService.getSystemStats();
+  
+  return res.status(200).json({
+    success: true,
+    data: stats,
+    message: 'Estatísticas obtidas com sucesso'
+  });
+}));
 
 // Integração ViaCEP
-app.get('/api/viacep/:cep', async (req, res) => {
-  try {
-    const { cep } = req.params;
-    const fetch = (await import('node-fetch')).default;
-    
-    const response = await fetch(`${config.external.viaCepUrl}/${cep}/json/`);
-    const data = await response.json();
-    
-    if (data.erro) {
-      return res.notFound('CEP não encontrado');
-    }
-    
-    res.success(data, 'CEP encontrado com sucesso');
-    
-  } catch (error) {
-    log(`Erro na consulta ViaCEP: ${error.message}`, 'ERROR');
-    res.error('Erro ao consultar CEP', 500, error.message);
+app.get('/api/viacep/:cep', centralMiddleware.asyncHandler(async (req, res) => {
+  const { cep } = req.params;
+  const fetch = (await import('node-fetch')).default;
+  
+  const response = await fetch(`${config.external.viaCepUrl}/${cep}/json/`);
+  const data = await response.json();
+  
+  if (data.erro) {
+    return res.status(404).json({
+      success: false,
+      message: 'CEP não encontrado'
+    });
   }
-});
+  
+  return res.status(200).json({
+    success: true,
+    data,
+    message: 'CEP encontrado com sucesso'
+  });
+}));
 
 // Rota catch-all para SPA
 app.get('*', (req, res, next) => {
@@ -135,8 +126,8 @@ app.get('*', (req, res, next) => {
   res.sendFile(indexPath, (err) => {
     if (err) {
       res.status(404).send(`
-        <h1>MediApp - Servidor Unificado</h1>
-        <p>Sistema médico operacional</p>
+        <h1>MediApp - Servidor Unificado v2.0</h1>
+        <p>Sistema médico operacional com middleware centralizado</p>
         <ul>
           <li><a href="/health">Health Check</a></li>
           <li><a href="/api/medicos">API Médicos</a></li>
@@ -148,11 +139,16 @@ app.get('*', (req, res, next) => {
   });
 });
 
-// Middleware de rota não encontrada
-app.use(notFoundHandler);
+// ========================================
+// APLICAR MIDDLEWARES FINAIS
+// ========================================
 
-// Middleware de tratamento de erros
-app.use(errorHandler);
+// Middlewares de tratamento de erros (devem ser os últimos)
+centralMiddleware.applyFinalMiddlewares(app);
+
+// ========================================
+// GRACEFUL SHUTDOWN
+// ========================================
 
 // Função de shutdown graceful
 let isShuttingDown = false;

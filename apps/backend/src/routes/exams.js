@@ -2,10 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
-const { PrismaClient } = require('@prisma/client');
+const databaseService = require('../services/database');
 const router = express.Router();
-
-const prisma = new PrismaClient();
 
 // Configuração do multer para upload de arquivos
 const storage = multer.diskStorage({
@@ -103,7 +101,7 @@ router.get('/', async (req, res) => {
     }
 
     // Buscar exames com relacionamentos
-    const exames = await prisma.exame.findMany({
+    const exames = await databaseService.client.exame.findMany({
       where,
       skip,
       take,
@@ -123,7 +121,7 @@ router.get('/', async (req, res) => {
     });
 
     // Contar total para paginação
-    const total = await prisma.exame.count({ where });
+    const total = await databaseService.client.exame.count({ where });
     
     res.json({
       success: true,
@@ -151,7 +149,7 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const exame = await prisma.exame.findUnique({
+    const exame = await databaseService.client.exame.findUnique({
       where: { id },
       include: {
         paciente: {
@@ -212,7 +210,7 @@ router.post('/upload', upload.single('arquivo'), async (req, res) => {
     }
 
     // Verificar se paciente existe
-    const paciente = await prisma.paciente.findUnique({
+    const paciente = await databaseService.client.paciente.findUnique({
       where: { id: paciente_id }
     });
 
@@ -237,7 +235,7 @@ router.post('/upload', upload.single('arquivo'), async (req, res) => {
     }
 
     // Criar exame no banco
-    const novoExame = await prisma.exame.create({
+    const novoExame = await databaseService.client.exame.create({
       data: {
         paciente_id,
         tipo_exame,
@@ -305,7 +303,7 @@ router.put('/:id', async (req, res) => {
     } = req.body;
 
     // Verificar se exame existe
-    const exameExistente = await prisma.exame.findUnique({
+    const exameExistente = await databaseService.client.exame.findUnique({
       where: { id }
     });
 
@@ -317,7 +315,7 @@ router.put('/:id', async (req, res) => {
     }
 
     // Atualizar exame
-    const exameAtualizado = await prisma.exame.update({
+    const exameAtualizado = await databaseService.client.exame.update({
       where: { id },
       data: {
         tipo_exame,
@@ -361,7 +359,7 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
     // Buscar exame para obter caminho do arquivo
-    const exame = await prisma.exame.findUnique({
+    const exame = await databaseService.client.exame.findUnique({
       where: { id }
     });
 
@@ -382,7 +380,7 @@ router.delete('/:id', async (req, res) => {
     }
 
     // Excluir exame do banco
-    await prisma.exame.delete({
+    await databaseService.client.exame.delete({
       where: { id }
     });
 
@@ -406,7 +404,7 @@ router.get('/download/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const exame = await prisma.exame.findUnique({
+    const exame = await databaseService.client.exame.findUnique({
       where: { id },
       include: {
         paciente: {
@@ -466,7 +464,7 @@ router.get('/view/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
-    const exame = await prisma.exame.findUnique({
+    const exame = await databaseService.client.exame.findUnique({
       where: { id }
     });
 
@@ -509,7 +507,7 @@ router.get('/patient/:paciente_id', async (req, res) => {
   try {
     const { paciente_id } = req.params;
     
-    const exames = await prisma.exame.findMany({
+    const exames = await databaseService.client.exame.findMany({
       where: { paciente_id },
       orderBy: {
         data_realizacao: 'desc'

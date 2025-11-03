@@ -20,6 +20,9 @@ const recordRoutes = require('./routes/records');
 const examRoutes = require('./routes/exams');
 const allergyRoutes = require('./routes/allergies');
 const medicoRoutes = require('./routes/medicos');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const validacaoRoutes = require('./routes/validacaoRoutes');
+const historicoRoutes = require('./routes/historicoRoutes');
 const analyticsRoutes = require('./routes/analytics');
 const statisticsRoutes = require('./routes/statistics');
 
@@ -140,6 +143,9 @@ app.use('/api/records', recordRoutes);
 app.use('/api/exams', examRoutes);
 app.use('/api/allergies', allergyRoutes);
 app.use('/api/medicos', medicoRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/validacao', validacaoRoutes);
+app.use('/api/historico', historicoRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/statistics', statisticsRoutes);
 

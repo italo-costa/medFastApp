@@ -1,21 +1,30 @@
+/**
+ * Router de Pacientes - Refatorado com Serviços Centralizados
+ * Usa AuthService, ValidationService e ResponseService
+ */
+
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
-const { logger } = require('../utils/logger');
-const { 
-    validatePatientData, 
-    validateCPF, 
-    formatCPF, 
-    formatPhone, 
-    formatCEP,
-    sanitizeString 
-} = require('../utils/validators');
+const databaseService = require('../services/database');
+const AuthService = require('../services/authService');
+const ValidationService = require('../services/validationService');
+const ResponseService = require('../services/responseService');
 
 const router = express.Router();
-const prisma = new PrismaClient();
+
+// ========================================
+// MIDDLEWARE DE AUTENTICAÇÃO
+// ========================================
+
+// Aplicar autenticação em todas as rotas
+router.use(AuthService.authMiddleware());
+
+// ========================================
+// ROTAS CRUD DE PACIENTES
+// ========================================
 
 // Listar todos os pacientes
 router.get('/', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const { search, page = 1, limit = 10 } = req.query;
     
     const skip = (page - 1) * limit;
@@ -34,7 +43,7 @@ router.get('/', async (req, res) => {
     }
 
     const [patients, total] = await Promise.all([
-      prisma.patient.findMany({
+      databaseService.client.patient.findMany({
         where,
         skip,
         take,
@@ -47,39 +56,30 @@ router.get('/', async (req, res) => {
           allergies: true
         }
       }),
-      prisma.patient.count({ where })
+      databaseService.client.patient.count({ where })
     ]);
 
-    const patientsWithLastConsult = patients.map(patient => ({
+    const patientsFormatted = patients.map(patient => ResponseService.formatData({
       ...patient,
       ultimaConsulta: patient.medicalRecords[0]?.createdAt || null,
       medicalRecords: undefined // Remove o array completo para não sobrecarregar
     }));
 
-    res.json({
-      success: true,
-      patients: patientsWithLastConsult,
-      pagination: {
-        current: parseInt(page),
-        total: Math.ceil(total / take),
-        totalRecords: total
-      }
+    return ResponseService.paginated(res, patientsFormatted, {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total
     });
-  } catch (error) {
-    logger.error('Erro ao listar pacientes:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+
+  });
 });
 
 // Buscar paciente por ID
 router.get('/:id', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const { id } = req.params;
 
-    const patient = await prisma.patient.findUnique({
+    const patient = await databaseService.client.patient.findUnique({
       where: { id: parseInt(id) },
       include: {
         medicalRecords: {
@@ -98,28 +98,17 @@ router.get('/:id', async (req, res) => {
     });
 
     if (!patient) {
-      return res.status(404).json({
-        success: false,
-        message: 'Paciente não encontrado'
-      });
+      return ResponseService.notFound(res, 'Paciente', id);
     }
 
-    res.json({
-      success: true,
-      patient
-    });
-  } catch (error) {
-    logger.error('Erro ao buscar paciente:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+    return ResponseService.formatData(patient);
+
+  }, 'Paciente encontrado com sucesso');
 });
 
 // Criar novo paciente
 router.post('/', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const {
       nomeCompleto,
       cpf,
@@ -138,77 +127,96 @@ router.post('/', async (req, res) => {
       estadoCivil
     } = req.body;
 
-    // Sanitizar dados de entrada
-    const sanitizedData = {
-      nomeCompleto: sanitizeString(nomeCompleto),
-      cpf: cpf ? cpf.replace(/[^\d]/g, '') : '',
-      rg: rg ? sanitizeString(rg) : '',
-      dataNascimento,
-      telefone: telefone ? telefone.replace(/[^\d]/g, '') : '',
-      email: email ? sanitizeString(email).toLowerCase() : '',
-      tipoSanguineo: tipoSanguineo ? sanitizeString(tipoSanguineo) : '',
-      alergias: alergias ? sanitizeString(alergias) : '',
-      observacoes: observacoes ? sanitizeString(observacoes) : '',
-      cep: cep ? cep.replace(/[^\d]/g, '') : '',
-      endereco: endereco ? sanitizeString(endereco) : '',
-      cidade: cidade ? sanitizeString(cidade) : '',
-      uf: uf ? sanitizeString(uf).toUpperCase() : '',
-      profissao: profissao ? sanitizeString(profissao) : '',
-      estadoCivil: estadoCivil ? sanitizeString(estadoCivil) : ''
-    };
+    // Validações usando ValidationService
+    const errors = [];
 
-    // Validar dados obrigatórios e formato
-    const validation = validatePatientData(sanitizedData);
-    if (!validation.isValid) {
-      return res.status(400).json({
-        success: false,
-        message: 'Dados inválidos',
-        errors: validation.errors
-      });
+    // Validar nome
+    const nomeValidation = ValidationService.validateName(nomeCompleto, { required: true });
+    if (!nomeValidation.valid) {
+      errors.push(...nomeValidation.errors);
+    }
+
+    // Validar CPF
+    const cpfValidation = ValidationService.validateCPF(cpf);
+    if (!cpfValidation.valid) {
+      errors.push(...cpfValidation.errors);
+    }
+
+    // Validar data de nascimento
+    const dataValidation = ValidationService.validateDate(dataNascimento, { 
+      required: true, 
+      maxAge: 150,
+      futureAllowed: false 
+    });
+    if (!dataValidation.valid) {
+      errors.push(...dataValidation.errors);
+    }
+
+    // Validar email se fornecido
+    let emailSanitized = null;
+    if (email) {
+      const emailValidation = ValidationService.validateEmail(email);
+      if (!emailValidation.valid) {
+        errors.push(...emailValidation.errors);
+      } else {
+        emailSanitized = emailValidation.sanitized;
+      }
+    }
+
+    // Validar telefone se fornecido
+    let telefoneSanitized = null;
+    if (telefone) {
+      const telefoneValidation = ValidationService.validatePhone(telefone);
+      if (!telefoneValidation.valid) {
+        errors.push(...telefoneValidation.errors);
+      } else {
+        telefoneSanitized = telefoneValidation.sanitized;
+      }
+    }
+
+    if (errors.length > 0) {
+      return ResponseService.validationError(res, errors);
     }
 
     // Verificar se CPF já existe
-    const existingPatient = await prisma.patient.findUnique({
-      where: { cpf: sanitizedData.cpf }
+    const existingPatient = await databaseService.client.patient.findUnique({
+      where: { cpf: cpfValidation.sanitized }
     });
 
     if (existingPatient) {
-      return res.status(400).json({
-        success: false,
-        message: 'CPF já cadastrado no sistema'
-      });
+      return ResponseService.conflict(res, 'CPF já cadastrado no sistema', 'cpf');
     }
 
     // Criar paciente
-    const patient = await prisma.patient.create({
+    const patient = await databaseService.client.patient.create({
       data: {
-        name: sanitizedData.nomeCompleto,
-        cpf: sanitizedData.cpf,
-        rg: sanitizedData.rg || null,
-        birthDate: new Date(sanitizedData.dataNascimento),
-        phone: sanitizedData.telefone,
-        email: sanitizedData.email || null,
-        bloodType: sanitizedData.tipoSanguineo || null,
-        observations: sanitizedData.observacoes || null,
-        address: sanitizedData.endereco || null,
-        zipCode: sanitizedData.cep || null,
-        city: sanitizedData.cidade || null,
-        state: sanitizedData.uf || null,
-        profession: sanitizedData.profissao || null,
-        maritalStatus: sanitizedData.estadoCivil || null
+        name: nomeValidation.sanitized,
+        cpf: cpfValidation.sanitized,
+        rg: ValidationService.sanitizeText(rg, { maxLength: 20 }) || null,
+        birthDate: new Date(dataValidation.sanitized),
+        phone: telefoneSanitized,
+        email: emailSanitized,
+        bloodType: ValidationService.sanitizeText(tipoSanguineo, { maxLength: 10 }) || null,
+        observations: ValidationService.sanitizeText(observacoes, { maxLength: 1000 }) || null,
+        address: ValidationService.sanitizeText(endereco, { maxLength: 255 }) || null,
+        zipCode: ValidationService.sanitizeText(cep, { removeSpecialChars: true, maxLength: 10 }) || null,
+        city: ValidationService.sanitizeText(cidade, { maxLength: 100 }) || null,
+        state: ValidationService.sanitizeText(uf, { maxLength: 2 }) || null,
+        profession: ValidationService.sanitizeText(profissao, { maxLength: 100 }) || null,
+        maritalStatus: ValidationService.sanitizeText(estadoCivil, { maxLength: 20 }) || null
       }
     });
 
     // Criar alergias se informadas
-    if (sanitizedData.alergias && sanitizedData.alergias.trim()) {
-      const allergiesList = sanitizedData.alergias.split(',').map(allergy => allergy.trim());
+    if (alergias && alergias.trim()) {
+      const allergiesList = alergias.split(',').map(allergy => allergy.trim());
       
       for (const allergyName of allergiesList) {
         if (allergyName) {
-          await prisma.allergy.create({
+          await databaseService.client.allergy.create({
             data: {
               patientId: patient.id,
-              allergen: allergyName,
+              allergen: ValidationService.sanitizeText(allergyName, { maxLength: 100 }),
               severity: 'MODERATE', // Padrão
               description: `Alergia registrada durante cadastro: ${allergyName}`
             }
@@ -217,30 +225,19 @@ router.post('/', async (req, res) => {
       }
     }
 
-    logger.info(`Novo paciente cadastrado: ${patient.name} (${formatCPF(patient.cpf)})`);
+    console.log(`✅ [PATIENTS] Novo paciente cadastrado: ${patient.name} (${cpfValidation.formatted})`);
 
-    res.status(201).json({
-      success: true,
-      message: 'Paciente cadastrado com sucesso',
-      patient: {
-        ...patient,
-        cpf: formatCPF(patient.cpf),
-        phone: formatPhone(patient.phone),
-        zipCode: formatCEP(patient.zipCode)
-      }
+    return ResponseService.formatData({
+      ...patient,
+      cpf: cpfValidation.formatted
     });
-  } catch (error) {
-    logger.error('Erro ao criar paciente:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+
+  }, 'Paciente cadastrado com sucesso');
 });
 
 // Atualizar paciente
 router.put('/:id', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const { id } = req.params;
     const {
       nomeCompleto,
@@ -254,153 +251,192 @@ router.put('/:id', async (req, res) => {
     } = req.body;
 
     // Verificar se paciente existe
-    const existingPatient = await prisma.patient.findUnique({
+    const existingPatient = await databaseService.client.patient.findUnique({
       where: { id: parseInt(id) }
     });
 
     if (!existingPatient) {
-      return res.status(404).json({
-        success: false,
-        message: 'Paciente não encontrado'
-      });
+      return ResponseService.notFound(res, 'Paciente', id);
     }
 
-    // Verificar se o novo CPF já existe (se foi alterado)
-    if (cpf !== existingPatient.cpf) {
-      const cpfExists = await prisma.patient.findUnique({
-        where: { cpf }
-      });
+    // Validações usando ValidationService
+    const errors = [];
+    let updateData = {};
 
-      if (cpfExists) {
-        return res.status(400).json({
-          success: false,
-          message: 'CPF já cadastrado para outro paciente'
-        });
+    // Validar nome se fornecido
+    if (nomeCompleto !== undefined) {
+      const nomeValidation = ValidationService.validateName(nomeCompleto, { required: true });
+      if (!nomeValidation.valid) {
+        errors.push(...nomeValidation.errors);
+      } else {
+        updateData.name = nomeValidation.sanitized;
       }
+    }
+
+    // Validar CPF se fornecido
+    if (cpf !== undefined) {
+      const cpfValidation = ValidationService.validateCPF(cpf);
+      if (!cpfValidation.valid) {
+        errors.push(...cpfValidation.errors);
+      } else {
+        // Verificar se o novo CPF já existe (se foi alterado)
+        if (cpfValidation.sanitized !== existingPatient.cpf) {
+          const cpfExists = await databaseService.client.patient.findUnique({
+            where: { cpf: cpfValidation.sanitized }
+          });
+
+          if (cpfExists) {
+            return ResponseService.conflict(res, 'CPF já cadastrado para outro paciente', 'cpf');
+          }
+        }
+        updateData.cpf = cpfValidation.sanitized;
+      }
+    }
+
+    // Validar data de nascimento se fornecida
+    if (dataNascimento !== undefined) {
+      const dataValidation = ValidationService.validateDate(dataNascimento, { 
+        required: true, 
+        maxAge: 150,
+        futureAllowed: false 
+      });
+      if (!dataValidation.valid) {
+        errors.push(...dataValidation.errors);
+      } else {
+        updateData.birthDate = new Date(dataValidation.sanitized);
+      }
+    }
+
+    // Validar telefone se fornecido
+    if (telefone !== undefined) {
+      if (telefone) {
+        const telefoneValidation = ValidationService.validatePhone(telefone);
+        if (!telefoneValidation.valid) {
+          errors.push(...telefoneValidation.errors);
+        } else {
+          updateData.phone = telefoneValidation.sanitized;
+        }
+      } else {
+        updateData.phone = null;
+      }
+    }
+
+    // Validar email se fornecido
+    if (email !== undefined) {
+      if (email) {
+        const emailValidation = ValidationService.validateEmail(email);
+        if (!emailValidation.valid) {
+          errors.push(...emailValidation.errors);
+        } else {
+          updateData.email = emailValidation.sanitized;
+        }
+      } else {
+        updateData.email = null;
+      }
+    }
+
+    // Sanitizar outros campos
+    if (rg !== undefined) {
+      updateData.rg = ValidationService.sanitizeText(rg, { maxLength: 20 }) || null;
+    }
+
+    if (tipoSanguineo !== undefined) {
+      updateData.bloodType = ValidationService.sanitizeText(tipoSanguineo, { maxLength: 10 }) || null;
+    }
+
+    if (observacoes !== undefined) {
+      updateData.observations = ValidationService.sanitizeText(observacoes, { maxLength: 1000 }) || null;
+    }
+
+    if (errors.length > 0) {
+      return ResponseService.validationError(res, errors);
     }
 
     // Atualizar paciente
-    const updatedPatient = await prisma.patient.update({
+    const updatedPatient = await databaseService.client.patient.update({
       where: { id: parseInt(id) },
-      data: {
-        name: nomeCompleto,
-        cpf,
-        rg: rg || null,
-        birthDate: new Date(dataNascimento),
-        phone: telefone,
-        email: email || null,
-        bloodType: tipoSanguineo || null,
-        observations: observacoes || null
-      }
+      data: updateData
     });
 
-    logger.info(`Paciente atualizado: ${updatedPatient.name} (ID: ${id})`);
+    console.log(`✅ [PATIENTS] Paciente atualizado: ${updatedPatient.name} (ID: ${id})`);
 
-    res.json({
-      success: true,
-      message: 'Paciente atualizado com sucesso',
-      patient: updatedPatient
-    });
-  } catch (error) {
-    logger.error('Erro ao atualizar paciente:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+    return ResponseService.formatData(updatedPatient);
+
+  }, 'Paciente atualizado com sucesso');
 });
 
 // Deletar paciente
 router.delete('/:id', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const { id } = req.params;
 
     // Verificar se paciente existe
-    const existingPatient = await prisma.patient.findUnique({
+    const existingPatient = await databaseService.client.patient.findUnique({
       where: { id: parseInt(id) }
     });
 
     if (!existingPatient) {
-      return res.status(404).json({
-        success: false,
-        message: 'Paciente não encontrado'
-      });
+      return ResponseService.notFound(res, 'Paciente', id);
     }
 
     // Deletar paciente (cascade irá remover registros relacionados)
-    await prisma.patient.delete({
+    await databaseService.client.patient.delete({
       where: { id: parseInt(id) }
     });
 
-    logger.info(`Paciente deletado: ${existingPatient.name} (ID: ${id})`);
+    console.log(`🗑️ [PATIENTS] Paciente deletado: ${existingPatient.name} (ID: ${id})`);
 
-    res.json({
-      success: true,
-      message: 'Paciente deletado com sucesso'
-    });
-  } catch (error) {
-    logger.error('Erro ao deletar paciente:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+    return null; // Sem dados para retornar
+
+  }, 'Paciente deletado com sucesso');
 });
 
 // Estatísticas dos pacientes
 router.get('/stats/overview', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const [
       totalPatients,
       patientsWithAllergies,
       recentConsults,
       activeRecords
     ] = await Promise.all([
-      prisma.patient.count(),
-      prisma.patient.count({
+      databaseService.client.patient.count(),
+      databaseService.client.patient.count({
         where: {
           allergies: {
             some: {}
           }
         }
       }),
-      prisma.medicalRecord.count({
+      databaseService.client.medicalRecord.count({
         where: {
           createdAt: {
             gte: new Date(new Date().setHours(0, 0, 0, 0))
           }
         }
-      }),
-      prisma.medicalRecord.count({
+      }).catch(() => 0), // Se tabela não existir
+      databaseService.client.medicalRecord.count({
         where: {
           isActive: true
         }
-      })
+      }).catch(() => 0) // Se tabela não existir
     ]);
 
-    res.json({
-      success: true,
-      stats: {
-        totalPacientes: totalPatients,
-        pacientesAlergias: patientsWithAllergies,
-        consultasHoje: recentConsults,
-        prontuariosAtivos: activeRecords
-      }
+    return ResponseService.statistics(res, {
+      totalPacientes: totalPatients,
+      pacientesAlergias: patientsWithAllergies,
+      consultasHoje: recentConsults,
+      prontuariosAtivos: activeRecords
     });
-  } catch (error) {
-    logger.error('Erro ao buscar estatísticas:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+
+  });
 });
 
 // ==================== ROTAS DE ANAMNESE ====================
 
 // Criar nova anamnese
 router.post('/:id/anamnesis', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const { id } = req.params;
     const patientId = parseInt(id);
     
@@ -437,63 +473,62 @@ router.post('/:id/anamnesis', async (req, res) => {
     } = req.body;
 
     // Verificar se o paciente existe
-    const patient = await prisma.patient.findUnique({
+    const patient = await databaseService.client.patient.findUnique({
       where: { id: patientId }
     });
 
     if (!patient) {
-      return res.status(404).json({
-        success: false,
-        message: 'Paciente não encontrado'
-      });
+      return ResponseService.notFound(res, 'Paciente', patientId);
     }
 
-    // Verificar se o médico existe
-    const doctor = await prisma.user.findFirst({
+    // Verificar se o médico existe (usando a tabela correta)
+    const doctor = await databaseService.client.usuario.findFirst({
       where: { 
         id: doctorId,
-        role: 'DOCTOR'
+        tipo: 'MEDICO'
       }
     });
 
     if (!doctor) {
-      return res.status(404).json({
-        success: false,
-        message: 'Médico não encontrado'
-      });
+      return ResponseService.notFound(res, 'Médico', doctorId);
     }
 
-    const anamnesis = await prisma.anamnesis.create({
+    // Sanitizar dados usando ValidationService
+    const sanitizedData = {
+      profession: ValidationService.sanitizeText(profession, { maxLength: 100 }),
+      maritalStatus: ValidationService.sanitizeText(maritalStatus, { maxLength: 50 }),
+      education: ValidationService.sanitizeText(education, { maxLength: 100 }),
+      lifestyle: ValidationService.sanitizeText(lifestyle, { maxLength: 500 }),
+      chiefComplaint: ValidationService.sanitizeText(chiefComplaint, { maxLength: 1000 }),
+      historyPresentIllness: ValidationService.sanitizeText(historyPresentIllness, { maxLength: 2000 }),
+      previousIllnesses: ValidationService.sanitizeText(previousIllnesses, { maxLength: 1000 }),
+      surgeries: ValidationService.sanitizeText(surgeries, { maxLength: 1000 }),
+      hospitalizations: ValidationService.sanitizeText(hospitalizations, { maxLength: 1000 }),
+      allergies: ValidationService.sanitizeText(allergies, { maxLength: 1000 }),
+      currentMedications: ValidationService.sanitizeText(currentMedications, { maxLength: 1000 }),
+      familyHistory: ValidationService.sanitizeText(familyHistory, { maxLength: 1000 }),
+      smoking: ValidationService.sanitizeText(smoking, { maxLength: 200 }),
+      alcohol: ValidationService.sanitizeText(alcohol, { maxLength: 200 }),
+      drugs: ValidationService.sanitizeText(drugs, { maxLength: 200 }),
+      physicalActivity: ValidationService.sanitizeText(physicalActivity, { maxLength: 500 }),
+      generalSymptoms: ValidationService.sanitizeText(generalSymptoms, { maxLength: 1000 }),
+      cardiovascular: ValidationService.sanitizeText(cardiovascular, { maxLength: 1000 }),
+      respiratory: ValidationService.sanitizeText(respiratory, { maxLength: 1000 }),
+      gastrointestinal: ValidationService.sanitizeText(gastrointestinal, { maxLength: 1000 }),
+      genitourinary: ValidationService.sanitizeText(genitourinary, { maxLength: 1000 }),
+      neurological: ValidationService.sanitizeText(neurological, { maxLength: 1000 }),
+      musculoskeletal: ValidationService.sanitizeText(musculoskeletal, { maxLength: 1000 }),
+      dermatological: ValidationService.sanitizeText(dermatological, { maxLength: 1000 }),
+      vitalSigns: ValidationService.sanitizeText(vitalSigns, { maxLength: 500 }),
+      physicalExamination: ValidationService.sanitizeText(physicalExamination, { maxLength: 2000 }),
+      observations: ValidationService.sanitizeText(observations, { maxLength: 2000 })
+    };
+
+    const anamnesis = await databaseService.client.anamnesis.create({
       data: {
         patientId,
         doctorId,
-        profession,
-        maritalStatus,
-        education,
-        lifestyle,
-        chiefComplaint,
-        historyPresentIllness,
-        previousIllnesses,
-        surgeries,
-        hospitalizations,
-        allergies,
-        currentMedications,
-        familyHistory,
-        smoking,
-        alcohol,
-        drugs,
-        physicalActivity,
-        generalSymptoms,
-        cardiovascular,
-        respiratory,
-        gastrointestinal,
-        genitourinary,
-        neurological,
-        musculoskeletal,
-        dermatological,
-        vitalSigns,
-        physicalExamination,
-        observations,
+        ...sanitizedData,
         isComplete: isComplete || false
       },
       include: {
@@ -507,32 +542,28 @@ router.post('/:id/anamnesis', async (req, res) => {
         doctor: {
           select: {
             id: true,
-            name: true,
-            crm: true,
-            specialty: true
+            nome: true,
+            medico: {
+              select: {
+                crm: true,
+                especialidade: true
+              }
+            }
           }
         }
       }
     });
 
-    logger.info(`Anamnese criada para paciente ${patientId} pelo médico ${doctorId}`);
+    console.log(`✅ [PATIENTS] Anamnese criada para paciente ${patientId} pelo médico ${doctorId}`);
 
-    res.status(201).json({
-      success: true,
-      anamnesis
-    });
-  } catch (error) {
-    logger.error('Erro ao criar anamnese:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+    return ResponseService.formatData(anamnesis);
+
+  }, 'Anamnese criada com sucesso');
 });
 
 // Listar anamneses de um paciente
 router.get('/:id/anamnesis', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const { id } = req.params;
     const patientId = parseInt(id);
     const { page = 1, limit = 10 } = req.query;
@@ -541,7 +572,7 @@ router.get('/:id/anamnesis', async (req, res) => {
     const take = parseInt(limit);
 
     const [anamneses, total] = await Promise.all([
-      prisma.anamnesis.findMany({
+      databaseService.client.anamnesis.findMany({
         where: { patientId },
         skip,
         take,
@@ -550,42 +581,38 @@ router.get('/:id/anamnesis', async (req, res) => {
           doctor: {
             select: {
               id: true,
-              name: true,
-              crm: true,
-              specialty: true
+              nome: true,
+              medico: {
+                select: {
+                  crm: true,
+                  especialidade: true
+                }
+              }
             }
           }
         }
       }),
-      prisma.anamnesis.count({ where: { patientId } })
+      databaseService.client.anamnesis.count({ where: { patientId } })
     ]);
 
-    res.json({
-      success: true,
-      anamneses,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        totalPages: Math.ceil(total / parseInt(limit))
-      }
+    const anamnesesFormatted = anamneses.map(anamnesis => ResponseService.formatData(anamnesis));
+
+    return ResponseService.paginated(res, anamnesesFormatted, {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total
     });
-  } catch (error) {
-    logger.error('Erro ao listar anamneses:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+
+  });
 });
 
 // Buscar anamnese específica
 router.get('/:id/anamnesis/:anamnesisId', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const { id, anamnesisId } = req.params;
     const patientId = parseInt(id);
 
-    const anamnesis = await prisma.anamnesis.findFirst({
+    const anamnesis = await databaseService.client.anamnesis.findFirst({
       where: {
         id: anamnesisId,
         patientId
@@ -606,37 +633,30 @@ router.get('/:id/anamnesis/:anamnesisId', async (req, res) => {
         doctor: {
           select: {
             id: true,
-            name: true,
-            crm: true,
-            specialty: true
+            nome: true,
+            medico: {
+              select: {
+                crm: true,
+                especialidade: true
+              }
+            }
           }
         }
       }
     });
 
     if (!anamnesis) {
-      return res.status(404).json({
-        success: false,
-        message: 'Anamnese não encontrada'
-      });
+      return ResponseService.notFound(res, 'Anamnese', anamnesisId);
     }
 
-    res.json({
-      success: true,
-      anamnesis
-    });
-  } catch (error) {
-    logger.error('Erro ao buscar anamnese:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+    return ResponseService.formatData(anamnesis);
+
+  }, 'Anamnese encontrada com sucesso');
 });
 
 // Atualizar anamnese
 router.put('/:id/anamnesis/:anamnesisId', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const { id, anamnesisId } = req.params;
     const patientId = parseInt(id);
     
@@ -645,7 +665,7 @@ router.put('/:id/anamnesis/:anamnesisId', async (req, res) => {
     delete updateData.doctorId;  // Não permitir alterar o médico
     delete updateData.id;        // Não permitir alterar o ID
 
-    const anamnesis = await prisma.anamnesis.findFirst({
+    const anamnesis = await databaseService.client.anamnesis.findFirst({
       where: {
         id: anamnesisId,
         patientId
@@ -653,13 +673,48 @@ router.put('/:id/anamnesis/:anamnesisId', async (req, res) => {
     });
 
     if (!anamnesis) {
-      return res.status(404).json({
-        success: false,
-        message: 'Anamnese não encontrada'
-      });
+      return ResponseService.notFound(res, 'Anamnese', anamnesisId);
     }
 
-    const updatedAnamnesis = await prisma.anamnesis.update({
+    // Sanitizar dados de texto usando ValidationService
+    Object.keys(updateData).forEach(key => {
+      if (typeof updateData[key] === 'string' && updateData[key].trim()) {
+        const maxLengths = {
+          profession: 100,
+          maritalStatus: 50,
+          education: 100,
+          lifestyle: 500,
+          chiefComplaint: 1000,
+          historyPresentIllness: 2000,
+          previousIllnesses: 1000,
+          surgeries: 1000,
+          hospitalizations: 1000,
+          allergies: 1000,
+          currentMedications: 1000,
+          familyHistory: 1000,
+          smoking: 200,
+          alcohol: 200,
+          drugs: 200,
+          physicalActivity: 500,
+          generalSymptoms: 1000,
+          cardiovascular: 1000,
+          respiratory: 1000,
+          gastrointestinal: 1000,
+          genitourinary: 1000,
+          neurological: 1000,
+          musculoskeletal: 1000,
+          dermatological: 1000,
+          vitalSigns: 500,
+          physicalExamination: 2000,
+          observations: 2000
+        };
+
+        const maxLength = maxLengths[key] || 500;
+        updateData[key] = ValidationService.sanitizeText(updateData[key], { maxLength });
+      }
+    });
+
+    const updatedAnamnesis = await databaseService.client.anamnesis.update({
       where: { id: anamnesisId },
       data: updateData,
       include: {
@@ -673,36 +728,32 @@ router.put('/:id/anamnesis/:anamnesisId', async (req, res) => {
         doctor: {
           select: {
             id: true,
-            name: true,
-            crm: true,
-            specialty: true
+            nome: true,
+            medico: {
+              select: {
+                crm: true,
+                especialidade: true
+              }
+            }
           }
         }
       }
     });
 
-    logger.info(`Anamnese ${anamnesisId} atualizada para paciente ${patientId}`);
+    console.log(`✅ [PATIENTS] Anamnese ${anamnesisId} atualizada para paciente ${patientId}`);
 
-    res.json({
-      success: true,
-      anamnesis: updatedAnamnesis
-    });
-  } catch (error) {
-    logger.error('Erro ao atualizar anamnese:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+    return ResponseService.formatData(updatedAnamnesis);
+
+  }, 'Anamnese atualizada com sucesso');
 });
 
 // Verificar se paciente tem anamnese completa
 router.get('/:id/anamnesis/check/complete', async (req, res) => {
-  try {
+  return ResponseService.handle(res, async () => {
     const { id } = req.params;
     const patientId = parseInt(id);
 
-    const completedAnamnesis = await prisma.anamnesis.findFirst({
+    const completedAnamnesis = await databaseService.client.anamnesis.findFirst({
       where: {
         patientId,
         isComplete: true
@@ -710,18 +761,12 @@ router.get('/:id/anamnesis/check/complete', async (req, res) => {
       orderBy: { consultationDate: 'desc' }
     });
 
-    res.json({
-      success: true,
+    return {
       hasCompleteAnamnesis: !!completedAnamnesis,
-      lastAnamnesis: completedAnamnesis || null
-    });
-  } catch (error) {
-    logger.error('Erro ao verificar anamnese completa:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor'
-    });
-  }
+      lastAnamnesis: completedAnamnesis ? ResponseService.formatData(completedAnamnesis) : null
+    };
+
+  }, 'Verificação de anamnese completa realizada');
 });
 
 module.exports = router;
