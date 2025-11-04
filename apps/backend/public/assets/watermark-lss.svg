@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <!-- Gradiente para o fundo -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#007bff;stop-opacity:0.02"/>
+      <stop offset="100%" style="stop-color:#28a745;stop-opacity:0.02"/>
+    </linearGradient>
+    
+    <!-- Gradiente para o texto -->
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#007bff;stop-opacity:0.08"/>
+      <stop offset="50%" style="stop-color:#dc3545;stop-opacity:0.06"/>
+      <stop offset="100%" style="stop-color:#28a745;stop-opacity:0.08"/>
+    </linearGradient>
+    
+    <!-- Sombra do texto -->
+    <filter id="textShadow">
+      <feDropShadow dx="2" dy="2" stdDeviation="1" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+  
+  <!-- Fundo com gradiente -->
+  <rect width="800" height="600" fill="url(#bgGradient)"/>
+  
+  <!-- Padrão de fundo com cruzes médicas -->
+  <g opacity="0.03">
+    <!-- Cruz médica 1 -->
+    <g transform="translate(150,100)">
+      <rect x="15" y="5" width="6" height="26" fill="#007bff"/>
+      <rect x="5" y="15" width="26" height="6" fill="#007bff"/>
+    </g>
+    
+    <!-- Cruz médica 2 -->
+    <g transform="translate(350,150)">
+      <rect x="15" y="5" width="6" height="26" fill="#28a745"/>
+      <rect x="5" y="15" width="26" height="6" fill="#28a745"/>
+    </g>
+    
+    <!-- Cruz médica 3 -->
+    <g transform="translate(550,200)">
+      <rect x="15" y="5" width="6" height="26" fill="#dc3545"/>
+      <rect x="5" y="15" width="26" height="6" fill="#dc3545"/>
+    </g>
+    
+    <!-- Cruz médica 4 -->
+    <g transform="translate(200,350)">
+      <rect x="15" y="5" width="6" height="26" fill="#ffc107"/>
+      <rect x="5" y="15" width="26" height="6" fill="#ffc107"/>
+    </g>
+    
+    <!-- Cruz médica 5 -->
+    <g transform="translate(450,400)">
+      <rect x="15" y="5" width="6" height="26" fill="#17a2b8"/>
+      <rect x="5" y="15" width="26" height="6" fill="#17a2b8"/>
+    </g>
+  </g>
+  
+  <!-- Texto principal rotacionado -->
+  <g transform="translate(400,300) rotate(-45)">
+    <!-- Texto principal "LOPES SOUZA SAÚDE" -->
+    <text x="0" y="0" 
+          font-family="Arial Black, Arial, sans-serif" 
+          font-size="48" 
+          font-weight="900" 
+          fill="url(#textGradient)" 
+          text-anchor="middle" 
+          filter="url(#textShadow)"
+          letter-spacing="4px">
+      LOPES SOUZA SAÚDE
+    </text>
+    
+    <!-- Subtítulo -->
+    <text x="0" y="40" 
+          font-family="Arial, sans-serif" 
+          font-size="20" 
+          font-weight="bold" 
+          fill="url(#textGradient)" 
+          text-anchor="middle" 
+          opacity="0.6"
+          letter-spacing="2px">
+      PRESCRIÇÃO MÉDICA OFICIAL
+    </text>
+    
+    <!-- Logo LSS -->
+    <text x="0" y="-50" 
+          font-family="Arial Black, Arial, sans-serif" 
+          font-size="32" 
+          font-weight="900" 
+          fill="url(#textGradient)" 
+          text-anchor="middle"
+          letter-spacing="8px">
+      🏥 LSS 🏥
+    </text>
+  </g>
+  
+  <!-- Bordas decorativas -->
+  <g opacity="0.05">
+    <!-- Borda superior -->
+    <line x1="50" y1="50" x2="750" y2="50" stroke="#007bff" stroke-width="2"/>
+    <line x1="50" y1="60" x2="750" y2="60" stroke="#28a745" stroke-width="1"/>
+    
+    <!-- Borda inferior -->
+    <line x1="50" y1="540" x2="750" y2="540" stroke="#007bff" stroke-width="2"/>
+    <line x1="50" y1="550" x2="750" y2="550" stroke="#28a745" stroke-width="1"/>
+    
+    <!-- Borda esquerda -->
+    <line x1="50" y1="50" x2="50" y2="550" stroke="#007bff" stroke-width="2"/>
+    <line x1="60" y1="50" x2="60" y2="550" stroke="#28a745" stroke-width="1"/>
+    
+    <!-- Borda direita -->
+    <line x1="740" y1="50" x2="740" y2="550" stroke="#007bff" stroke-width="2"/>
+    <line x1="750" y1="50" x2="750" y2="550" stroke="#28a745" stroke-width="1"/>
+  </g>
+  
+  <!-- Carimbo no canto -->
+  <g transform="translate(650,100) rotate(15)" opacity="0.08">
+    <rect x="0" y="0" width="120" height="80" fill="none" stroke="#6c757d" stroke-width="2" rx="8"/>
+    <text x="60" y="25" 
+          font-family="Courier New, monospace" 
+          font-size="10" 
+          font-weight="bold" 
+          fill="#6c757d" 
+          text-anchor="middle">
+      DOCUMENTO
+    </text>
+    <text x="60" y="40" 
+          font-family="Courier New, monospace" 
+          font-size="10" 
+          font-weight="bold" 
+          fill="#6c757d" 
+          text-anchor="middle">
+      MÉDICO
+    </text>
+    <text x="60" y="55" 
+          font-family="Courier New, monospace" 
+          font-size="10" 
+          font-weight="bold" 
+          fill="#6c757d" 
+          text-anchor="middle">
+      OFICIAL
+    </text>
+    <text x="60" y="70" 
+          font-family="Courier New, monospace" 
+          font-size="8" 
+          font-weight="bold" 
+          fill="#6c757d" 
+          text-anchor="middle">
+      LSS
+    </text>
+  </g>
+  
+  <!-- Data/hora da geração (será substituída por JavaScript) -->
+  <text x="400" y="580" 
+        font-family="Arial, sans-serif" 
+        font-size="8" 
+        fill="#6c757d" 
+        text-anchor="middle" 
+        opacity="0.04">
+    Gerado em: {timestamp}
+  </text>
+</svg>

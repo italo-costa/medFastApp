@@ -15,6 +15,8 @@ const centralMiddleware = require('./middleware/centralMiddleware');
 // Importar rotas
 const medicosRoutes = require('./routes/medicosRoutes');
 const patientsRoutes = require('./routes/patients-db');
+const recordsRoutes = require('./routes/records');
+const examsRoutes = require('./routes/exams');
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const validacaoRoutes = require('./routes/validacaoRoutes');
@@ -109,6 +111,9 @@ app.get('/health', centralMiddleware.asyncHandler(async (req, res) => {
 app.use('/api/auth', centralMiddleware.rateLimits.auth, authRoutes);
 app.use('/api/medicos', medicosRoutes);
 app.use('/api/patients', patientsRoutes);
+app.use('/api/patients-db', patientsRoutes); // Alias para compatibilidade
+app.use('/api/records', recordsRoutes);
+app.use('/api/exams', examsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/validacao', validacaoRoutes);
 app.use('/api/historico', historicoRoutes);

@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Central ANS - MediApp</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2b6cb0;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: #2b6cb0;
+        }
+
+        .back-btn {
+            background: #3182ce;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            background: #2c5282;
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .page-title h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-title p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Status Banner */
+        .status-banner {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 6px solid #f6ad55;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-banner h3 {
+            color: #c05621;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-banner p {
+            color: #7c2d12;
+            margin: 0;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .category-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .category-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .category-icon.consultorio { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .category-icon.medico { background: linear-gradient(135deg, #48bb78, #38a169); }
+        .category-icon.dados { background: linear-gradient(135deg, #9f7aea, #805ad5); }
+        .category-icon.mapa { background: linear-gradient(135deg, #ed8936, #dd6b20); }
+        .category-icon.ferramentas { background: linear-gradient(135deg, #4299e1, #3182ce); }
+
+        .category-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .option-item:hover {
+            background: #e6fffa;
+            border-color: #4fd1c7;
+            transform: translateX(5px);
+        }
+
+        .option-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            background: linear-gradient(135deg, #4fd1c7, #38b2ac);
+            color: white;
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .option-desc {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .option-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-available {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .status-external {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .status-coming {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        /* Quick Access */
+        .quick-access {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .quick-access h3 {
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #f7fafc;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            color: #4a5568;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .quick-link:hover {
+            background: #e6fffa;
+            color: #2c7a7b;
+            border-color: #4fd1c7;
+            transform: translateY(-2px);
+        }
+
+        .quick-link i {
+            color: #4fd1c7;
+            font-size: 1.25rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+            border-radius: 1rem 1rem 0 0;
+        }
+
+        .footer p {
+            color: #718096;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #4299e1;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: #3182ce;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content,
+            .main {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .page-title h1 {
+                font-size: 2rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #e53e3e;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>Central ANS</span>
+            </div>
+            <a href="/app.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Voltar ao MediApp
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Page Title -->
+        <div class="page-title">
+            <h1>🛡️ Central ANS</h1>
+            <p>Agência Nacional de Saúde Suplementar - Portal de Informações Regulatórias</p>
+        </div>
+
+        <!-- Status Banner -->
+        <div class="status-banner">
+            <h3>
+                <i class="fas fa-info-circle"></i>
+                Status das APIs da ANS
+            </h3>
+            <p>
+                <strong>Importante:</strong> A ANS não disponibiliza APIs REST públicas tradicionais. 
+                Os dados são fornecidos através de arquivos estáticos no Portal Brasileiro de Dados Abertos. 
+                As funcionalidades abaixo incluem links diretos para recursos oficiais e futuras integrações planejadas.
+            </p>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="cards-grid">
+            <!-- Consultórios -->
+            <div class="category-card">
+                <div class="category-header">
+                    <div class="category-icon consultorio">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <div class="category-title">Para Consultórios</div>
+                </div>
+
+                <div class="option-item" onclick="openModal('validadorModal')">
+                    <div class="option-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Validador de Operadoras</div>
+                        <div class="option-desc">Verificar se planos de saúde são válidos e ativos</div>
+                    </div>
+                    <div class="option-status status-coming">Em Breve</div>
+                </div>
+
+                <div class="option-item" onclick="window.open('https://dados.gov.br/dados/organizacoes/visualizar/agencia-nacional-de-saude-suplementar', '_blank')">
+                    <div class="option-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Índice de Reclamações</div>
+                        <div class="option-desc">Consultar histórico de reclamações por operadora</div>
+                    </div>
+                    <div class="option-status status-external">Externo</div>
+                </div>
+
+                <div class="option-item" onclick="window.open('https://www.ans.gov.br/planos-de-saude-e-operadoras/espaco-do-consumidor/o-que-o-seu-plano-de-saude-deve-cobrir', '_blank')">
+                    <div class="option-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">ROL de Procedimentos</div>
+                        <div class="option-desc">Lista obrigatória de cobertura dos planos</div>
+                    </div>
+                    <div class="option-status status-external">Externo</div>
+                </div>
+
+                <div class="option-item" onclick="window.open('https://www.ans.gov.br/planos-de-saude-e-operadoras/espaco-do-consumidor/prazos-maximos-de-atendimento', '_blank')">
+                    <div class="option-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Prazos Regulamentados</div>
+                        <div class="option-desc">Tempos máximos para atendimento e autorização</div>
+                    </div>
+                    <div class="option-status status-external">Externo</div>
+                </div>
+            </div>
+
+            <!-- Médicos -->
+            <div class="category-card">
+                <div class="category-header">
+                    <div class="category-icon medico">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="category-title">Para Médicos</div>
+                </div>
+
+                <div class="option-item" onclick="window.open('https://www.ans.gov.br/prestadores/tiss-troca-de-informacao-de-saude-suplementar', '_blank')">
+                    <div class="option-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Padrão TISS</div>
+                        <div class="option-desc">Troca de informações com operadoras</div>
+                    </div>
+                    <div class="option-status status-external">Externo</div>
+                </div>
+
+                <div class="option-item" onclick="openModal('tussModal')">
+                    <div class="option-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Tabela TUSS</div>
+                        <div class="option-desc">Códigos padronizados de procedimentos</div>
+                    </div>
+                    <div class="option-status status-coming">Em Breve</div>
+                </div>
+
+                <div class="option-item" onclick="openModal('glosasModal')">
+                    <div class="option-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Indicadores de Glosa</div>
+                        <div class="option-desc">Taxa de negação por operadora</div>
+                    </div>
+                    <div class="option-status status-coming">Em Breve</div>
+                </div>
+
+                <div class="option-item" onclick="window.open('https://www.ans.gov.br/prestadores/qualiss-programa-de-qualificacao-dos-prestadores-de-servicos-de-saude', '_blank')">
+                    <div class="option-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Programa QUALISS</div>
+                        <div class="option-desc">Qualificação de prestadores de serviços</div>
+                    </div>
+                    <div class="option-status status-external">Externo</div>
+                </div>
+            </div>
+
+            <!-- Dados e Pesquisas -->
+            <div class="category-card">
+                <div class="category-header">
+                    <div class="category-icon dados">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="category-title">Dados e Pesquisas</div>
+                </div>
+
+                <div class="option-item" onclick="window.open('https://dados.gov.br/dados/organizacoes/visualizar/agencia-nacional-de-saude-suplementar', '_blank')">
+                    <div class="option-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Portal de Dados Abertos</div>
+                        <div class="option-desc">Datasets oficiais da ANS em formato aberto</div>
+                    </div>
+                    <div class="option-status status-external">Externo</div>
+                </div>
+
+                <div class="option-item" onclick="openModal('operadorasModal')">
+                    <div class="option-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Base de Operadoras</div>
+                        <div class="option-desc">Informações sobre todas as operadoras registradas</div>
+                    </div>
+                    <div class="option-status status-coming">Em Breve</div>
+                </div>
+
+                <div class="option-item" onclick="openModal('beneficiariosModal')">
+                    <div class="option-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Dados de Beneficiários</div>
+                        <div class="option-desc">Estatísticas por operadora e região</div>
+                    </div>
+                    <div class="option-status status-coming">Em Breve</div>
+                </div>
+
+                <div class="option-item" onclick="window.open('https://www.ans.gov.br/perfil-do-setor/dados-e-indicadores-do-setor', '_blank')">
+                    <div class="option-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Indicadores do Setor</div>
+                        <div class="option-desc">Dados gerais da saúde suplementar</div>
+                    </div>
+                    <div class="option-status status-external">Externo</div>
+                </div>
+            </div>
+
+            <!-- Mapas e Analytics -->
+            <div class="category-card">
+                <div class="category-header">
+                    <div class="category-icon mapa">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <div class="category-title">Mapas e Analytics</div>
+                </div>
+
+                <div class="option-item" onclick="openModal('mapaModal')">
+                    <div class="option-icon">
+                        <i class="fas fa-globe-americas"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Mapa de Operadoras</div>
+                        <div class="option-desc">Distribuição geográfica por região</div>
+                    </div>
+                    <div class="option-status status-coming">Em Breve</div>
+                </div>
+
+                <div class="option-item" onclick="openModal('heatmapModal')">
+                    <div class="option-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Heatmap de Beneficiários</div>
+                        <div class="option-desc">Concentração de usuários por área</div>
+                    </div>
+                    <div class="option-status status-coming">Em Breve</div>
+                </div>
+
+                <div class="option-item" onclick="openModal('qualidadeModal')">
+                    <div class="option-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Índices de Qualidade</div>
+                        <div class="option-desc">Ranking de operadoras por estado</div>
+                    </div>
+                    <div class="option-status status-coming">Em Breve</div>
+                </div>
+
+                <div class="option-item" onclick="openModal('trendsModal')">
+                    <div class="option-icon">
+                        <i class="fas fa-trending-up"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Análise de Tendências</div>
+                        <div class="option-desc">Evolução temporal do setor</div>
+                    </div>
+                    <div class="option-status status-coming">Em Breve</div>
+                </div>
+            </div>
+
+            <!-- Ferramentas -->
+            <div class="category-card">
+                <div class="category-header">
+                    <div class="category-icon ferramentas">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="category-title">Ferramentas</div>
+                </div>
+
+                <div class="option-item" onclick="openModal('calculadoraModal')">
+                    <div class="option-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Calculadora de Reajustes</div>
+                        <div class="option-desc">Calcular reajustes autorizados</div>
+                    </div>
+                    <div class="option-status status-coming">Em Breve</div>
+                </div>
+
+                <div class="option-item" onclick="openModal('simuladorModal')">
+                    <div class="option-icon">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Simulador de Cobertura</div>
+                        <div class="option-desc">Verificar cobertura de procedimentos</div>
+                    </div>
+                    <div class="option-status status-coming">Em Breve</div>
+                </div>
+
+                <div class="option-item" onclick="openModal('relatoriosModal')">
+                    <div class="option-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Gerador de Relatórios</div>
+                        <div class="option-desc">Relatórios personalizados ANS</div>
+                    </div>
+                    <div class="option-status status-coming">Em Breve</div>
+                </div>
+
+                <div class="option-item" onclick="openModal('alertasModal')">
+                    <div class="option-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Sistema de Alertas</div>
+                        <div class="option-desc">Notificações de mudanças regulatórias</div>
+                    </div>
+                    <div class="option-status status-coming">Em Breve</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Access -->
+        <div class="quick-access">
+            <h3>
+                <i class="fas fa-bolt"></i>
+                Acesso Rápido - Links Oficiais
+            </h3>
+            <div class="quick-links">
+                <a href="https://www.ans.gov.br/" target="_blank" class="quick-link">
+                    <i class="fas fa-globe"></i>
+                    Portal Oficial ANS
+                </a>
+                <a href="https://www.ans.gov.br/canais-de-atendimento" target="_blank" class="quick-link">
+                    <i class="fas fa-phone"></i>
+                    Central de Atendimento
+                </a>
+                <a href="https://www.ans.gov.br/planos-de-saude-e-operadoras/espaco-do-consumidor" target="_blank" class="quick-link">
+                    <i class="fas fa-user"></i>
+                    Espaço do Consumidor
+                </a>
+                <a href="https://www.ans.gov.br/prestadores" target="_blank" class="quick-link">
+                    <i class="fas fa-hospital-user"></i>
+                    Espaço do Prestador
+                </a>
+                <a href="https://www.ans.gov.br/legislacao/busca-de-legislacao" target="_blank" class="quick-link">
+                    <i class="fas fa-gavel"></i>
+                    Legislação
+                </a>
+                <a href="https://www.ans.gov.br/participacao-da-sociedade" target="_blank" class="quick-link">
+                    <i class="fas fa-hands-helping"></i>
+                    Participação Social
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Central ANS integrada ao MediApp v3.0.0 - Facilitando o acesso às informações regulatórias</p>
+        <div class="footer-links">
+            <a href="/ANALISE_APIs_ANS.md" target="_blank">📋 Análise Técnica Completa</a>
+            <a href="/CARD_ANS_IMPLEMENTACAO.md" target="_blank">🔧 Documentação de Implementação</a>
+            <a href="mailto:suporte@mediapp.com">✉️ Suporte Técnico</a>
+            <a href="/app.html">🏠 Voltar ao MediApp</a>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Validador Modal -->
+    <div id="validadorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-check-circle"></i> Validador de Operadoras</h3>
+                <button class="modal-close" onclick="closeModal('validadorModal')">&times;</button>
+            </div>
+            <div>
+                <p><strong>Funcionalidade em Desenvolvimento</strong></p>
+                <p>O Validador de Operadoras permitirá:</p>
+                <ul>
+                    <li>✅ Verificar se uma operadora está ativa na ANS</li>
+                    <li>✅ Consultar registro ANS e situação</li>
+                    <li>✅ Verificar modalidade (médico-hospitalar, odontológico)</li>
+                    <li>✅ Consultar histórico de sanções</li>
+                    <li>✅ Verificar porte da operadora</li>
+                </ul>
+                <p><strong>Status:</strong> Planejado para próxima versão do MediApp</p>
+                <p><strong>Enquanto isso:</strong> Use o <a href="https://dados.gov.br/dados/organizacoes/visualizar/agencia-nacional-de-saude-suplementar" target="_blank">Portal de Dados Abertos</a> para consultas manuais.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Outros Modals (TUSS, Glosas, etc.) -->
+    <div id="tussModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-code"></i> Tabela TUSS</h3>
+                <button class="modal-close" onclick="closeModal('tussModal')">&times;</button>
+            </div>
+            <div>
+                <p><strong>Terminologia Unificada da Saúde Suplementar</strong></p>
+                <p>Integração planejada para incluir:</p>
+                <ul>
+                    <li>🔍 Busca de códigos TUSS</li>
+                    <li>📋 Descrição detalhada de procedimentos</li>
+                    <li>💰 Valores de referência</li>
+                    <li>⚠️ Restrições e observações</li>
+                    <li>🔄 Atualizações automáticas</li>
+                </ul>
+                <p><strong>Exemplo:</strong> Código 10101012 - Consulta médica inicial</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="glosasModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-ban"></i> Indicadores de Glosa</h3>
+                <button class="modal-close" onclick="closeModal('glosasModal')">&times;</button>
+            </div>
+            <div>
+                <p><strong>Dashboard de Análise de Glosas</strong></p>
+                <p>Funcionalidades planejadas:</p>
+                <ul>
+                    <li>📊 Taxa de glosa por operadora</li>
+                    <li>📈 Tendências de negação</li>
+                    <li>🎯 Motivos mais frequentes</li>
+                    <li>⏱️ Tempo médio de aprovação</li>
+                    <li>💡 Sugestões de melhoria</li>
+                </ul>
+                <p><strong>Benefícios:</strong> Otimizar processos e reduzir negativas</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mais modals para outras funcionalidades -->
+    <div id="operadorasModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-building"></i> Base de Operadoras</h3>
+                <button class="modal-close" onclick="closeModal('operadorasModal')">&times;</button>
+            </div>
+            <div>
+                <p><strong>Base Completa de Operadoras ANS</strong></p>
+                <p>Informações disponíveis:</p>
+                <ul>
+                    <li>🏢 Dados cadastrais completos</li>
+                    <li>📍 Abrangência geográfica</li>
+                    <li>📊 Indicadores financeiros</li>
+                    <li>⭐ Classificação de qualidade</li>
+                    <li>📈 Histórico de crescimento</li>
+                </ul>
+                <p><strong>Atualização:</strong> Dados sincronizados com a ANS mensalmente</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Coming soon notification
+        function showComingSoon(feature) {
+            alert(`🚀 ${feature} está em desenvolvimento!\n\nEsta funcionalidade estará disponível em breve no MediApp.\n\nEnquanto isso, você pode usar os links externos para acessar informações oficiais da ANS.`);
+        }
+
+        // Track page analytics
+        console.log('🛡️ Central ANS carregada com sucesso!');
+        console.log('📊 Funcionalidades disponíveis: Links externos e modais informativos');
+        console.log('🔮 Próximas versões: Integrações com dados da ANS');
+    </script>
+</body>
+</html>

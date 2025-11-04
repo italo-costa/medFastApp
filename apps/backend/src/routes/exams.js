@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
 const databaseService = require('../services/database');
+const ResponseService = require('../services/responseService');
 const router = express.Router();
 
 // Configuração do multer para upload de arquivos

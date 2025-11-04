@@ -208,6 +208,65 @@ app.use('/data', express.static(config.dataDir, {
 }));
 
 // ========================================
+// FUNÇÕES AUXILIARES PARA ESTATÍSTICAS
+// ========================================
+
+function calcularEstatisticasReais() {
+  const totalMedicos = mockData.medicos.length;
+  const medicosAtivos = mockData.medicos.filter(m => m.status === 'ativo').length;
+  const totalPacientes = mockData.pacientes.length;
+  const pacientesAtivos = mockData.pacientes.filter(p => p.status === 'ativo').length;
+  
+  // Calcular médicos novos este mês
+  const inicioMes = new Date();
+  inicioMes.setDate(1);
+  inicioMes.setHours(0, 0, 0, 0);
+  
+  const medicosNovosMes = mockData.medicos.filter(m => {
+    const dataCreated = new Date(m.created_at);
+    return dataCreated >= inicioMes;
+  }).length;
+  
+  // Calcular especialidades únicas
+  const especialidadesUnicas = [...new Set(mockData.medicos.map(m => m.especialidade))].length;
+  
+  return {
+    medicosAtivos: { 
+      value: medicosAtivos, 
+      trend: medicosNovosMes > 0 ? `+${medicosNovosMes} este mês` : 'Sem novos', 
+      percentage: medicosNovosMes > 0 ? Math.round((medicosNovosMes / totalMedicos) * 100) : 0 
+    },
+    pacientesCadastrados: { 
+      value: totalPacientes, 
+      trend: '+0 este mês', 
+      percentage: 0 
+    },
+    consultasHoje: { 
+      value: 0, 
+      trend: 'Normal', 
+      percentage: 0 
+    },
+    prontuariosAtivos: { 
+      value: pacientesAtivos, 
+      trend: 'Estável', 
+      percentage: 0 
+    },
+    consultasMes: { 
+      value: 0, 
+      trend: 'Em breve', 
+      percentage: 0 
+    },
+    receitasEmitidas: { 
+      value: 0, 
+      trend: 'Em breve', 
+      percentage: 0 
+    },
+    totalMedicos: totalMedicos,
+    especialidades: especialidadesUnicas
+  };
+}
+
+// ========================================
 // ROTAS DE SISTEMA
 // ========================================
 
@@ -536,17 +595,19 @@ app.get('/api/pacientes/:id', (req, res) => {
 
 // Estatísticas do dashboard
 app.get('/api/dashboard/stats', (req, res) => {
+  const stats = calcularEstatisticasReais();
   res.json({
     success: true,
-    data: mockData.stats,
+    data: stats,
     message: 'Estatísticas obtidas com sucesso'
   });
 });
 
 app.get('/api/statistics/dashboard', (req, res) => {
+  const stats = calcularEstatisticasReais();
   res.json({
     success: true,
-    data: mockData.stats,
+    data: stats,
     message: 'Estatísticas do dashboard'
   });
 });

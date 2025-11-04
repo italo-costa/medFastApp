@@ -4,7 +4,7 @@
 
 const express = require('express');
 const historicoController = require('../controllers/historicoController');
-const { asyncHandler } = require('../middleware/errorHandling');
+const { asyncHandler } = require('../middleware/errorHandler');
 
 const router = express.Router();
 

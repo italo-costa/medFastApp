@@ -895,20 +895,34 @@
                 if (response.ok) {
                     const result = await response.json();
                     if (result.success && result.data) {
-                        document.getElementById('total-medicos').textContent = result.data.medicosAtivos.value;
-                        document.getElementById('medicos-ativos').textContent = result.data.medicosAtivos.value;
-                        // Mock data for now
-                        document.getElementById('novos-medicos').textContent = '3';
-                        document.getElementById('especialidades').textContent = '8';
+                        const stats = result.data;
+                        
+                        // Atualizar com dados reais do backend
+                        document.getElementById('total-medicos').textContent = stats.totalMedicos || stats.medicosAtivos.value;
+                        document.getElementById('medicos-ativos').textContent = stats.medicosAtivos.value;
+                        
+                        // Calcular novos médicos este mês baseado no trend
+                        const trendText = stats.medicosAtivos.trend;
+                        const novosMedicos = trendText.match(/\+(\d+)/) ? trendText.match(/\+(\d+)/)[1] : '0';
+                        document.getElementById('novos-medicos').textContent = novosMedicos;
+                        
+                        // Número de especialidades únicas
+                        document.getElementById('especialidades').textContent = stats.especialidades || '0';
                     }
+                } else {
+                    throw new Error('Erro na resposta da API');
                 }
             } catch (error) {
                 console.error('Erro ao carregar estatísticas:', error);
-                // Fallback values
-                document.getElementById('total-medicos').textContent = '12';
-                document.getElementById('medicos-ativos').textContent = '12';
-                document.getElementById('novos-medicos').textContent = '3';
-                document.getElementById('especialidades').textContent = '8';
+                // Fallback: calcular baseado nos dados da tabela
+                const totalFromTable = medicosData.length;
+                const ativosFromTable = medicosData.filter(m => (m.status || 'ativo').toLowerCase() === 'ativo').length;
+                const especialidadesFromTable = [...new Set(medicosData.map(m => m.especialidade).filter(e => e))].length;
+                
+                document.getElementById('total-medicos').textContent = totalFromTable;
+                document.getElementById('medicos-ativos').textContent = ativosFromTable;
+                document.getElementById('novos-medicos').textContent = '0';
+                document.getElementById('especialidades').textContent = especialidadesFromTable;
             }
         }
 
@@ -1152,7 +1166,8 @@
             console.log('Populando form com dados:', medico); // Debug log
             
             document.getElementById('medicoId').value = medico.id || '';
-            document.getElementById('nomeCompleto').value = medico.nomeCompleto || '';
+            // Corrigir mapeamento: API retorna 'nome', frontend espera 'nomeCompleto'
+            document.getElementById('nomeCompleto').value = medico.nome || medico.nomeCompleto || '';
             document.getElementById('cpf').value = medico.cpf || '';
             
             // Format date for input[type="date"]
@@ -1186,14 +1201,28 @@
             document.getElementById('telefone').value = medico.telefone || medico.celular || '';
             document.getElementById('email').value = medico.email || '';
             
-            // Endereço estruturado
+            // Endereço estruturado - Corrigir mapeamento
             document.getElementById('cep').value = medico.cep || '';
-            document.getElementById('logradouro').value = medico.logradouro || '';
-            document.getElementById('numero').value = medico.numero || '';
-            document.getElementById('complemento').value = medico.complemento || '';
-            document.getElementById('bairro').value = medico.bairro || '';
-            document.getElementById('cidade').value = medico.cidade || '';
-            document.getElementById('estado').value = medico.estado || '';
+            // Se o backend retorna 'endereco' como campo único, extrair partes ou usar como logradouro
+            if (medico.endereco && !medico.logradouro) {
+                // Tentar extrair informações do endereço completo
+                const enderecoCompleto = medico.endereco;
+                document.getElementById('logradouro').value = enderecoCompleto;
+                // Limpar outros campos se não temos dados estruturados
+                document.getElementById('numero').value = medico.numero || '';
+                document.getElementById('complemento').value = medico.complemento || '';
+                document.getElementById('bairro').value = medico.bairro || '';
+                document.getElementById('cidade').value = medico.cidade || '';
+                document.getElementById('estado').value = medico.estado || '';
+            } else {
+                // Usar dados estruturados se disponíveis
+                document.getElementById('logradouro').value = medico.logradouro || '';
+                document.getElementById('numero').value = medico.numero || '';
+                document.getElementById('complemento').value = medico.complemento || '';
+                document.getElementById('bairro').value = medico.bairro || '';
+                document.getElementById('cidade').value = medico.cidade || '';
+                document.getElementById('estado').value = medico.estado || '';
+            }
             
             document.getElementById('status').value = medico.status || 'ATIVO';
             document.getElementById('observacoes').value = medico.observacoes || medico.formacao || '';

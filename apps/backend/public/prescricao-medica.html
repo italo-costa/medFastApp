@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 Prescrição Médica - Lopes Souza Saúde</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/prescricao-medica.css" rel="stylesheet">
+    <link href="/css/watermark.css" rel="stylesheet">
+    <style>
+        /* Header para navegação (não imprime) */
+        .page-header {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        @media print {
+            .page-header {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header de navegação (não imprime) -->
+    <header class="page-header no-print">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i class="fas fa-prescription"></i>
+                Prescrição Médica
+            </h1>
+            <a href="/app.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i>
+                Voltar ao Dashboard
+            </a>
+        </div>
+    </header>
+
+    <!-- Botões de controle (não imprimem) -->
+    <div class="control-buttons no-print">
+        <button class="btn-fill" onclick="fillSampleData()">📝 Exemplo 1</button>
+        <button class="btn-fill" onclick="fillSampleData2()" style="background: #28a745;">📝 Exemplo 2</button>
+        <button class="btn-clear" onclick="clearForm()">🗑️ Limpar</button>
+        <button class="btn-print" onclick="safePrint()">🖨️ Imprimir</button>
+        <button class="btn-print" onclick="window.print()" style="background: #ffc107; color: #333;" title="Impressão direta sem validação">⚡ Impressão Direta</button>
+        <button class="btn-clear" onclick="testPrint()" style="background: #17a2b8; color: white;" title="Testar impressão com diagnóstico">🔧 Diagnóstico</button>
+        <button class="btn-clear" onclick="debugFields()" style="background: #6f42c1; color: white; font-size: 12px;" title="Debug técnico">🐛 Debug</button>
+        <button class="btn-clear" onclick="toggleWatermark()" style="background: #fd7e14; color: white; font-size: 12px;" title="Alternar marca d'água">💧 Marca D'água</button>
+    </div>
+
+    <!-- Marcas d'água para impressão (invisíveis na tela) -->
+    <div id="watermark-main" class="watermark">LOPES SOUZA SAÚDE</div>
+    <div id="watermark-logo" class="watermark-logo">🏥<br>LSS<br>MEDICINA</div>
+    <div id="watermark-bordered" class="watermark-bordered">PRESCRIÇÃO OFICIAL</div>
+    <div id="watermark-stamp" class="watermark-stamp">DOCUMENTO<br>MÉDICO<br>OFICIAL<br>LSS</div>
+    <div id="watermark-pattern" class="watermark-pattern"></div>
+    <div id="watermark-svg" class="watermark-svg"></div>
+
+    <!-- Cabeçalho da Clínica -->
+    <div class="clinic-header">
+        <div class="clinic-logo">
+            🏥 LSS
+        </div>
+        <div class="clinic-info">
+            <h1>Lopes Souza Saúde</h1>
+            <p class="subtitle">Excelência em Cuidados Médicos</p>
+            <p>CNPJ: 12.345.678/0001-90 | Telefone: (85) 3456-7890</p>
+            <p>Endereço: Av. Dom Luís, 1200 - Meireles, Fortaleza - CE, 60160-230</p>
+            <p>Email: contato@lopessouzasaude.com.br | Site: www.lopessouzasaude.com.br</p>
+        </div>
+    </div>
+
+    <!-- Informações do Médico -->
+    <div class="doctor-info">
+        <div class="field-group">
+            <label for="doctorName" class="required">Nome do Médico</label>
+            <input type="text" id="doctorName" class="field-value" placeholder="Dr(a). Nome Completo">
+        </div>
+        <div class="field-group">
+            <label for="doctorCrm" class="required">CRM</label>
+            <input type="text" id="doctorCrm" class="field-value" placeholder="CRM/CE 12345">
+        </div>
+        <div class="field-group">
+            <label for="doctorSpecialty">Especialidade</label>
+            <input type="text" id="doctorSpecialty" class="field-value" placeholder="Especialidade Médica">
+        </div>
+        <div class="field-group">
+            <label for="prescriptionDate" class="required">Data da Prescrição</label>
+            <input type="date" id="prescriptionDate" class="field-value">
+        </div>
+    </div>
+
+    <!-- Informações do Paciente -->
+    <div class="patient-info">
+        <h3>👤 Dados do Paciente</h3>
+        <div class="patient-grid">
+            <div class="form-field">
+                <label for="patientName" class="required">Nome Completo</label>
+                <input type="text" id="patientName" placeholder="Nome completo do paciente">
+            </div>
+            <div class="form-field">
+                <label for="patientAge" class="required">Idade</label>
+                <input type="number" id="patientAge" placeholder="Idade" min="0" max="150">
+            </div>
+            <div class="form-field">
+                <label for="patientWeight">Peso (kg)</label>
+                <input type="number" id="patientWeight" placeholder="Peso" step="0.1">
+            </div>
+        </div>
+        <div class="patient-grid-2">
+            <div class="form-field">
+                <label for="patientCpf">CPF</label>
+                <input type="text" id="patientCpf" placeholder="000.000.000-00">
+            </div>
+            <div class="form-field">
+                <label for="patientPhone">Telefone</label>
+                <input type="tel" id="patientPhone" placeholder="(85) 9 9999-9999">
+            </div>
+            <div class="form-field">
+                <label for="patientGender">Sexo</label>
+                <select id="patientGender">
+                    <option value="">Selecione</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Feminino</option>
+                    <option value="O">Outro</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prescrição Médica -->
+    <div class="prescription-content">
+        <h3>💊 Prescrição Médica</h3>
+        
+        <!-- Medicamento 1 -->
+        <div class="medication-item">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <span class="medication-number">1</span>
+                <strong style="color: #dc3545;">MEDICAMENTO</strong>
+            </div>
+            <div class="medication-header">
+                <div class="form-field">
+                    <label class="required">Nome do Medicamento</label>
+                    <input type="text" placeholder="Nome do medicamento + concentração">
+                </div>
+                <div class="form-field">
+                    <label class="required">Quantidade</label>
+                    <input type="text" placeholder="Ex: 30 comprimidos">
+                </div>
+                <div class="form-field">
+                    <label>Via de Administração</label>
+                    <select>
+                        <option value="">Selecione</option>
+                        <option value="oral">Via Oral</option>
+                        <option value="sublingual">Sublingual</option>
+                        <option value="intramuscular">Intramuscular</option>
+                        <option value="endovenosa">Endovenosa</option>
+                        <option value="topica">Tópica</option>
+                        <option value="inalatoria">Inalatória</option>
+                        <option value="ocular">Ocular</option>
+                        <option value="nasal">Nasal</option>
+                        <option value="retal">Retal</option>
+                        <option value="vaginal">Vaginal</option>
+                    </select>
+                </div>
+            </div>
+            <div class="medication-instructions">
+                <label class="required">Posologia e Instruções de Uso</label>
+                <textarea placeholder="Ex: Tomar 1 comprimido de 12 em 12 horas, por 7 dias. Tomar após as refeições com água. Não interromper o tratamento sem orientação médica."></textarea>
+            </div>
+        </div>
+
+        <!-- Medicamento 2 -->
+        <div class="medication-item">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <span class="medication-number">2</span>
+                <strong style="color: #dc3545;">MEDICAMENTO</strong>
+            </div>
+            <div class="medication-header">
+                <div class="form-field">
+                    <label>Nome do Medicamento</label>
+                    <input type="text" placeholder="Nome do medicamento + concentração">
+                </div>
+                <div class="form-field">
+                    <label>Quantidade</label>
+                    <input type="text" placeholder="Ex: 60 cápsulas">
+                </div>
+                <div class="form-field">
+                    <label>Via de Administração</label>
+                    <select>
+                        <option value="">Selecione</option>
+                        <option value="oral">Via Oral</option>
+                        <option value="sublingual">Sublingual</option>
+                        <option value="intramuscular">Intramuscular</option>
+                        <option value="endovenosa">Endovenosa</option>
+                        <option value="topica">Tópica</option>
+                        <option value="inalatoria">Inalatória</option>
+                        <option value="ocular">Ocular</option>
+                        <option value="nasal">Nasal</option>
+                        <option value="retal">Retal</option>
+                        <option value="vaginal">Vaginal</option>
+                    </select>
+                </div>
+            </div>
+            <div class="medication-instructions">
+                <label>Posologia e Instruções de Uso</label>
+                <textarea placeholder="Ex: Tomar 1 cápsula pela manhã, em jejum, por 30 dias."></textarea>
+            </div>
+        </div>
+
+        <!-- Medicamento 3 -->
+        <div class="medication-item">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <span class="medication-number">3</span>
+                <strong style="color: #dc3545;">MEDICAMENTO</strong>
+            </div>
+            <div class="medication-header">
+                <div class="form-field">
+                    <label>Nome do Medicamento</label>
+                    <input type="text" placeholder="Nome do medicamento + concentração">
+                </div>
+                <div class="form-field">
+                    <label>Quantidade</label>
+                    <input type="text" placeholder="Ex: 1 frasco">
+                </div>
+                <div class="form-field">
+                    <label>Via de Administração</label>
+                    <select>
+                        <option value="">Selecione</option>
+                        <option value="oral">Via Oral</option>
+                        <option value="sublingual">Sublingual</option>
+                        <option value="intramuscular">Intramuscular</option>
+                        <option value="endovenosa">Endovenosa</option>
+                        <option value="topica">Tópica</option>
+                        <option value="inalatoria">Inalatória</option>
+                        <option value="ocular">Ocular</option>
+                        <option value="nasal">Nasal</option>
+                        <option value="retal">Retal</option>
+                        <option value="vaginal">Vaginal</option>
+                    </select>
+                </div>
+            </div>
+            <div class="medication-instructions">
+                <label>Posologia e Instruções de Uso</label>
+                <textarea placeholder="Ex: Aplicar 2 gotas em cada olho, 2 vezes ao dia."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orientações Gerais -->
+    <div class="general-instructions">
+        <h3>📋 Orientações Gerais ao Paciente</h3>
+        <textarea placeholder="Ex: 
+• Manter medicamentos longe do alcance de crianças
+• Armazenar em local seco e arejado
+• Retornar em 15 dias para reavaliação
+• Em caso de efeitos adversos, suspender uso e procurar atendimento médico
+• Não compartilhar medicamentos com outras pessoas
+• Levar esta receita em todas as consultas"></textarea>
+        <p class="required-note">* Campos obrigatórios</p>
+    </div>
+
+    <!-- Seção de Assinaturas -->
+    <div class="signature-section">
+        <div class="signature-grid">
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-label">Assinatura e Carimbo do Médico</div>
+                <div class="signature-info">
+                    Nome: <span id="doctorNameSign">_______________________</span><br>
+                    CRM: <span id="doctorCrmSign">_____________</span><br>
+                    Data: <span id="prescriptionDateSign">___/___/______</span>
+                </div>
+            </div>
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-label">Ciente - Paciente ou Responsável</div>
+                <div class="signature-info">
+                    Nome: <span id="patientNameSign">_______________________</span><br>
+                    CPF: <span id="patientCpfSign">_________________</span><br>
+                    Data: ___/___/______
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé Informativo -->
+    <div class="footer-info">
+        <div class="warning">⚠️ PRESCRIÇÃO MÉDICA - DOCUMENTO OFICIAL</div>
+        <p>Esta prescrição é válida em todo território nacional por 30 dias a partir da data de emissão.</p>
+        <p>Medicamentos controlados têm validade específica conforme legislação vigente.</p>
+        <p>Em caso de dúvidas, entre em contato com a Lopes Souza Saúde: (85) 3456-7890</p>
+        <p><strong>Gerado pelo Sistema MediApp v3.0.0 - Lopes Souza Saúde</strong></p>
+    </div>
+
+    <script>
+        // Definir data atual
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('prescriptionDate').value = today;
+            
+            // Ativar marca d'água padrão (LOPES SOUZA SAÚDE)
+            currentWatermark = 1;
+            console.log('💧 Marca d\'água padrão ativada: LOPES SOUZA SAÚDE');
+        });
+
+        // Função para preencher dados de exemplo
+        function fillSampleData() {
+            // Dados do médico - mais realistas
+            document.getElementById('doctorName').value = 'Dr. Carlos Eduardo Mendonça Filho';
+            document.getElementById('doctorCrm').value = 'CRM/CE 8547';
+            document.getElementById('doctorSpecialty').value = 'Medicina Interna e Clínica Médica';
+            
+            // Dados do paciente - mais realistas
+            document.getElementById('patientName').value = 'Ana Beatriz Santos Ferreira';
+            document.getElementById('patientAge').value = '38';
+            document.getElementById('patientWeight').value = '72.3';
+            document.getElementById('patientCpf').value = '456.789.123-45';
+            document.getElementById('patientPhone').value = '(85) 9 9876-5432';
+            document.getElementById('patientGender').value = 'F';
+            
+            // Medicamentos - prescrição realista para quadro infeccioso
+            const medications = document.querySelectorAll('.medication-item');
+            
+            // Medicamento 1 - Antibiótico
+            const med1 = medications[0];
+            med1.querySelectorAll('input')[0].value = 'Amoxicilina + Ácido Clavulânico 875mg + 125mg';
+            med1.querySelectorAll('input')[1].value = '14 comprimidos revestidos';
+            med1.querySelector('select').value = 'oral';
+            med1.querySelector('textarea').value = 'Tomar 1 comprimido de 12 em 12 horas por 7 dias, preferencialmente após as refeições principais (almoço e jantar). Não interromper o tratamento mesmo que haja melhora dos sintomas. Ingerir com abundante quantidade de água. Em caso de esquecimento, tomar assim que lembrar, mas se estiver próximo do horário da próxima dose, pular a dose esquecida.';
+            
+            // Medicamento 2 - Analgésico/Antitérmico
+            const med2 = medications[1];
+            med2.querySelectorAll('input')[0].value = 'Paracetamol 750mg';
+            med2.querySelectorAll('input')[1].value = '20 comprimidos';
+            med2.querySelector('select').value = 'oral';
+            med2.querySelector('textarea').value = 'Tomar 1 comprimido de 6 em 6 horas se dor ou febre (máximo 4 comprimidos por dia). Pode ser tomado com ou sem alimentos. Não exceder a dose máxima diária de 3g (4 comprimidos). Suspender o uso se houver melhora completa dos sintomas.';
+            
+            // Medicamento 3 - Probiótico
+            const med3 = medications[2];
+            med3.querySelectorAll('input')[0].value = 'Saccharomyces boulardii 200mg';
+            med3.querySelectorAll('input')[1].value = '10 cápsulas';
+            med3.querySelector('select').value = 'oral';
+            med3.querySelector('textarea').value = 'Tomar 1 cápsula de 12 em 12 horas durante todo o período de uso do antibiótico e por mais 3 dias após o término. Tomar com água em temperatura ambiente, preferencialmente com o estômago vazio (1 hora antes ou 2 horas após as refeições). Manter refrigerado após abertura da embalagem.';
+            
+            // Orientações gerais - mais detalhadas e realistas
+            document.querySelector('.general-instructions textarea').value = `ORIENTAÇÕES IMPORTANTES:
+
+📋 SOBRE OS MEDICAMENTOS:
+• Manter todos os medicamentos em local seco, arejado e protegido da luz solar direta
+• Armazenar em temperatura ambiente (15°C a 30°C)
+• Manter sempre longe do alcance de crianças e animais domésticos
+• Verificar prazo de validade antes do uso
+• Não compartilhar medicamentos com outras pessoas
+
+⚠️ DURANTE O TRATAMENTO:
+• Evitar consumo de bebidas alcoólicas durante todo o período de tratamento
+• Manter alimentação leve e rica em líquidos
+• Aumentar a ingestão de água (mínimo 2 litros por dia)
+• Evitar alimentos muito condimentados ou gordurosos
+• Respeitar os horários prescritos para melhor eficácia
+
+🏥 RETORNO E ACOMPANHAMENTO:
+• Retornar em 5 dias para reavaliação do quadro clínico
+• Procurar atendimento médico imediatamente se houver piora dos sintomas
+• Em caso de febre persistente acima de 38,5°C por mais de 48h após início do tratamento
+• Se apresentar efeitos adversos como: erupções cutâneas, dificuldade respiratória, inchaço facial
+
+📱 CONTATO DE EMERGÊNCIA:
+• Lopes Souza Saúde: (85) 3456-7890 (24h)
+• Em caso de urgência: UPA ou Pronto Socorro mais próximo
+
+✅ SINAIS DE MELHORA ESPERADOS:
+• Redução da febre em 48-72 horas
+• Diminuição da dor em 24-48 horas  
+• Melhora do estado geral em 3-5 dias
+
+Esta receita é válida por 30 dias. Levar sempre nas consultas de acompanhamento.`;
+
+            // Atualizar campos de assinatura
+            updateSignatureFields();
+            
+            // Notificar que os dados foram preenchidos
+            alert('📋 Exemplo preenchido com sucesso!\n\n✅ Dados realistas do médico\n✅ Informações completas do paciente\n✅ Prescrição para quadro infeccioso\n✅ Orientações médicas detalhadas\n\nAgora você pode testar a impressão.');
+        }
+
+        // Função para preencher segundo exemplo - Cardiologia
+        function fillSampleData2() {
+            // Dados do médico - Cardiologista
+            document.getElementById('doctorName').value = 'Dra. Mariana Rodrigues Cardoso';
+            document.getElementById('doctorCrm').value = 'CRM/CE 12439';
+            document.getElementById('doctorSpecialty').value = 'Cardiologia';
+            
+            // Dados do paciente - Hipertensão
+            document.getElementById('patientName').value = 'José Roberto Silva Junior';
+            document.getElementById('patientAge').value = '58';
+            document.getElementById('patientWeight').value = '89.2';
+            document.getElementById('patientCpf').value = '789.123.456-78';
+            document.getElementById('patientPhone').value = '(85) 9 8234-5679';
+            document.getElementById('patientGender').value = 'M';
+            
+            // Medicamentos - prescrição para hipertensão e prevenção cardiovascular
+            const medications = document.querySelectorAll('.medication-item');
+            
+            // Medicamento 1 - Anti-hipertensivo
+            const med1 = medications[0];
+            med1.querySelectorAll('input')[0].value = 'Losartana Potássica 50mg';
+            med1.querySelectorAll('input')[1].value = '30 comprimidos revestidos';
+            med1.querySelector('select').value = 'oral';
+            med1.querySelector('textarea').value = 'Tomar 1 comprimido pela manhã, sempre no mesmo horário, com ou sem alimentos. Preferencialmente às 8h da manhã. Não interromper o uso sem orientação médica. Em caso de esquecimento, tomar assim que lembrar, mas se faltar menos de 12 horas para a próxima dose, pular a dose esquecida. Manter uso contínuo.';
+            
+            // Medicamento 2 - Protetor gástrico
+            const med2 = medications[1];
+            med2.querySelectorAll('input')[0].value = 'Omeprazol 20mg';
+            med2.querySelectorAll('input')[1].value = '30 cápsulas';
+            med2.querySelector('select').value = 'oral';
+            med2.querySelector('textarea').value = 'Tomar 1 cápsula pela manhã, 30-60 minutos antes do café da manhã, em jejum. Engolir inteira sem mastigar ou abrir. Uso contínuo por 30 dias para proteção gástrica. Pode ser tomado com pouca água.';
+            
+            // Medicamento 3 - Ácido acetilsalicílico
+            const med3 = medications[2];
+            med3.querySelectorAll('input')[0].value = 'Ácido Acetilsalicílico 100mg (AAS)';
+            med3.querySelectorAll('input')[1].value = '30 comprimidos';
+            med3.querySelector('select').value = 'oral';
+            med3.querySelector('textarea').value = 'Tomar 1 comprimido à noite, após o jantar, para proteção cardiovascular. Uso contínuo conforme orientação médica. Tomar sempre com alimentos para evitar irritação gástrica. Em caso de sangramento anormal ou hematomas excessivos, suspender uso e procurar atendimento médico.';
+            
+            // Orientações gerais - foco em cardiologia
+            document.querySelector('.general-instructions textarea').value = `ORIENTAÇÕES PARA CONTROLE DA PRESSÃO ARTERIAL:
+
+💊 SOBRE OS MEDICAMENTOS:
+• Tomar sempre nos horários prescritos para manter controle adequado da pressão
+• Nunca interromper o uso sem orientação médica
+• Manter medicamentos em local seco e temperatura ambiente
+• Não compartilhar medicamentos com outras pessoas
+• Levar lista de medicamentos em todas as consultas
+
+📊 MONITORAMENTO:
+• Medir a pressão arterial 2x por semana (manhã e noite)
+• Anotar os valores em caderno para mostrar na consulta
+• Valores ideais: até 130/80 mmHg
+• Procurar atendimento se pressão acima de 180/110 mmHg
+
+🍎 ESTILO DE VIDA:
+• Dieta com baixo teor de sal (máximo 5g por dia = 1 colher de chá)
+• Evitar alimentos industrializados e enlatados
+• Aumentar consumo de frutas, verduras e legumes
+• Caminhada leve 30 minutos, 3x por semana (se liberada)
+• Manter peso adequado
+
+⚠️ SINAIS DE ALERTA (procurar atendimento imediato):
+• Dor no peito ou aperto no peito
+• Falta de ar intensa
+• Dor de cabeça severa
+• Tonturas ou desmaios
+• Inchaço nas pernas, pés ou tornozelos
+• Palpitações frequentes
+
+🚫 EVITAR:
+• Bebidas alcoólicas (máximo 1 dose social eventualmente)
+• Cigarro e derivados
+• Excesso de cafeína
+• Estresse excessivo
+• Exercícios intensos sem liberação médica
+
+📅 PRÓXIMA CONSULTA:
+• Retorno em 30 dias para avaliação e ajuste de medicação
+• Trazer anotações da pressão arterial
+• Exames de controle conforme solicitação
+
+🆘 EMERGÊNCIA CARDIOLÓGICA: 
+• Hospital do Coração: (85) 3456-7890
+• SAMU: 192
+• Em caso de infarto: ligar 192 e mascar 1 AAS 500mg`;
+
+            // Atualizar campos de assinatura
+            updateSignatureFields();
+            
+            // Notificar que os dados foram preenchidos
+            alert('💗 Exemplo 2 preenchido com sucesso!\n\n✅ Prescrição cardiológica\n✅ Controle de hipertensão\n✅ Proteção cardiovascular\n✅ Orientações específicas\n\nPrescrição para paciente hipertenso com orientações detalhadas.');
+        }
+
+        // Função para limpar formulário
+        function clearForm() {
+            if (confirm('Tem certeza que deseja limpar todos os campos?')) {
+                // Limpar inputs
+                document.querySelectorAll('input, select, textarea').forEach(field => {
+                    if (field.type === 'date') {
+                        field.value = new Date().toISOString().split('T')[0];
+                    } else {
+                        field.value = '';
+                    }
+                });
+                
+                // Limpar campos de assinatura
+                document.getElementById('doctorNameSign').textContent = '_______________________';
+                document.getElementById('doctorCrmSign').textContent = '_____________';
+                document.getElementById('prescriptionDateSign').textContent = '___/___/______';
+                document.getElementById('patientNameSign').textContent = '_______________________';
+                document.getElementById('patientCpfSign').textContent = '_________________';
+            }
+        }
+
+        // Função para atualizar campos de assinatura
+        function updateSignatureFields() {
+            const doctorName = document.getElementById('doctorName').value;
+            const doctorCrm = document.getElementById('doctorCrm').value;
+            const prescriptionDate = document.getElementById('prescriptionDate').value;
+            const patientName = document.getElementById('patientName').value;
+            const patientCpf = document.getElementById('patientCpf').value;
+            
+            if (doctorName) {
+                document.getElementById('doctorNameSign').textContent = doctorName;
+            }
+            if (doctorCrm) {
+                document.getElementById('doctorCrmSign').textContent = doctorCrm;
+            }
+            if (prescriptionDate) {
+                const date = new Date(prescriptionDate);
+                const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+                document.getElementById('prescriptionDateSign').textContent = formattedDate;
+            }
+            if (patientName) {
+                document.getElementById('patientNameSign').textContent = patientName;
+            }
+            if (patientCpf) {
+                document.getElementById('patientCpfSign').textContent = patientCpf;
+            }
+        }
+
+        // Atualizar campos de assinatura em tempo real
+        document.getElementById('doctorName').addEventListener('input', updateSignatureFields);
+        document.getElementById('doctorCrm').addEventListener('input', updateSignatureFields);
+        document.getElementById('prescriptionDate').addEventListener('change', updateSignatureFields);
+        document.getElementById('patientName').addEventListener('input', updateSignatureFields);
+        document.getElementById('patientCpf').addEventListener('input', updateSignatureFields);
+
+        // Formatação automática do CPF
+        document.getElementById('patientCpf').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            e.target.value = value;
+        });
+
+        // Formatação automática do telefone
+        document.getElementById('patientPhone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{2})(\d)/, '($1) $2');
+            value = value.replace(/(\d)(\d{4})(\d)/, '$1 $2-$3');
+            e.target.value = value;
+        });
+
+        // Validação e impressão segura
+        function safePrint() {
+            console.log('🔍 Iniciando validação para impressão...');
+            
+            // Validar campos básicos do médico
+            const doctorName = document.getElementById('doctorName').value.trim();
+            const doctorCrm = document.getElementById('doctorCrm').value.trim();
+            const prescriptionDate = document.getElementById('prescriptionDate').value;
+            
+            // Validar campos básicos do paciente
+            const patientName = document.getElementById('patientName').value.trim();
+            const patientAge = document.getElementById('patientAge').value.trim();
+            
+            const missingFields = [];
+            
+            if (!doctorName) missingFields.push('Nome do Médico');
+            if (!doctorCrm) missingFields.push('CRM do Médico');
+            if (!prescriptionDate) missingFields.push('Data da Prescrição');
+            if (!patientName) missingFields.push('Nome do Paciente');
+            if (!patientAge) missingFields.push('Idade do Paciente');
+            
+            // Validar se há pelo menos um medicamento prescrito
+            const hasValidMedication = validateMedications();
+            if (!hasValidMedication) {
+                missingFields.push('Pelo menos um medicamento completo (nome, quantidade e posologia)');
+            }
+            
+            if (missingFields.length > 0) {
+                alert('⚠️ Campos obrigatórios não preenchidos:\n\n• ' + missingFields.join('\n• ') + '\n\n💡 Dica: Use os botões "Exemplo 1" ou "Exemplo 2" para preencher automaticamente, ou preencha manualmente os campos obrigatórios.');
+                return false;
+            }
+            
+            // Confirmação antes da impressão
+            const confirmMessage = `📋 CONFIRMAR IMPRESSÃO DA PRESCRIÇÃO MÉDICA
+
+✅ Dados validados:
+• Médico: ${doctorName}
+• CRM: ${doctorCrm}
+• Paciente: ${patientName}
+• Idade: ${patientAge} anos
+• Medicamentos: ${countValidMedications()} prescrito(s)
+
+Proceder com a impressão?`;
+
+            if (confirm(confirmMessage)) {
+                console.log('✅ Validação bem-sucedida. Iniciando impressão...');
+                setTimeout(() => {
+                    window.print();
+                }, 500);
+                return true;
+            }
+            return false;
+        }
+
+        // Função adicional para validar medicamentos
+        function validateMedications() {
+            const medications = document.querySelectorAll('.medication-item');
+            let hasValidMedication = false;
+            
+            medications.forEach((medication, index) => {
+                const inputs = medication.querySelectorAll('input');
+                const nameInput = inputs[0]; // Primeiro input é o nome
+                const quantityInput = inputs[1]; // Segundo input é a quantidade
+                const select = medication.querySelector('select');
+                const textarea = medication.querySelector('textarea');
+                
+                console.log(`Medicamento ${index + 1}:`, {
+                    nome: nameInput?.value || 'vazio',
+                    quantidade: quantityInput?.value || 'vazio',
+                    via: select?.value || 'vazio',
+                    posologia: textarea?.value || 'vazio'
+                });
+                
+                if (nameInput?.value.trim() && 
+                    quantityInput?.value.trim() && 
+                    textarea?.value.trim()) {
+                    hasValidMedication = true;
+                }
+            });
+            
+            console.log('🔍 Tem medicamento válido:', hasValidMedication);
+            return hasValidMedication;
+        }
+
+        // Função para contar medicamentos válidos
+        function countValidMedications() {
+            const medications = document.querySelectorAll('.medication-item');
+            let count = 0;
+            
+            medications.forEach(medication => {
+                const inputs = medication.querySelectorAll('input');
+                const nameInput = inputs[0];
+                const quantityInput = inputs[1];
+                const textarea = medication.querySelector('textarea');
+                
+                if (nameInput?.value.trim() && 
+                    quantityInput?.value.trim() && 
+                    textarea?.value.trim()) {
+                    count++;
+                }
+            });
+            
+            return count;
+        }
+
+        // Função de verificação de impressora
+        function checkPrinterStatus() {
+            // Verificar se há impressoras disponíveis (apenas em navegadores compatíveis)
+            if ('navigator' in window && 'mediaDevices' in navigator) {
+                console.log('📱 API de mídia disponível');
+            }
+            
+            // Verificar configurações de página
+            const pageInfo = {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language
+            };
+            
+            console.log('� Informações da página:', pageInfo);
+            
+            // Dicas para o usuário
+            const tips = `
+🖨️ DICAS PARA IMPRESSÃO:
+
+1. CONFIGURAÇÃO DA IMPRESSORA:
+   • Verifique se a impressora está ligada e conectada
+   • Teste imprimir uma página de teste do Windows
+   • Verifique se há papel e tinta/toner
+
+2. CONFIGURAÇÕES DO NAVEGADOR:
+   • Chrome: Ctrl+P → Verificar destino
+   • Firefox: Ctrl+P → Verificar impressora selecionada
+   • Edge: Ctrl+P → Mais configurações
+
+3. FORMATO DO PAPEL:
+   • Selecionar A4 (210x297mm)
+   • Margens: Normais ou Mínimas
+   • Orientação: Retrato
+
+4. RESOLUÇÃO DE PROBLEMAS:
+   • Tente "Impressão Direta" se a validação falhar
+   • Verifique se o popup de impressão aparece
+   • Teste em modo incógnito/privado
+   • Atualize o navegador se necessário
+
+Deseja continuar com o teste?`;
+
+            return confirm(tips);
+        }
+
+        // Função melhorada de teste
+        function testPrint() {
+            console.log('🔧 Iniciando diagnóstico completo...');
+            
+            // Verificar se todos os campos estão acessíveis
+            const fieldsCheck = {
+                doctorName: document.getElementById('doctorName')?.value || 'VAZIO',
+                doctorCrm: document.getElementById('doctorCrm')?.value || 'VAZIO',
+                doctorSpecialty: document.getElementById('doctorSpecialty')?.value || 'VAZIO',
+                prescriptionDate: document.getElementById('prescriptionDate')?.value || 'VAZIO',
+                patientName: document.getElementById('patientName')?.value || 'VAZIO',
+                patientAge: document.getElementById('patientAge')?.value || 'VAZIO',
+                patientWeight: document.getElementById('patientWeight')?.value || 'VAZIO',
+                patientCpf: document.getElementById('patientCpf')?.value || 'VAZIO',
+                patientPhone: document.getElementById('patientPhone')?.value || 'VAZIO',
+                patientGender: document.getElementById('patientGender')?.value || 'VAZIO'
+            };
+            
+            // Verificar medicamentos
+            const medications = document.querySelectorAll('.medication-item');
+            const medicationCheck = [];
+            
+            medications.forEach((med, index) => {
+                const inputs = med.querySelectorAll('input');
+                const select = med.querySelector('select');
+                const textarea = med.querySelector('textarea');
+                
+                medicationCheck.push({
+                    medicamento: index + 1,
+                    nome: inputs[0]?.value || 'VAZIO',
+                    quantidade: inputs[1]?.value || 'VAZIO', 
+                    via: select?.value || 'VAZIO',
+                    posologia: textarea?.value || 'VAZIO'
+                });
+            });
+            
+            // Verificar orientações gerais
+            const generalInstructions = document.querySelector('.general-instructions textarea')?.value || 'VAZIO';
+            
+            const diagnosticReport = `
+🔍 RELATÓRIO DE DIAGNÓSTICO COMPLETO:
+
+📋 DADOS DO MÉDICO:
+• Nome: ${fieldsCheck.doctorName}
+• CRM: ${fieldsCheck.doctorCrm}
+• Especialidade: ${fieldsCheck.doctorSpecialty}
+• Data: ${fieldsCheck.prescriptionDate}
+
+👤 DADOS DO PACIENTE:
+• Nome: ${fieldsCheck.patientName}
+• Idade: ${fieldsCheck.patientAge}
+• Peso: ${fieldsCheck.patientWeight}
+• CPF: ${fieldsCheck.patientCpf}
+• Telefone: ${fieldsCheck.patientPhone}
+• Sexo: ${fieldsCheck.patientGender}
+
+💊 MEDICAMENTOS:
+${medicationCheck.map(med => 
+    `• Med ${med.medicamento}: ${med.nome} | Qtd: ${med.quantidade} | Via: ${med.via} | Posologia: ${med.posologia.substring(0, 50)}...`
+).join('\n')}
+
+📝 ORIENTAÇÕES: ${generalInstructions.substring(0, 100)}...
+
+✅ MEDICAMENTOS VÁLIDOS: ${countValidMedications()}
+
+Continuar com teste de impressão?`;
+
+            console.log(diagnosticReport);
+            
+            if (confirm(diagnosticReport)) {
+                console.log('🖨️ Executando teste de impressão...');
+                window.print();
+            }
+        }
+
+        // Função para debug dos campos
+        function debugFields() {
+            console.log('🐛 DEBUG - Verificando todos os campos...');
+            
+            // Listar todos os inputs
+            const allInputs = document.querySelectorAll('input, select, textarea');
+            allInputs.forEach((field, index) => {
+                console.log(`Campo ${index + 1}:`, {
+                    type: field.tagName,
+                    id: field.id || 'sem-id',
+                    value: field.value || 'vazio',
+                    placeholder: field.placeholder || 'sem-placeholder'
+                });
+            });
+            
+            // Verificar estrutura dos medicamentos
+            const medications = document.querySelectorAll('.medication-item');
+            console.log(`📊 Total de medicamentos encontrados: ${medications.length}`);
+            
+            medications.forEach((med, index) => {
+                console.log(`Medicamento ${index + 1} estrutura:`, {
+                    inputs: med.querySelectorAll('input').length,
+                    selects: med.querySelectorAll('select').length,
+                    textareas: med.querySelectorAll('textarea').length
+                });
+            });
+        }
+
+        // Variável para controlar tipo de marca d'água
+        let currentWatermark = 0;
+        const watermarkTypes = ['main', 'logo', 'bordered', 'stamp', 'pattern', 'svg'];
+
+        // Função para alternar marca d'água
+        function toggleWatermark() {
+            // Ocultar todas as marcas d'água
+            watermarkTypes.forEach(type => {
+                const element = document.getElementById(`watermark-${type}`);
+                if (element) {
+                    element.classList.remove('watermark-preview');
+                }
+            });
+            
+            // Mostrar próxima marca d'água
+            currentWatermark = (currentWatermark + 1) % (watermarkTypes.length + 1);
+            
+            if (currentWatermark === 0) {
+                alert('💧 Marca d\'água DESATIVADA\n\nA impressão será feita sem marca d\'água.');
+            } else {
+                const activeType = watermarkTypes[currentWatermark - 1];
+                const element = document.getElementById(`watermark-${activeType}`);
+                if (element) {
+                    element.classList.add('watermark-preview');
+                }
+                
+                const watermarkNames = {
+                    'main': 'LOPES SOUZA SAÚDE (Texto Principal)',
+                    'logo': 'Logo LSS com Medicina',
+                    'bordered': 'PRESCRIÇÃO OFICIAL (Com Bordas)',
+                    'stamp': 'Carimbo Médico Oficial',
+                    'pattern': 'Padrão Múltiplo',
+                    'svg': 'Imagem Profissional SVG'
+                };
+                
+                alert(`💧 Marca d'água ATIVADA\n\nTipo: ${watermarkNames[activeType]}\n\nEsta marca d'água aparecerá apenas na impressão.`);
+            }
+        }
+
+        // Função para preview da marca d'água
+        function previewWatermark() {
+            if (currentWatermark > 0) {
+                const activeType = watermarkTypes[currentWatermark - 1];
+                const element = document.getElementById(`watermark-${activeType}`);
+                if (element) {
+                    element.classList.add('watermark-preview');
+                    setTimeout(() => {
+                        element.classList.remove('watermark-preview');
+                    }, 3000);
+                }
+            }
+        }
+
+        // Inicializar marca d'água padrão
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('prescriptionDate').value = today;
+            
+            // Ativar marca d'água padrão (LOPES SOUZA SAÚDE)
+            currentWatermark = 1;
+            console.log('💧 Marca d\'água padrão ativada: LOPES SOUZA SAÚDE');
+        });
+    </script>
+</body>
+</html>

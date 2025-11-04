@@ -666,6 +666,20 @@
                     <div class="action-title">Analytics - Mapas Geoespaciais</div>
                     <div class="action-desc">Visualizar indicadores de saúde no Nordeste</div>
                 </a>
+                <a href="/central-ans.html" class="action-card available" style="cursor: pointer; text-decoration: none; color: inherit;">
+                    <div class="action-icon">
+                        <i class="fas fa-shield-alt" style="color: #2b6cb0;"></i>
+                    </div>
+                    <div class="action-title">Central ANS</div>
+                    <div class="action-desc">Informações regulatórias, operadoras e validações da Agência Nacional de Saúde</div>
+                </a>
+                <a href="/prescricao-medica.html" class="action-card available" style="text-decoration: none; color: inherit;" target="_blank">
+                    <div class="action-icon">
+                        <i class="fas fa-prescription-bottle-alt" style="color: #dc3545;"></i>
+                    </div>
+                    <div class="action-title">Prescrição Médica</div>
+                    <div class="action-desc">Template para prescrições com campos obrigatórios e impressão</div>
+                </a>
                 <div class="action-card coming-soon" data-action="show-coming-soon" data-feature="Relatórios">
                     <div class="action-icon">
                         <i class="fas fa-chart-bar"></i>
@@ -3339,6 +3353,10 @@ As informações são sincronizadas automaticamente com os prontuários!`);
                 console.error('Erro ao carregar tipos de exames:', error);
             }
         }
+
+        // Carregar tipos de exames quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTiposExamesForFilter();
         });
     </script>
     

@@ -1,0 +1,263 @@
+/* 🏥 MARCA D'ÁGUA - LOPES SOUZA SAÚDE */
+/* Arquivo dedicado para estilização da marca d'água na impressão */
+
+/* Marca d'água - visível apenas na impressão */
+.watermark {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 120px;
+    font-weight: bold;
+    color: rgba(0, 123, 255, 0.08);
+    z-index: -1;
+    pointer-events: none;
+    user-select: none;
+    font-family: 'Arial Black', Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 10px;
+    white-space: nowrap;
+    display: none; /* Oculto na tela, visível apenas na impressão */
+}
+
+/* Marca d'água alternativa com logo */
+.watermark-logo {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 80px;
+    font-weight: 900;
+    color: rgba(220, 53, 69, 0.06);
+    z-index: -1;
+    pointer-events: none;
+    user-select: none;
+    font-family: 'Arial Black', Arial, sans-serif;
+    text-align: center;
+    line-height: 1.2;
+    display: none;
+}
+
+/* Marca d'água com bordas */
+.watermark-bordered {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 60px;
+    font-weight: bold;
+    color: rgba(40, 167, 69, 0.08);
+    z-index: -1;
+    pointer-events: none;
+    user-select: none;
+    font-family: 'Arial Black', Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 8px;
+    border: 3px solid rgba(40, 167, 69, 0.05);
+    padding: 20px 40px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    display: none;
+}
+
+/* Marca d'água com imagem SVG */
+.watermark-svg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    user-select: none;
+    display: none;
+    background-image: url('/assets/watermark-lss.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.6;
+}
+
+/* Marca d'água tipo carimbo médico */
+.watermark-stamp {
+    position: fixed;
+    top: 30%;
+    right: 10%;
+    transform: rotate(15deg);
+    font-size: 24px;
+    font-weight: bold;
+    color: rgba(108, 117, 125, 0.15);
+    z-index: -1;
+    pointer-events: none;
+    user-select: none;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    border: 2px solid rgba(108, 117, 125, 0.15);
+    padding: 10px 15px;
+    border-radius: 8px;
+    background: rgba(248, 249, 250, 0.3);
+    display: none;
+}
+
+/* Múltiplas marcas d'água em padrão */
+.watermark-pattern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    user-select: none;
+    display: none;
+    opacity: 0.05;
+}
+
+.watermark-pattern::before {
+    content: "LOPES SOUZA SAÚDE";
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    font-size: 40px;
+    font-weight: bold;
+    color: #007bff;
+    transform: rotate(-45deg);
+    font-family: Arial, sans-serif;
+}
+
+.watermark-pattern::after {
+    content: "PRESCRIÇÃO MÉDICA";
+    position: absolute;
+    bottom: 30%;
+    right: 20%;
+    font-size: 35px;
+    font-weight: bold;
+    color: #28a745;
+    transform: rotate(-45deg);
+    font-family: Arial, sans-serif;
+}
+
+/* Estilos específicos para impressão */
+@media print {
+    /* Marca d'água principal ativa na impressão */
+    .watermark {
+        display: block !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Marca d'água com logo ativa na impressão */
+    .watermark-logo {
+        display: block !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Marca d'água com bordas ativa na impressão */
+    .watermark-bordered {
+        display: block !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Marca d'água tipo carimbo ativa na impressão */
+    .watermark-stamp {
+        display: block !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Marca d'água com imagem SVG ativa na impressão */
+    .watermark-svg {
+        display: block !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* Garantir que a marca d'água apareça atrás de todo conteúdo */
+    body {
+        position: relative;
+    }
+    
+    /* Configurações gerais de impressão para marca d'água */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
+/* Marca d'água responsiva para diferentes tamanhos de papel */
+@media print and (max-width: 210mm) {
+    .watermark {
+        font-size: 100px !important;
+        letter-spacing: 8px !important;
+    }
+    
+    .watermark-logo {
+        font-size: 60px !important;
+    }
+    
+    .watermark-bordered {
+        font-size: 45px !important;
+        letter-spacing: 6px !important;
+        padding: 15px 30px !important;
+    }
+}
+
+/* Marca d'água para papel A4 especificamente */
+@media print and (width: 210mm) and (height: 297mm) {
+    .watermark {
+        font-size: 120px !important;
+        letter-spacing: 10px !important;
+    }
+    
+    .watermark-pattern::before {
+        font-size: 45px !important;
+    }
+    
+    .watermark-pattern::after {
+        font-size: 40px !important;
+    }
+}
+
+/* Animação sutil para preview (apenas em tela) */
+@media screen {
+    .watermark-preview {
+        display: block !important;
+        opacity: 0.1;
+        animation: pulse 3s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 0.05; }
+        50% { opacity: 0.15; }
+    }
+}
+
+/* Configurações para diferentes navegadores */
+@-moz-document url-prefix() {
+    @media print {
+        .watermark, .watermark-logo, .watermark-bordered, .watermark-stamp, .watermark-pattern {
+            color-adjust: exact !important;
+        }
+    }
+}
+
+/* Compatibilidade com Edge/IE */
+@media print and (-ms-high-contrast: none) {
+    .watermark, .watermark-logo, .watermark-bordered, .watermark-stamp {
+        filter: alpha(opacity=8) !important;
+    }
+}
+
+/* Compatibilidade com Safari */
+@media print and (-webkit-min-device-pixel-ratio: 0) {
+    .watermark, .watermark-logo, .watermark-bordered, .watermark-stamp, .watermark-pattern {
+        -webkit-print-color-adjust: exact !important;
+    }
+}

@@ -4,6 +4,7 @@
  */
 
 const databaseService = require('../services/database');
+const ResponseService = require('../services/responseService');
 const { validateDoctorData, hashPassword, formatCPF, formatPhone, formatCEP } = require('../utils/validators');
 const { processarFotoMedico, removerFotoAnterior } = require('../middleware/uploadMiddleware');
 const relatoriosService = require('../services/relatoriosService');
@@ -90,7 +91,7 @@ class MedicosController {
         estado: medico.uf
       }));
 
-      res.successWithPagination(
+      return ResponseService.paginated(res,
         medicosFormatados,
         { page, limit, total },
         `${medicosFormatados.length} médicos encontrados`
@@ -98,7 +99,7 @@ class MedicosController {
 
     } catch (error) {
       console.error('❌ [MEDICOS] Erro ao listar:', error.message);
-      res.error('Erro ao buscar médicos', 500, error.message);
+      return ResponseService.error(res, 'Erro ao buscar médicos', 500, error.message);
     }
   }
 
