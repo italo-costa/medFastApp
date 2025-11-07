@@ -8,62 +8,58 @@ datasource db {
 }
 
 model Usuario {
-  id            String       @id @default(cuid())
-  email         String       @unique
-  senha         String
-  nome          String
-  tipo          TipoUsuario
-  ativo         Boolean      @default(true)
-  ultimo_login  DateTime?
-  criado_em     DateTime     @default(now())
-  atualizado_em DateTime     @updatedAt
-  enfermeiro    Enfermeiro?
-  logs          LogSistema[]
-  medico        Medico?
-  sessoes       Sessao[]
+  id                   String               @id @default(cuid())
+  email                String               @unique
+  senha                String
+  nome                 String
+  tipo                 TipoUsuario
+  ativo                Boolean              @default(true)
+  ultimo_login         DateTime?
+  criado_em            DateTime             @default(now())
+  atualizado_em        DateTime             @updatedAt
+  enfermeiro           Enfermeiro?
   historico_alteracoes HistoricoAlteracao[] @relation("UsuarioAlteracoes")
+  logs                 LogSistema[]
+  medico               Medico?
+  sessoes              Sessao[]
 
   @@map("usuarios")
 }
 
 model Medico {
-  id                  String        @id @default(cuid())
-  usuario_id          String        @unique
-  crm                 String        @unique
-  crm_uf              String
-  especialidade       String
-  telefone            String?
-  celular             String?
-  // Campos pessoais adicionais
-  cpf                 String?
-  data_nascimento     DateTime?
-  sexo                Sexo?
-  // Endereço estruturado
-  endereco            String?       // Mantido para compatibilidade
-  cep                 String?
-  logradouro          String?
-  numero_endereco     String?
-  complemento_endereco String?
-  bairro              String?
-  cidade              String?
-  uf                  String?
-  // Campos profissionais
+  id                    String               @id @default(cuid())
+  usuario_id            String               @unique
+  crm                   String               @unique
+  crm_uf                String
+  especialidade         String
+  telefone              String?
+  celular               String?
+  endereco              String?
+  formacao              String?
+  experiencia           String?
+  horario_atendimento   String?
+  criado_em             DateTime             @default(now())
+  atualizado_em         DateTime             @updatedAt
+  bairro                String?
+  cep                   String?
+  cidade                String?
+  complemento_endereco  String?
+  cpf                   String?
+  data_nascimento       DateTime?
+  logradouro            String?
+  numero_endereco       String?
+  observacoes           String?
   outras_especialidades String?
-  formacao            String?
-  experiencia         String?
-  horario_atendimento String?
-  observacoes         String?
-  // Foto do médico
-  foto_url            String?
-  foto_nome_original  String?
-  criado_em           DateTime      @default(now())
-  atualizado_em       DateTime      @updatedAt
-  agendamentos        Agendamento[]
-  consultas           Consulta[]
-  usuario             Usuario       @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-  prescricoes         Prescricao[]
-  prontuarios         Prontuario[]
-  historico           HistoricoAlteracao[]
+  sexo                  Sexo?
+  uf                    String?
+  foto_nome_original    String?
+  foto_url              String?
+  agendamentos          Agendamento[]
+  consultas             Consulta[]
+  historico             HistoricoAlteracao[]
+  usuario               Usuario              @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  prescricoes           Prescricao[]
+  prontuarios           Prontuario[]
 
   @@map("medicos")
 }
@@ -394,6 +390,25 @@ model EstatisticaDashboard {
   @@map("estatisticas_dashboard")
 }
 
+model HistoricoAlteracao {
+  id                   String   @id @default(cuid())
+  medico_id            String
+  usuario_alteracao_id String
+  operacao             String
+  dados_anteriores     Json?
+  dados_novos          Json?
+  campos_alterados     Json?
+  observacoes          String?
+  data_alteracao       DateTime @default(now())
+  medico               Medico   @relation(fields: [medico_id], references: [id], onDelete: Cascade)
+  usuario_alteracao    Usuario  @relation("UsuarioAlteracoes", fields: [usuario_alteracao_id], references: [id])
+
+  @@index([medico_id])
+  @@index([data_alteracao])
+  @@index([operacao])
+  @@map("historico_alteracoes")
+}
+
 enum TipoUsuario {
   ADMIN
   MEDICO
@@ -476,25 +491,4 @@ enum TipoEstatistica {
   AGENDAMENTOS_PENDENTES
   ALERGIAS_REGISTRADAS
   MEDICAMENTOS_PRESCRITOS
-}
-
-model HistoricoAlteracao {
-  id                    String    @id @default(cuid())
-  medico_id             String
-  usuario_alteracao_id  String
-  operacao              String    // CREATE, UPDATE, DELETE
-  dados_anteriores      Json?
-  dados_novos           Json?
-  campos_alterados      Json?
-  observacoes           String?
-  data_alteracao        DateTime  @default(now())
-  
-  // Relacionamentos
-  medico                Medico    @relation(fields: [medico_id], references: [id], onDelete: Cascade)
-  usuario_alteracao     Usuario   @relation("UsuarioAlteracoes", fields: [usuario_alteracao_id], references: [id])
-  
-  @@map("historico_alteracoes")
-  @@index([medico_id])
-  @@index([data_alteracao])
-  @@index([operacao])
 }

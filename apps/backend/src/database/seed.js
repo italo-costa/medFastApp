@@ -4,6 +4,10 @@ const databaseService = require('../services/database');
 async function main() {
     console.log('🌱 Iniciando seed do banco de dados...');
 
+    // Conectar ao banco de dados
+    await databaseService.connect();
+    console.log('🔌 Conectado ao banco de dados...');
+
     // 1. Criar usuários e médicos
     console.log('👨‍⚕️ Criando médicos...');
     
@@ -321,6 +325,10 @@ async function main() {
     console.log(`👨‍⚕️ ${medicosCreated.length} médicos criados`);
     console.log(`👥 ${pacientesCreated.length} pacientes criados`);
     console.log('💊 Alergias, medicamentos e doenças preexistentes adicionados');
+    
+    // Desconectar do banco
+    await databaseService.disconnect();
+    console.log('🔌 Desconectado do banco de dados...');
 }
 
 main()

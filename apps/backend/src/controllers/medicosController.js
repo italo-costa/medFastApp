@@ -131,7 +131,10 @@ class MedicosController {
       });
 
       if (!medico) {
-        return res.notFound('Médico não encontrado');
+        return res.status(404).json({
+          success: false,
+          message: 'Médico não encontrado'
+        });
       }
 
       const medicoFormatado = {
@@ -168,11 +171,19 @@ class MedicosController {
         }
       };
 
-      res.success(medicoFormatado, 'Médico encontrado com sucesso');
+      return res.status(200).json({
+        success: true,
+        data: medicoFormatado,
+        message: 'Médico encontrado com sucesso'
+      });
 
     } catch (error) {
       console.error('❌ [MEDICOS] Erro ao buscar por ID:', error.message);
-      res.error('Erro ao buscar médico', 500, error.message);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao buscar médico',
+        error: error.message
+      });
     }
   }
 
@@ -185,7 +196,11 @@ class MedicosController {
     // Validar dados de entrada
     const validation = validateDoctorData(dadosMedico);
     if (!validation.isValid) {
-      return res.error('Dados inválidos', 400, validation.errors);
+      return res.status(400).json({
+        success: false,
+        message: 'Dados inválidos',
+        errors: validation.errors
+      });
     }
 
     try {
@@ -195,7 +210,10 @@ class MedicosController {
       });
 
       if (crmExistente) {
-        return res.error('CRM já cadastrado no sistema', 409);
+        return res.status(409).json({
+          success: false,
+          message: 'CRM já cadastrado no sistema'
+        });
       }
 
       // Verificar se email já existe
@@ -204,7 +222,10 @@ class MedicosController {
       });
 
       if (emailExistente) {
-        return res.error('Email já cadastrado no sistema', 409);
+        return res.status(409).json({
+          success: false,
+          message: 'Email já cadastrado no sistema'
+        });
       }
 
       // Verificar se CPF já existe (se fornecido)
@@ -307,25 +328,32 @@ class MedicosController {
         return medico;
       });
 
-      res.success(
-        {
+      return res.status(201).json({
+        success: true,
+        data: {
           id: novoMedico.id,
           nome: novoMedico.usuario.nome,
           crm: novoMedico.crm,
           especialidade: novoMedico.especialidade
         },
-        'Médico cadastrado com sucesso',
-        201
-      );
+        message: 'Médico cadastrado com sucesso'
+      });
 
     } catch (error) {
       console.error('❌ [MEDICOS] Erro ao criar:', error.message);
       
       if (error.code === 'P2002') {
-        return res.error('Dados já cadastrados (CRM, Email ou CPF)', 409);
+        return res.status(409).json({
+          success: false,
+          message: 'Dados já cadastrados (CRM, Email ou CPF)'
+        });
       }
       
-      res.error('Erro ao cadastrar médico', 500, error.message);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao cadastrar médico',
+        error: error.message
+      });
     }
   }
 

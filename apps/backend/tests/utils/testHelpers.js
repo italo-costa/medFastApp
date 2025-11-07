@@ -4,8 +4,8 @@ class TestHelpers {
   static createMedicoData(overrides = {}) {
     return {
       nomeCompleto: 'Dr. João Silva',
-      cpf: '12345678901',
-      crm: 'SP123456',
+      cpf: '11144477735', // CPF válido
+      crm: '123456',
       especialidade: 'Cardiologia',
       telefone: '(11) 99999-9999',
       email: 'joao.silva@email.com',
@@ -23,7 +23,7 @@ class TestHelpers {
   static createPacienteData(overrides = {}) {
     return {
       nomeCompleto: 'Maria Santos',
-      cpf: '98765432100',
+      cpf: '22288833309', // CPF válido
       dataNascimento: '1985-05-15',
       telefone: '(11) 88888-8888',
       email: 'maria.santos@email.com',
@@ -106,11 +106,29 @@ class TestHelpers {
   }
 
   static generateUniqueCPF() {
+    // Gera um CPF válido usando timestamp + random para garantir unicidade
     const timestamp = Date.now().toString();
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    const base = timestamp.slice(-8) + random;
-    const cpfBase = base.slice(0, 9).padStart(9, '0');
-    return this.formatCPF(cpfBase + '00'); // Simplified for testing
+    const random = Math.floor(Math.random() * 900000).toString().padStart(6, '0');
+    const sequence = (timestamp + random).slice(-9);
+    
+    // Calcula os dígitos verificadores
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(sequence[i]) * (10 - i);
+    }
+    let digit1 = 11 - (sum % 11);
+    if (digit1 > 9) digit1 = 0;
+    
+    sum = 0;
+    const sequenceWithDigit1 = sequence + digit1.toString();
+    for (let i = 0; i < 10; i++) {
+      sum += parseInt(sequenceWithDigit1[i]) * (11 - i);
+    }
+    let digit2 = 11 - (sum % 11);
+    if (digit2 > 9) digit2 = 0;
+    
+    const cpf = sequence + digit1.toString() + digit2.toString();
+    return this.formatCPF(cpf);
   }
 
   static generateUniqueCRM() {
@@ -136,7 +154,38 @@ class TestHelpers {
     // Verifica se todos os dígitos são iguais
     if (/^(\d)\1+$/.test(cpfClean)) return false;
     
-    // Validação simplificada para testes
+    // CPFs conhecidamente inválidos
+    const invalidCPFs = [
+      '00000000000', '11111111111', '22222222222', '33333333333',
+      '44444444444', '55555555555', '66666666666', '77777777777',
+      '88888888888', '99999999999'
+    ];
+    
+    if (invalidCPFs.includes(cpfClean)) return false;
+    
+    // Algoritmo de validação do CPF (dígitos verificadores)
+    let sum = 0;
+    let remainder;
+    
+    // Primeiro dígito verificador
+    for (let i = 1; i <= 9; i++) {
+      sum = sum + parseInt(cpfClean.substring(i - 1, i)) * (11 - i);
+    }
+    remainder = (sum * 10) % 11;
+    
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cpfClean.substring(9, 10))) return false;
+    
+    // Segundo dígito verificador
+    sum = 0;
+    for (let i = 1; i <= 10; i++) {
+      sum = sum + parseInt(cpfClean.substring(i - 1, i)) * (12 - i);
+    }
+    remainder = (sum * 10) % 11;
+    
+    if (remainder === 10 || remainder === 11) remainder = 0;
+    if (remainder !== parseInt(cpfClean.substring(10, 11))) return false;
+    
     return true;
   }
 
@@ -155,7 +204,38 @@ class TestHelpers {
   static isValidTelefone(telefone) {
     if (!telefone) return false;
     const telefoneClean = telefone.replace(/\D/g, '');
-    return telefoneClean.length === 10 || telefoneClean.length === 11;
+    
+    // Verifica se tem 10 ou 11 dígitos
+    if (telefoneClean.length !== 10 && telefoneClean.length !== 11) return false;
+    
+    // Verifica se não são todos os dígitos iguais
+    if (/^(\d)\1+$/.test(telefoneClean)) return false;
+    
+    // Regras para celular (11 dígitos)
+    if (telefoneClean.length === 11) {
+      // DDD válido (primeiro e segundo dígito)
+      const ddd = parseInt(telefoneClean.substring(0, 2));
+      if (ddd < 11 || ddd > 99) return false;
+      
+      // Terceiro dígito deve ser 9 para celular
+      if (telefoneClean.charAt(2) !== '9') return false;
+    }
+    
+    // Regras para telefone fixo (10 dígitos)  
+    if (telefoneClean.length === 10) {
+      // DDD válido (primeiro e segundo dígito)
+      const ddd = parseInt(telefoneClean.substring(0, 2));
+      if (ddd < 11 || ddd > 99) return false;
+      
+      // Terceiro dígito não pode ser 9 para fixo (seria celular)
+      if (telefoneClean.charAt(2) === '9') return false;
+      
+      // Terceiro dígito deve ser entre 2-5 para fixos na maioria das regiões
+      const terceiroDigito = parseInt(telefoneClean.charAt(2));
+      if (terceiroDigito < 2 || terceiroDigito > 5) return false;
+    }
+    
+    return true;
   }
 
   static isValidCEP(cep) {
@@ -234,6 +314,117 @@ class TestHelpers {
   static async wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
+  /**
+   * Configurar ambiente de teste
+   */
+  static async testDatabaseSetup() {
+    const databaseService = require('../../src/services/database');
+    
+    try {
+      // Conectar ao banco de teste se não estiver conectado
+      if (!databaseService.isConnected) {
+        await databaseService.connect();
+      }
+      
+      // Executar migrations se necessário
+      // Aqui assumimos que as migrations já foram executadas no setup global
+      
+      return true;
+    } catch (error) {
+      console.error('❌ [TEST] Erro ao configurar banco de teste:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Criar usuário de teste
+   */
+  static async createTestUser(userData = {}) {
+    const databaseService = require('../../src/services/database');
+    const AuthService = require('../../src/services/authService');
+    
+    const defaultUserData = {
+      nome: 'Usuário Teste',
+      email: 'teste@test.com',
+      password: 'Teste123@',
+      tipo: 'MEDICO', // Usar valor correto do enum
+      crm: 'TEST123',
+      especialidade: 'Clínica Geral'
+    };
+    
+    const finalUserData = { ...defaultUserData, ...userData };
+    
+    try {
+      // Hash da senha
+      const hashedPassword = await AuthService.hashPassword(finalUserData.password);
+      
+      // Criar usuário
+      const usuario = await databaseService.client.usuario.create({
+        data: {
+          nome: finalUserData.nome,
+          email: finalUserData.email,
+          senha: hashedPassword,
+          tipo: finalUserData.tipo,
+          ativo: true
+        }
+      });
+      
+      // Criar médico se o tipo for médico
+      if (finalUserData.tipo === 'MEDICO') {
+        const medico = await databaseService.client.medico.create({
+          data: {
+            usuario_id: usuario.id,
+            crm: finalUserData.crm,
+            crm_uf: 'SP', // Valor padrão
+            especialidade: finalUserData.especialidade
+          }
+        });
+        
+        usuario.medico = medico;
+      }
+      
+      return usuario;
+    } catch (error) {
+      console.error('❌ [TEST] Erro ao criar usuário de teste:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Limpar dados de teste
+   */
+  static async cleanupTestData() {
+    const databaseService = require('../../src/services/database');
+    
+    try {
+      // Conectar se não estiver conectado
+      if (!databaseService.isConnected) {
+        await databaseService.connect();
+      }
+      
+      // Limpar dados em ordem (respeitando foreign keys)
+      await databaseService.client.consulta.deleteMany({});
+      await databaseService.client.medico.deleteMany({});
+      await databaseService.client.paciente.deleteMany({});
+      await databaseService.client.usuario.deleteMany({
+        where: {
+          email: {
+            contains: 'test'
+          }
+        }
+      });
+      
+      console.log('✅ [TEST] Dados de teste limpos');
+    } catch (error) {
+      console.error('❌ [TEST] Erro ao limpar dados de teste:', error);
+      // Não fazer throw aqui para não quebrar o teardown
+    }
+  }
 }
 
 module.exports = TestHelpers;
+
+// Exportar funções individuais para compatibilidade
+module.exports.testDatabaseSetup = TestHelpers.testDatabaseSetup;
+module.exports.createTestUser = TestHelpers.createTestUser;
+module.exports.cleanupTestData = TestHelpers.cleanupTestData;

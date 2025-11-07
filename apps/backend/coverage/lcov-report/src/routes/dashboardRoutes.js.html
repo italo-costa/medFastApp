@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/10</span>
+                <span class='fraction'>10/10</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -92,60 +92,60 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Rotas para dashboard
  */
 &nbsp;
-const express = <span class="cstat-no" title="statement not covered" >require('express');</span>
-const dashboardController = <span class="cstat-no" title="statement not covered" >require('../controllers/dashboardController');</span>
-const { asyncHandler } = <span class="cstat-no" title="statement not covered" >require('../middleware/errorHandling');</span>
+const express = require('express');
+const dashboardController = require('../controllers/dashboardController');
+const { asyncHandler } = require('../middleware/errorHandler');
 &nbsp;
-const router = <span class="cstat-no" title="statement not covered" >express.Router();</span>
+const router = express.Router();
 &nbsp;
 // GET /api/dashboard - Obter dados completos do dashboard
-<span class="cstat-no" title="statement not covered" >router.get('/', asyncHandler(dashboardController.obterDashboard));</span>
+router.get('/', asyncHandler(dashboardController.obterDashboard));
 &nbsp;
 // GET /api/dashboard/metricas - Obter apenas métricas principais
-<span class="cstat-no" title="statement not covered" >router.get('/metricas', asyncHandler(dashboardController.obterMetricas));</span>
+router.get('/metricas', asyncHandler(dashboardController.obterMetricas));
 &nbsp;
 // GET /api/dashboard/graficos - Obter dados para gráficos
-<span class="cstat-no" title="statement not covered" >router.get('/graficos', asyncHandler(dashboardController.obterGraficos));</span>
+router.get('/graficos', asyncHandler(dashboardController.obterGraficos));
 &nbsp;
 // GET /api/dashboard/atividades - Obter atividades recentes
-<span class="cstat-no" title="statement not covered" >router.get('/atividades', asyncHandler(dashboardController.obterAtividades));</span>
+router.get('/atividades', asyncHandler(dashboardController.obterAtividades));
 &nbsp;
 // GET /api/dashboard/estatisticas - Obter estatísticas detalhadas
-<span class="cstat-no" title="statement not covered" >router.get('/estatisticas', asyncHandler(dashboardController.obterEstatisticasDetalhadas));</span>
+router.get('/estatisticas', asyncHandler(dashboardController.obterEstatisticasDetalhadas));
 &nbsp;
-<span class="cstat-no" title="statement not covered" >module.exports = router;</span></pre></td></tr></table></pre>
+module.exports = router;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-03T12:11:45.282Z
+                at 2025-11-06T19:27:17.015Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

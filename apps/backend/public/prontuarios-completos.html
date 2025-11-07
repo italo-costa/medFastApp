@@ -251,6 +251,722 @@
             color: #cbd5e0;
         }
 
+        /* Prontuários List Styles */
+        .prontuario-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .prontuario-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #4299e1;
+        }
+
+        .prontuario-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .prontuario-info h4 {
+            color: #2d3748;
+            margin: 0 0 0.25rem 0;
+            font-size: 1.1rem;
+        }
+
+        .prontuario-info p {
+            color: #718096;
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        .prontuario-date {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .prontuario-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .prontuario-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .prontuario-field label {
+            font-size: 0.75rem;
+            color: #718096;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+        }
+
+        .prontuario-field span {
+            color: #2d3748;
+            font-size: 0.875rem;
+        }
+
+        .prontuario-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .prontuario-btn {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .prontuario-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .prontuario-btn.primary {
+            background: #4299e1;
+            color: white;
+            border-color: #4299e1;
+        }
+
+        .prontuario-btn.primary:hover {
+            background: #3182ce;
+        }
+
+        /* Pagination Styles */
+        .pagination-btn {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #e2e8f0;
+        }
+
+        .pagination-btn.active {
+            background: #4299e1;
+            color: white;
+            border-color: #4299e1;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            color: #718096;
+            font-size: 0.875rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 2% auto;
+            border: none;
+            border-radius: 0.75rem;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            border-radius: 0.75rem 0.75rem 0 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            transition: background 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            background: #f7fafc;
+            border-radius: 0 0 0.75rem 0.75rem;
+        }
+
+        /* Form Styles */
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            flex: 1 1 100%;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: #f7fafc;
+            border-radius: 0.5rem;
+            border-left: 4px solid #4299e1;
+        }
+
+        .form-section h4 {
+            margin: 0 0 1rem 0;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #3182ce;
+        }
+
+        .btn-primary:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        /* Upload Area Styles */
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f7fafc;
+        }
+
+        .upload-area:hover {
+            border-color: #4299e1;
+            background: #ebf8ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #4299e1;
+            background: #ebf8ff;
+            transform: scale(1.02);
+        }
+
+        .upload-content {
+            pointer-events: none;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #a0aec0;
+            margin-bottom: 1rem;
+        }
+
+        .upload-info {
+            font-size: 0.75rem;
+            color: #718096;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .upload-preview {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #e6fffa;
+            border-radius: 0.5rem;
+            border: 1px solid #81e6d9;
+        }
+
+        .upload-preview img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 0.375rem;
+        }
+
+        .upload-preview-info {
+            flex: 1;
+        }
+
+        .upload-preview-name {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .upload-preview-size {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .upload-preview-remove {
+            background: #f56565;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 2rem;
+            height: 2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .upload-preview-remove:hover {
+            background: #e53e3e;
+        }
+
+        /* Upload Progress Styles */
+        .upload-progress {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f0f9ff;
+            border-radius: 0.375rem;
+            border: 1px solid #bfdbfe;
+        }
+
+        .progress-container {
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4299e1, #3182ce);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            font-size: 0.875rem;
+            color: #4a5568;
+            text-align: center;
+            margin: 0.5rem 0 0 0;
+        }
+
+        /* Alergia Card Styles */
+        .alergia-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-left: 4px solid #e2e8f0;
+        }
+
+        .alergia-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .alergia-card.grave {
+            border-left-color: #f56565;
+            background: #fef5f5;
+        }
+
+        .alergia-card.severa {
+            border-left-color: #e53e3e;
+            background: #fed7d7;
+        }
+
+        .alergia-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .alergia-info {
+            flex: 1;
+        }
+
+        .alergia-nome {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alergia-paciente {
+            font-size: 0.875rem;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .alergia-badges {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            align-items: flex-end;
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-tipo {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .badge-gravidade {
+            color: white;
+        }
+
+        .badge-ativo {
+            background: #48bb78;
+            color: white;
+        }
+
+        .badge-inativo {
+            background: #cbd5e0;
+            color: #4a5568;
+        }
+
+        .alergia-sintomas {
+            background: #f7fafc;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: #4a5568;
+        }
+
+        .alergia-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .alergia-data {
+            font-size: 0.875rem;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .alergia-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-action {
+            background: #e2e8f0;
+            border: none;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+
+        .btn-action:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-action.btn-danger {
+            background: #fed7d7;
+            color: #e53e3e;
+        }
+
+        .btn-action.btn-danger:hover {
+            background: #feb2b2;
+        }
+
+        /* Filter Select Styles */
+        .filter-select {
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            background: white;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        /* Exame Card Styles */
+        .exame-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .exame-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #4299e1;
+        }
+
+        .exame-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .exame-info h4 {
+            color: #2d3748;
+            margin: 0 0 0.25rem 0;
+            font-size: 1.1rem;
+        }
+
+        .exame-info p {
+            color: #718096;
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        .exame-type {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .exame-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .exame-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .exame-field label {
+            font-size: 0.75rem;
+            color: #718096;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+        }
+
+        .exame-field span {
+            color: #2d3748;
+            font-size: 0.875rem;
+        }
+
+        .exame-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .exame-btn {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #4a5568;
+        }
+
+        .exame-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .exame-btn.primary {
+            background: #4299e1;
+            color: white;
+            border-color: #4299e1;
+        }
+
+        .exame-btn.primary:hover {
+            background: #3182ce;
+        }
+
+        .exame-btn.success {
+            background: #48bb78;
+            color: white;
+            border-color: #48bb78;
+        }
+
+        .exame-btn.success:hover {
+            background: #38a169;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header {
@@ -361,22 +1077,58 @@
             <div id="prontuarios-tab" class="tab-content active">
                 <div class="search-actions">
                     <div class="search-container">
-                        <input type="text" class="search-input" placeholder="Buscar prontuários...">
+                        <input type="text" id="search-prontuarios" class="search-input" placeholder="Buscar por paciente, médico ou diagnóstico..." onkeyup="filtrarProntuarios()">
                         <i class="fas fa-search search-icon"></i>
                     </div>
-                    <button class="btn">
+                    <button class="btn" onclick="abrirModalNovoProntuario()">
                         <i class="fas fa-plus"></i>
                         Novo Prontuário
                     </button>
                 </div>
-                
-                <div class="info-message">
+
+                <!-- Filtros Avançados -->
+                <div class="filters-container" style="display: flex; gap: 1rem; margin: 1rem 0; padding: 1rem; background: #f7fafc; border-radius: 0.5rem;">
+                    <select id="filter-medico" onchange="filtrarProntuarios()" style="padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.375rem;">
+                        <option value="">Todos os Médicos</option>
+                    </select>
+                    <select id="filter-periodo" onchange="filtrarProntuarios()" style="padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.375rem;">
+                        <option value="">Todos os Períodos</option>
+                        <option value="hoje">Hoje</option>
+                        <option value="semana">Esta Semana</option>
+                        <option value="mes">Este Mês</option>
+                        <option value="ano">Este Ano</option>
+                    </select>
+                    <button onclick="limparFiltros()" style="padding: 0.5rem 1rem; background: #e2e8f0; border: none; border-radius: 0.375rem; cursor: pointer;">
+                        <i class="fas fa-times"></i> Limpar
+                    </button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading-prontuarios" class="info-message" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <h3>Carregando prontuários...</h3>
+                    <p>Aguarde enquanto buscamos os dados.</p>
+                </div>
+
+                <!-- Lista de Prontuários -->
+                <div id="lista-prontuarios">
+                    <!-- Será preenchida dinamicamente -->
+                </div>
+
+                <!-- Paginação -->
+                <div id="paginacao-prontuarios" style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin: 2rem 0;">
+                    <!-- Será preenchida dinamicamente -->
+                </div>
+
+                <!-- Fallback para quando não há dados -->
+                <div id="no-prontuarios" class="info-message" style="display: none;">
                     <i class="fas fa-notes-medical"></i>
-                    <h3>Prontuários Médicos</h3>
-                    <p>Gerencie prontuários médicos completos com histórico de consultas, diagnósticos e tratamentos.</p>
-                    <p style="font-size: 0.875rem; margin-top: 1rem;">
-                        <strong>Funcionalidades:</strong> Cadastro de consultas, histórico médico, acompanhamento de tratamentos, relatórios médicos.
-                    </p>
+                    <h3>Nenhum Prontuário Encontrado</h3>
+                    <p>Não foram encontrados prontuários que correspondam aos filtros aplicados.</p>
+                    <button class="btn" onclick="abrirModalNovoProntuario()" style="margin-top: 1rem; background: #4299e1; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.375rem; cursor: pointer;">
+                        <i class="fas fa-plus"></i>
+                        Criar Primeiro Prontuário
+                    </button>
                 </div>
             </div>
             
@@ -384,34 +1136,68 @@
             <div id="exames-tab" class="tab-content">
                 <div class="search-actions">
                     <div class="search-container">
-                        <input type="text" class="search-input" placeholder="Buscar exames...">
+                        <input type="text" id="search-exames" class="search-input" placeholder="Buscar por paciente, tipo de exame..." onkeyup="filtrarExames()">
                         <i class="fas fa-search search-icon"></i>
                     </div>
-                    <button class="btn">
+                    <button class="btn" onclick="abrirModalNovoExame()">
                         <i class="fas fa-upload"></i>
                         Novo Exame
                     </button>
                 </div>
-                
-                <div class="info-message">
+
+                <!-- Filtros para Exames -->
+                <div class="filters-container" style="display: flex; gap: 1rem; margin: 1rem 0; padding: 1rem; background: #f7fafc; border-radius: 0.5rem;">
+                    <select id="filter-paciente-exame" onchange="filtrarExames()" style="padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.375rem;">
+                        <option value="">Todos os Pacientes</option>
+                    </select>
+                    <select id="filter-tipo-exame" onchange="filtrarExames()" style="padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.375rem;">
+                        <option value="">Todos os Tipos</option>
+                        <option value="Raio-X">Raio-X</option>
+                        <option value="Tomografia">Tomografia</option>
+                        <option value="Ressonância">Ressonância</option>
+                        <option value="Ultrassom">Ultrassom</option>
+                        <option value="Laboratorial">Laboratorial</option>
+                        <option value="Eletrocardiograma">Eletrocardiograma</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                    <select id="filter-periodo-exame" onchange="filtrarExames()" style="padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.375rem;">
+                        <option value="">Todos os Períodos</option>
+                        <option value="hoje">Hoje</option>
+                        <option value="semana">Esta Semana</option>
+                        <option value="mes">Este Mês</option>
+                        <option value="ano">Este Ano</option>
+                    </select>
+                    <button onclick="limparFiltrosExames()" style="padding: 0.5rem 1rem; background: #e2e8f0; border: none; border-radius: 0.375rem; cursor: pointer;">
+                        <i class="fas fa-times"></i> Limpar
+                    </button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading-exames" class="info-message" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <h3>Carregando exames...</h3>
+                    <p>Aguarde enquanto buscamos os dados.</p>
+                </div>
+
+                <!-- Lista de Exames -->
+                <div id="lista-exames">
+                    <!-- Será preenchida dinamicamente -->
+                </div>
+
+                <!-- Paginação -->
+                <div id="paginacao-exames" style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin: 2rem 0;">
+                    <!-- Será preenchida dinamicamente -->
+                </div>
+
+                <!-- Fallback para quando não há dados -->
+                <div id="no-exames" class="info-message" style="display: none;">
                     <i class="fas fa-x-ray"></i>
-                    <h3>Exames Médicos</h3>
-                    <p>Gerencie exames médicos, laudos e resultados integrados aos prontuários dos pacientes.</p>
-                    <p style="font-size: 0.875rem; margin-top: 1rem;">
-                        <strong>Tipos de Exames:</strong> Raio-X, Tomografia, Ressonância, Ultrassom, Exames Laboratoriais, Eletrocardiograma, e muito mais.
-                    </p>
-                    <div style="margin-top: 1rem; padding: 1rem; background: #e6fffa; border-radius: 0.5rem; text-align: left;">
-                        <h4 style="color: #2d3748; margin-bottom: 0.5rem;">
-                            <i class="fas fa-info-circle" style="color: #4299e1;"></i>
-                            Funcionalidades Disponíveis:
-                        </h4>
-                        <ul style="color: #4a5568; list-style: none; padding: 0;">
-                            <li><i class="fas fa-check" style="color: #48bb78;"></i> Upload de arquivos (PDF, imagens, vídeos)</li>
-                            <li><i class="fas fa-check" style="color: #48bb78;"></i> Categorização por tipo de exame</li>
-                            <li><i class="fas fa-check" style="color: #48bb78;"></i> Resultados e laudos médicos</li>
-                            <li><i class="fas fa-check" style="color: #48bb78;"></i> Integração automática com prontuários</li>
-                        </ul>
-                    </div>
+                    <h3>Nenhum Exame Encontrado</h3>
+                    <p>Não foram encontrados exames que correspondam aos filtros aplicados.</p>
+                    <button class="btn" onclick="abrirModalNovoExame()" style="margin-top: 1rem; background: #4299e1; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.375rem; cursor: pointer;">
+                        <i class="fas fa-upload"></i>
+                        Fazer Upload do Primeiro Exame
+                    </button>
                 </div>
             </div>
             
@@ -419,68 +1205,380 @@
             <div id="alergias-tab" class="tab-content">
                 <div class="search-actions">
                     <div class="search-container">
-                        <input type="text" class="search-input" placeholder="Buscar por paciente...">
+                        <input type="text" id="search-alergias" class="search-input" placeholder="Buscar por paciente, alergia ou tipo...">
                         <i class="fas fa-search search-icon"></i>
                     </div>
-                    <button class="btn">
-                        <i class="fas fa-info-circle"></i>
-                        Informações sobre Alergias
-                    </button>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="abrirModalNovaAlergia()">
+                            <i class="fas fa-plus"></i>
+                            Nova Alergia
+                        </button>
+                        <select id="filtro-tipo-alergia" class="filter-select">
+                            <option value="">Todos os tipos</option>
+                            <option value="MEDICAMENTO">Medicamentos</option>
+                            <option value="ALIMENTO">Alimentos</option>
+                            <option value="AMBIENTAL">Ambientais</option>
+                            <option value="LATEX">Látex</option>
+                            <option value="CONTRASTE">Contrastes</option>
+                            <option value="OUTRO">Outros</option>
+                        </select>
+                        <select id="filtro-gravidade" class="filter-select">
+                            <option value="">Todas gravidades</option>
+                            <option value="LEVE">Leve</option>
+                            <option value="MODERADA">Moderada</option>
+                            <option value="GRAVE">Grave</option>
+                            <option value="SEVERA">Severa</option>
+                        </select>
+                    </div>
                 </div>
                 
-                <!-- Warning Statistics -->
-                <div class="stats-grid" style="margin: 1rem;">
+                <!-- Statistics -->
+                <div class="stats-grid" style="margin: 1rem 0;">
                     <div class="stat-card red">
                         <div class="stat-header">
                             <i class="fas fa-exclamation-triangle stat-icon" style="color: #f56565;"></i>
                             <div>
-                                <h3 class="stat-number">156</h3>
-                                <p class="stat-label">Pacientes com Alergias</p>
+                                <h3 class="stat-number" id="stat-total-alergias">...</h3>
+                                <p class="stat-label">Total de Alergias</p>
                             </div>
                         </div>
                     </div>
                     <div class="stat-card orange">
                         <div class="stat-header">
-                            <i class="fas fa-ban stat-icon" style="color: #f6ad55;"></i>
+                            <i class="fas fa-users stat-icon" style="color: #f6ad55;"></i>
                             <div>
-                                <h3 class="stat-number">89</h3>
-                                <p class="stat-label">Contraindicações Ativas</p>
+                                <h3 class="stat-number" id="stat-pacientes-alergias">...</h3>
+                                <p class="stat-label">Pacientes com Alergias</p>
                             </div>
                         </div>
                     </div>
-                    <div class="stat-card green">
+                    <div class="stat-card red">
                         <div class="stat-header">
-                            <i class="fas fa-shield-alt stat-icon" style="color: #48bb78;"></i>
+                            <i class="fas fa-skull-crossbones stat-icon" style="color: #e53e3e;"></i>
                             <div>
-                                <h3 class="stat-number">98.2%</h3>
-                                <p class="stat-label">Taxa de Segurança</p>
+                                <h3 class="stat-number" id="stat-alergias-graves">...</h3>
+                                <p class="stat-label">Alergias Graves/Severas</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card blue">
+                        <div class="stat-header">
+                            <i class="fas fa-pills stat-icon" style="color: #4299e1;"></i>
+                            <div>
+                                <h3 class="stat-number" id="stat-alergias-medicamentos">...</h3>
+                                <p class="stat-label">Alergias a Medicamentos</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="info-message">
-                    <i class="fas fa-exclamation-triangle" style="color: #f56565;"></i>
-                    <h3>Alergias e Contraindicações</h3>
-                    <p>Sistema de gerenciamento de alergias e contraindicações médicas para garantir a segurança dos pacientes.</p>
-                    <div style="margin-top: 1rem; padding: 1rem; background: #fef2f2; border-radius: 0.5rem; text-align: left;">
-                        <h4 style="color: #2d3748; margin-bottom: 0.5rem;">
-                            <i class="fas fa-shield-alt" style="color: #f56565;"></i>
-                            Tipos de Alergias Monitoradas:
-                        </h4>
-                        <ul style="color: #4a5568; list-style: none; padding: 0;">
-                            <li><i class="fas fa-pills" style="color: #f56565;"></i> Medicamentos (Penicilina, Anti-inflamatórios, etc.)</li>
-                            <li><i class="fas fa-utensils" style="color: #f6ad55;"></i> Alimentos (Frutos do mar, Nozes, Lactose, etc.)</li>
-                            <li><i class="fas fa-leaf" style="color: #48bb78;"></i> Ambientais (Pólen, Ácaros, Poeira, etc.)</li>
-                            <li><i class="fas fa-hand-paper" style="color: #9f7aea;"></i> Látex e Materiais Cirúrgicos</li>
-                            <li><i class="fas fa-syringe" style="color: #4299e1;"></i> Contrastes e Anestésicos</li>
-                        </ul>
-                    </div>
-                    <p style="font-size: 0.875rem; margin-top: 1rem; color: #4a5568;">
-                        <strong>Importante:</strong> As informações de alergias são automaticamente sincronizadas com os prontuários médicos e aparecem como alertas durante prescrições e procedimentos.
-                    </p>
+
+                <!-- Loading -->
+                <div id="loading-alergias" class="loading-message" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Carregando alergias...</p>
+                </div>
+
+                <!-- Lista de Alergias -->
+                <div id="lista-alergias" class="lista-container">
+                    <!-- Alergias serão carregadas aqui -->
+                </div>
+
+                <!-- Paginação -->
+                <div id="paginacao-alergias" class="pagination" style="display: none;">
+                    <!-- Paginação será gerada aqui -->
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal para Novo Exame -->
+    <div id="modal-exame" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-exame-title">
+                    <i class="fas fa-upload"></i>
+                    Novo Exame Médico
+                </h3>
+                <button class="modal-close" onclick="fecharModalExame()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="form-exame" onsubmit="salvarExame(event)" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <!-- Seleção de Paciente -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="paciente-exame-select">
+                                <i class="fas fa-user"></i>
+                                Paciente *
+                            </label>
+                            <select id="paciente-exame-select" name="paciente_id" required>
+                                <option value="">Selecione um paciente...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Informações do Exame -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipo-exame-select">
+                                <i class="fas fa-x-ray"></i>
+                                Tipo de Exame *
+                            </label>
+                            <select id="tipo-exame-select" name="tipo_exame" required>
+                                <option value="">Selecione o tipo...</option>
+                                <option value="Raio-X">Raio-X</option>
+                                <option value="Tomografia">Tomografia</option>
+                                <option value="Ressonância">Ressonância</option>
+                                <option value="Ultrassom">Ultrassom</option>
+                                <option value="Laboratorial">Laboratorial</option>
+                                <option value="Eletrocardiograma">Eletrocardiograma</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="data-exame">
+                                <i class="fas fa-calendar"></i>
+                                Data do Exame *
+                            </label>
+                            <input type="date" id="data-exame" name="data_exame" required>
+                        </div>
+                    </div>
+
+                    <!-- Upload de Arquivo -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="arquivo-exame">
+                                <i class="fas fa-file-upload"></i>
+                                Arquivo do Exame *
+                            </label>
+                            <div class="upload-area" id="upload-area">
+                                <div class="upload-content">
+                                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                    <p>Clique aqui ou arraste arquivos para fazer upload</p>
+                                    <p class="upload-info">Formatos aceitos: PDF, JPG, PNG, GIF, MP4, DOC (máx. 10MB)</p>
+                                </div>
+                                <input type="file" id="arquivo-exame" name="arquivo" accept=".pdf,.jpg,.jpeg,.png,.gif,.mp4,.avi,.mov,.doc,.docx" required style="display: none;">
+                            </div>
+                            <div id="upload-preview" style="display: none; margin-top: 1rem;">
+                                <!-- Preview será mostrado aqui -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div id="upload-progress" style="display: none; margin: 1rem 0;">
+                        <div style="background: #e2e8f0; border-radius: 0.25rem; overflow: hidden;">
+                            <div id="progress-bar" style="height: 0.5rem; background: #4299e1; width: 0%; transition: width 0.3s;"></div>
+                        </div>
+                        <p id="progress-text" style="text-align: center; margin-top: 0.5rem; font-size: 0.875rem;">Preparando upload...</p>
+                    </div>
+
+                    <!-- Descrição -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="descricao-exame">
+                                <i class="fas fa-comment-medical"></i>
+                                Descrição / Observações
+                            </label>
+                            <textarea id="descricao-exame" name="descricao" rows="3" 
+                                placeholder="Descreva o exame, resultados ou observações importantes..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Resultados -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="resultados-exame">
+                                <i class="fas fa-clipboard-check"></i>
+                                Resultados do Exame
+                            </label>
+                            <textarea id="resultados-exame" name="resultados" rows="4" 
+                                placeholder="Insira os resultados do exame e laudos médicos..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="fecharModalExame()">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary" id="btn-salvar-exame">
+                        <i class="fas fa-upload"></i>
+                        Fazer Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Novo/Editar Prontuário -->
+    <div id="modal-prontuario" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">
+                    <i class="fas fa-notes-medical"></i>
+                    Novo Prontuário Médico
+                </h3>
+                <button class="modal-close" onclick="fecharModalProntuario()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="form-prontuario" onsubmit="salvarProntuario(event)">
+                <div class="modal-body">
+                    <!-- Seleção de Paciente -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="paciente-select">
+                                <i class="fas fa-user"></i>
+                                Paciente *
+                            </label>
+                            <select id="paciente-select" name="paciente_id" required>
+                                <option value="">Selecione um paciente...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Data da Consulta -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="data-consulta">
+                                <i class="fas fa-calendar"></i>
+                                Data da Consulta *
+                            </label>
+                            <input type="datetime-local" id="data-consulta" name="data_consulta" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipo-consulta">
+                                <i class="fas fa-stethoscope"></i>
+                                Tipo de Consulta
+                            </label>
+                            <select id="tipo-consulta" name="tipo_consulta">
+                                <option value="primeira_consulta">Primeira Consulta</option>
+                                <option value="retorno">Retorno</option>
+                                <option value="emergencia">Emergência</option>
+                                <option value="preventiva">Consulta Preventiva</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Queixa Principal -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="queixa-principal">
+                                <i class="fas fa-comment-medical"></i>
+                                Queixa Principal *
+                            </label>
+                            <textarea id="queixa-principal" name="queixa_principal" rows="3" 
+                                placeholder="Descreva a queixa principal do paciente..." required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- História da Doença Atual -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="historia-doenca">
+                                <i class="fas fa-history"></i>
+                                História da Doença Atual
+                            </label>
+                            <textarea id="historia-doenca" name="historia_doenca_atual" rows="4" 
+                                placeholder="Descreva a evolução da doença atual..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Exame Físico -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="exame-fisico">
+                                <i class="fas fa-hand-holding-medical"></i>
+                                Exame Físico
+                            </label>
+                            <textarea id="exame-fisico" name="exame_fisico" rows="4" 
+                                placeholder="Descreva os achados do exame físico..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Sinais Vitais -->
+                    <div class="form-section">
+                        <h4>
+                            <i class="fas fa-heartbeat"></i>
+                            Sinais Vitais
+                        </h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pressao-arterial">Pressão Arterial</label>
+                                <input type="text" id="pressao-arterial" name="pressao_arterial" 
+                                    placeholder="Ex: 120/80 mmHg">
+                            </div>
+                            <div class="form-group">
+                                <label for="frequencia-cardiaca">Frequência Cardíaca</label>
+                                <input type="number" id="frequencia-cardiaca" name="frequencia_cardiaca" 
+                                    placeholder="BPM">
+                            </div>
+                            <div class="form-group">
+                                <label for="temperatura">Temperatura</label>
+                                <input type="number" step="0.1" id="temperatura" name="temperatura" 
+                                    placeholder="°C">
+                            </div>
+                            <div class="form-group">
+                                <label for="saturacao">Saturação O2</label>
+                                <input type="number" id="saturacao" name="saturacao_o2" 
+                                    placeholder="%">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Diagnóstico -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="diagnostico">
+                                <i class="fas fa-diagnoses"></i>
+                                Diagnóstico *
+                            </label>
+                            <textarea id="diagnostico" name="diagnostico" rows="3" 
+                                placeholder="Descreva o diagnóstico médico..." required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Plano Terapêutico -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="plano-terapeutico">
+                                <i class="fas fa-prescription"></i>
+                                Plano Terapêutico
+                            </label>
+                            <textarea id="plano-terapeutico" name="plano_terapeutico" rows="4" 
+                                placeholder="Descreva o plano de tratamento..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Observações -->
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="observacoes">
+                                <i class="fas fa-notes-medical"></i>
+                                Observações Gerais
+                            </label>
+                            <textarea id="observacoes" name="observacoes" rows="3" 
+                                placeholder="Observações adicionais..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="fecharModalProntuario()">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary" id="btn-salvar">
+                        <i class="fas fa-save"></i>
+                        Salvar Prontuário
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -511,6 +1609,15 @@
                 selectedBtn.classList.add('active');
             }
             
+            // Load data specific to tab
+            if (tabName === 'alergias') {
+                carregarAlergias();
+            } else if (tabName === 'prontuarios') {
+                // Já carregado na inicialização, mas pode recarregar se necessário
+            } else if (tabName === 'exames') {
+                // Já carregado na inicialização, mas pode recarregar se necessário
+            }
+            
             console.log('Tab switched successfully to:', tabName);
         }
 
@@ -523,7 +1630,1148 @@
             
             // Load statistics
             loadPageStatistics();
+            
+            // Load initial data
+            carregarProntuarios();
+            carregarMedicosParaFiltro();
+            carregarExames();
+            carregarPacientesParaFiltroExames();
         });
+
+        // ========================================
+        // FUNÇÕES DE PRONTUÁRIOS
+        // ========================================
+
+        let prontuariosData = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        let isLoading = false;
+
+        // Carregar prontuários da API
+        async function carregarProntuarios(page = 1, filters = {}) {
+            if (isLoading) return;
+            
+            isLoading = true;
+            showLoading('prontuarios');
+
+            try {
+                console.log('🔄 Carregando prontuários...');
+                
+                // Construir query parameters
+                const params = new URLSearchParams({
+                    page: page,
+                    limit: 10,
+                    ...filters
+                });
+
+                const response = await fetch(`/api/records?${params}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    prontuariosData = result.data;
+                    currentPage = page;
+                    
+                    if (result.pagination) {
+                        totalPages = Math.ceil(result.pagination.total / result.pagination.limit);
+                    }
+                    
+                    renderProntuarios(prontuariosData);
+                    renderPaginacao();
+                    
+                    console.log('✅ Prontuários carregados:', prontuariosData.length);
+                } else {
+                    throw new Error(result.message || 'Erro ao carregar prontuários');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar prontuários:', error);
+                showError('Erro ao carregar prontuários: ' + error.message);
+                renderProntuarios([]);
+            } finally {
+                hideLoading('prontuarios');
+                isLoading = false;
+            }
+        }
+
+        // Renderizar lista de prontuários
+        function renderProntuarios(prontuarios) {
+            const container = document.getElementById('lista-prontuarios');
+            const noDataElement = document.getElementById('no-prontuarios');
+            
+            if (!prontuarios || prontuarios.length === 0) {
+                container.innerHTML = '';
+                noDataElement.style.display = 'block';
+                return;
+            }
+            
+            noDataElement.style.display = 'none';
+            
+            container.innerHTML = prontuarios.map(prontuario => `
+                <div class="prontuario-card" onclick="verDetalheProntuario('${prontuario.id}')">
+                    <div class="prontuario-header">
+                        <div class="prontuario-info">
+                            <h4>${prontuario.paciente?.nome || 'Paciente não identificado'}</h4>
+                            <p>
+                                <i class="fas fa-user-md"></i>
+                                Dr. ${prontuario.medico?.usuario?.nome || prontuario.medico?.nome || 'Médico não identificado'}
+                                ${prontuario.medico?.especialidade ? `- ${prontuario.medico.especialidade}` : ''}
+                            </p>
+                        </div>
+                        <div class="prontuario-date">
+                            <i class="fas fa-calendar"></i>
+                            ${formatarData(prontuario.data_consulta)}
+                        </div>
+                    </div>
+                    
+                    <div class="prontuario-content">
+                        <div class="prontuario-field">
+                            <label>Queixa Principal</label>
+                            <span>${prontuario.queixa_principal || 'Não informado'}</span>
+                        </div>
+                        <div class="prontuario-field">
+                            <label>Diagnóstico</label>
+                            <span>${prontuario.diagnostico || 'Não informado'}</span>
+                        </div>
+                        <div class="prontuario-field">
+                            <label>Plano Terapêutico</label>
+                            <span>${prontuario.plano_terapeutico || 'Não informado'}</span>
+                        </div>
+                        <div class="prontuario-field">
+                            <label>Status</label>
+                            <span style="color: ${prontuario.status === 'finalizado' ? '#48bb78' : '#f6ad55'};">
+                                <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                                ${prontuario.status || 'Em andamento'}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="prontuario-actions" onclick="event.stopPropagation()">
+                        <button class="prontuario-btn" onclick="editarProntuario('${prontuario.id}')">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </button>
+                        <button class="prontuario-btn primary" onclick="verDetalheProntuario('${prontuario.id}')">
+                            <i class="fas fa-eye"></i>
+                            Ver Detalhes
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Renderizar paginação
+        function renderPaginacao() {
+            const container = document.getElementById('paginacao-prontuarios');
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Botão anterior
+            paginationHTML += `
+                <button class="pagination-btn" onclick="carregarProntuarios(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-left"></i>
+                    Anterior
+                </button>
+            `;
+            
+            // Informações da página
+            paginationHTML += `
+                <span class="pagination-info">
+                    Página ${currentPage} de ${totalPages}
+                </span>
+            `;
+            
+            // Botão próximo
+            paginationHTML += `
+                <button class="pagination-btn" onclick="carregarProntuarios(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>
+                    Próximo
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+            
+            container.innerHTML = paginationHTML;
+        }
+
+        // Carregar médicos para filtro
+        async function carregarMedicosParaFiltro() {
+            try {
+                console.log('🔄 Carregando médicos para filtro...');
+                const response = await fetch('/api/users');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const select = document.getElementById('filter-medico');
+                    
+                    result.data.forEach(medico => {
+                        const option = document.createElement('option');
+                        option.value = medico.id;
+                        option.textContent = `Dr. ${medico.nome}${medico.especialidade ? ` - ${medico.especialidade}` : ''}`;
+                        select.appendChild(option);
+                    });
+                    
+                    console.log('✅ Médicos carregados para filtro');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar médicos:', error);
+            }
+        }
+
+        // Filtrar prontuários
+        function filtrarProntuarios() {
+            const searchText = document.getElementById('search-prontuarios').value;
+            const medicoId = document.getElementById('filter-medico').value;
+            const periodo = document.getElementById('filter-periodo').value;
+            
+            const filters = {};
+            
+            if (medicoId) {
+                filters.medico_id = medicoId;
+            }
+            
+            if (periodo) {
+                const now = new Date();
+                switch (periodo) {
+                    case 'hoje':
+                        filters.data_inicio = now.toISOString().split('T')[0];
+                        filters.data_fim = now.toISOString().split('T')[0];
+                        break;
+                    case 'semana':
+                        const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+                        filters.data_inicio = startOfWeek.toISOString().split('T')[0];
+                        break;
+                    case 'mes':
+                        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                        filters.data_inicio = startOfMonth.toISOString().split('T')[0];
+                        break;
+                    case 'ano':
+                        const startOfYear = new Date(now.getFullYear(), 0, 1);
+                        filters.data_inicio = startOfYear.toISOString().split('T')[0];
+                        break;
+                }
+            }
+            
+            if (searchText) {
+                filters.search = searchText;
+            }
+            
+            carregarProntuarios(1, filters);
+        }
+
+        // Limpar filtros
+        function limparFiltros() {
+            document.getElementById('search-prontuarios').value = '';
+            document.getElementById('filter-medico').value = '';
+            document.getElementById('filter-periodo').value = '';
+            carregarProntuarios(1);
+        }
+
+        // Abrir modal para novo prontuário
+        function abrirModalNovoProntuario() {
+            document.getElementById('modal-title').innerHTML = '<i class="fas fa-notes-medical"></i> Novo Prontuário Médico';
+            document.getElementById('btn-salvar').innerHTML = '<i class="fas fa-save"></i> Salvar Prontuário';
+            document.getElementById('form-prontuario').reset();
+            
+            // Definir data atual
+            const now = new Date();
+            const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+            document.getElementById('data-consulta').value = localDateTime.toISOString().slice(0, 16);
+            
+            carregarPacientesParaModal();
+            document.getElementById('modal-prontuario').style.display = 'block';
+        }
+
+        // Abrir modal para editar prontuário
+        function editarProntuario(id) {
+            document.getElementById('modal-title').innerHTML = '<i class="fas fa-edit"></i> Editar Prontuário';
+            document.getElementById('btn-salvar').innerHTML = '<i class="fas fa-save"></i> Atualizar Prontuário';
+            
+            // Carregar dados do prontuário
+            carregarDadosProntuario(id);
+            carregarPacientesParaModal();
+            document.getElementById('modal-prontuario').style.display = 'block';
+        }
+
+        // Fechar modal
+        function fecharModalProntuario() {
+            document.getElementById('modal-prontuario').style.display = 'none';
+            document.getElementById('form-prontuario').reset();
+        }
+
+        // Carregar pacientes para o modal
+        async function carregarPacientesParaModal() {
+            try {
+                console.log('🔄 Carregando pacientes para modal...');
+                const response = await fetch('/api/patients-db');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const select = document.getElementById('paciente-select');
+                    
+                    // Limpar opções existentes (exceto a primeira)
+                    while (select.children.length > 1) {
+                        select.removeChild(select.lastChild);
+                    }
+                    
+                    result.data.forEach(paciente => {
+                        const option = document.createElement('option');
+                        option.value = paciente.id;
+                        option.textContent = `${paciente.nome} - ${paciente.cpf}`;
+                        select.appendChild(option);
+                    });
+                    
+                    console.log('✅ Pacientes carregados para modal');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar pacientes:', error);
+                showError('Erro ao carregar lista de pacientes');
+            }
+        }
+
+        // Carregar dados do prontuário para edição
+        async function carregarDadosProntuario(id) {
+            try {
+                console.log('🔄 Carregando dados do prontuário para edição...');
+                const response = await fetch(`/api/records/${id}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const prontuario = result.data;
+                    
+                    // Preencher formulário
+                    document.getElementById('paciente-select').value = prontuario.paciente_id;
+                    
+                    if (prontuario.data_consulta) {
+                        const date = new Date(prontuario.data_consulta);
+                        const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+                        document.getElementById('data-consulta').value = localDateTime.toISOString().slice(0, 16);
+                    }
+                    
+                    document.getElementById('tipo-consulta').value = prontuario.tipo_consulta || '';
+                    document.getElementById('queixa-principal').value = prontuario.queixa_principal || '';
+                    document.getElementById('historia-doenca').value = prontuario.historia_doenca_atual || '';
+                    document.getElementById('exame-fisico').value = prontuario.exame_fisico || '';
+                    document.getElementById('diagnostico').value = prontuario.diagnostico || '';
+                    document.getElementById('plano-terapeutico').value = prontuario.plano_terapeutico || '';
+                    document.getElementById('observacoes').value = prontuario.observacoes || '';
+                    
+                    // Sinais vitais
+                    if (prontuario.sinais_vitais && prontuario.sinais_vitais.length > 0) {
+                        const sinais = prontuario.sinais_vitais[0];
+                        document.getElementById('pressao-arterial').value = sinais.pressao_arterial || '';
+                        document.getElementById('frequencia-cardiaca').value = sinais.frequencia_cardiaca || '';
+                        document.getElementById('temperatura').value = sinais.temperatura || '';
+                        document.getElementById('saturacao').value = sinais.saturacao_o2 || '';
+                    }
+                    
+                    // Salvar ID para update
+                    document.getElementById('form-prontuario').dataset.editingId = id;
+                    
+                    console.log('✅ Dados do prontuário carregados');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados do prontuário:', error);
+                showError('Erro ao carregar dados do prontuário');
+            }
+        }
+
+        // Salvar prontuário (criar ou atualizar)
+        async function salvarProntuario(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('form-prontuario');
+            const editingId = form.dataset.editingId;
+            const isEditing = !!editingId;
+            
+            // Desabilitar botão de salvar
+            const btnSalvar = document.getElementById('btn-salvar');
+            const originalText = btnSalvar.innerHTML;
+            btnSalvar.disabled = true;
+            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
+            try {
+                console.log(`🔄 ${isEditing ? 'Atualizando' : 'Criando'} prontuário...`);
+                
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                
+                // Processar sinais vitais
+                const sinaisVitais = {};
+                if (data.pressao_arterial) sinaisVitais.pressao_arterial = data.pressao_arterial;
+                if (data.frequencia_cardiaca) sinaisVitais.frequencia_cardiaca = parseInt(data.frequencia_cardiaca);
+                if (data.temperatura) sinaisVitais.temperatura = parseFloat(data.temperatura);
+                if (data.saturacao_o2) sinaisVitais.saturacao_o2 = parseInt(data.saturacao_o2);
+                
+                // Remover campos de sinais vitais do data principal
+                delete data.pressao_arterial;
+                delete data.frequencia_cardiaca;
+                delete data.temperatura;
+                delete data.saturacao_o2;
+                
+                // Adicionar sinais vitais se houver dados
+                if (Object.keys(sinaisVitais).length > 0) {
+                    data.sinais_vitais = sinaisVitais;
+                }
+                
+                const url = isEditing ? `/api/records/${editingId}` : '/api/records';
+                const method = isEditing ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log(`✅ Prontuário ${isEditing ? 'atualizado' : 'criado'} com sucesso!`);
+                    
+                    // Fechar modal
+                    fecharModalProntuario();
+                    
+                    // Recarregar lista
+                    carregarProntuarios();
+                    
+                    // Mostrar mensagem de sucesso
+                    showSuccess(`Prontuário ${isEditing ? 'atualizado' : 'criado'} com sucesso!`);
+                } else {
+                    throw new Error(result.message || 'Erro ao salvar prontuário');
+                }
+            } catch (error) {
+                console.error(`❌ Erro ao ${isEditing ? 'atualizar' : 'criar'} prontuário:`, error);
+                showError(`Erro ao ${isEditing ? 'atualizar' : 'criar'} prontuário: ` + error.message);
+            } finally {
+                // Reabilitar botão
+                btnSalvar.disabled = false;
+                btnSalvar.innerHTML = originalText;
+                
+                // Limpar flag de edição
+                delete form.dataset.editingId;
+            }
+        }
+
+        // Função para mostrar sucesso
+        function showSuccess(message) {
+            console.log('SUCESSO:', message);
+            alert('Sucesso: ' + message);
+        }
+
+        // Fechar modal clicando fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal-prontuario');
+            if (event.target === modal) {
+                fecharModalProntuario();
+            }
+        }
+
+        // Fechar modal com ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modal = document.getElementById('modal-prontuario');
+                if (modal.style.display === 'block') {
+                    fecharModalProntuario();
+                }
+            }
+        });
+
+        // ========================================
+        // FUNÇÕES DE EXAMES
+        // ========================================
+
+        let examesData = [];
+        let currentPageExames = 1;
+        let totalPagesExames = 1;
+        let isLoadingExames = false;
+
+        // Carregar exames da API
+        async function carregarExames(page = 1, filters = {}) {
+            if (isLoadingExames) return;
+            
+            isLoadingExames = true;
+            showLoading('exames');
+
+            try {
+                console.log('🔄 Carregando exames...');
+                
+                // Construir query parameters
+                const params = new URLSearchParams({
+                    page: page,
+                    limit: 10,
+                    ...filters
+                });
+
+                const response = await fetch(`/api/exams?${params}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    examesData = result.data;
+                    currentPageExames = page;
+                    
+                    if (result.pagination) {
+                        totalPagesExames = Math.ceil(result.pagination.total / result.pagination.limit);
+                    }
+                    
+                    renderExames(examesData);
+                    renderPaginacaoExames();
+                    
+                    console.log('✅ Exames carregados:', examesData.length);
+                } else {
+                    throw new Error(result.message || 'Erro ao carregar exames');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar exames:', error);
+                showError('Erro ao carregar exames: ' + error.message);
+                renderExames([]);
+            } finally {
+                hideLoading('exames');
+                isLoadingExames = false;
+            }
+        }
+
+        // Renderizar lista de exames
+        function renderExames(exames) {
+            const container = document.getElementById('lista-exames');
+            const noDataElement = document.getElementById('no-exames');
+            
+            if (!exames || exames.length === 0) {
+                container.innerHTML = '';
+                noDataElement.style.display = 'block';
+                return;
+            }
+            
+            noDataElement.style.display = 'none';
+            
+            container.innerHTML = exames.map(exame => `
+                <div class="exame-card" onclick="verDetalheExame('${exame.id}')">
+                    <div class="exame-header">
+                        <div class="exame-info">
+                            <h4>${exame.paciente?.nome || 'Paciente não identificado'}</h4>
+                            <p>
+                                <i class="fas fa-calendar"></i>
+                                ${formatarData(exame.data_exame)}
+                                ${exame.arquivo_original ? `- ${exame.arquivo_original}` : ''}
+                            </p>
+                        </div>
+                        <div class="exame-type">
+                            <i class="fas fa-x-ray"></i>
+                            ${exame.tipo_exame || 'Não especificado'}
+                        </div>
+                    </div>
+                    
+                    <div class="exame-content">
+                        <div class="exame-field">
+                            <label>Descrição</label>
+                            <span>${exame.descricao || 'Não informado'}</span>
+                        </div>
+                        <div class="exame-field">
+                            <label>Status do Arquivo</label>
+                            <span style="color: ${exame.arquivo_url ? '#48bb78' : '#f56565'};">
+                                <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                                ${exame.arquivo_url ? 'Arquivo disponível' : 'Sem arquivo'}
+                            </span>
+                        </div>
+                        <div class="exame-field">
+                            <label>Tamanho</label>
+                            <span>${exame.tamanho_arquivo ? formatarTamanhoArquivo(exame.tamanho_arquivo) : 'N/A'}</span>
+                        </div>
+                        <div class="exame-field">
+                            <label>Tipo de Arquivo</label>
+                            <span>${exame.tipo_arquivo || 'N/A'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="exame-actions" onclick="event.stopPropagation()">
+                        ${exame.arquivo_url ? `
+                            <a href="/api/exams/view/${exame.id}" target="_blank" class="exame-btn primary">
+                                <i class="fas fa-eye"></i>
+                                Visualizar
+                            </a>
+                            <a href="/api/exams/download/${exame.id}" class="exame-btn success">
+                                <i class="fas fa-download"></i>
+                                Download
+                            </a>
+                        ` : ''}
+                        <button class="exame-btn" onclick="editarExame('${exame.id}')">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Renderizar paginação de exames
+        function renderPaginacaoExames() {
+            const container = document.getElementById('paginacao-exames');
+            
+            if (totalPagesExames <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Botão anterior
+            paginationHTML += `
+                <button class="pagination-btn" onclick="carregarExames(${currentPageExames - 1})" ${currentPageExames <= 1 ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-left"></i>
+                    Anterior
+                </button>
+            `;
+            
+            // Informações da página
+            paginationHTML += `
+                <span class="pagination-info">
+                    Página ${currentPageExames} de ${totalPagesExames}
+                </span>
+            `;
+            
+            // Botão próximo
+            paginationHTML += `
+                <button class="pagination-btn" onclick="carregarExames(${currentPageExames + 1})" ${currentPageExames >= totalPagesExames ? 'disabled' : ''}>
+                    Próximo
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+            
+            container.innerHTML = paginationHTML;
+        }
+
+        // Carregar pacientes para filtro de exames
+        async function carregarPacientesParaFiltroExames() {
+            try {
+                console.log('🔄 Carregando pacientes para filtro de exames...');
+                const response = await fetch('/api/patients-db');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const select = document.getElementById('filter-paciente-exame');
+                    
+                    result.data.forEach(paciente => {
+                        const option = document.createElement('option');
+                        option.value = paciente.id;
+                        option.textContent = `${paciente.nome} - ${paciente.cpf}`;
+                        select.appendChild(option);
+                    });
+                    
+                    console.log('✅ Pacientes carregados para filtro de exames');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar pacientes:', error);
+            }
+        }
+
+        // Filtrar exames
+        function filtrarExames() {
+            const searchText = document.getElementById('search-exames').value;
+            const pacienteId = document.getElementById('filter-paciente-exame').value;
+            const tipoExame = document.getElementById('filter-tipo-exame').value;
+            const periodo = document.getElementById('filter-periodo-exame').value;
+            
+            const filters = {};
+            
+            if (pacienteId) {
+                filters.paciente_id = pacienteId;
+            }
+            
+            if (tipoExame) {
+                filters.tipo_exame = tipoExame;
+            }
+            
+            if (periodo) {
+                const now = new Date();
+                switch (periodo) {
+                    case 'hoje':
+                        filters.data_inicio = now.toISOString().split('T')[0];
+                        filters.data_fim = now.toISOString().split('T')[0];
+                        break;
+                    case 'semana':
+                        const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+                        filters.data_inicio = startOfWeek.toISOString().split('T')[0];
+                        break;
+                    case 'mes':
+                        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                        filters.data_inicio = startOfMonth.toISOString().split('T')[0];
+                        break;
+                    case 'ano':
+                        const startOfYear = new Date(now.getFullYear(), 0, 1);
+                        filters.data_inicio = startOfYear.toISOString().split('T')[0];
+                        break;
+                }
+            }
+            
+            if (searchText) {
+                filters.search = searchText;
+            }
+            
+            carregarExames(1, filters);
+        }
+
+        // Limpar filtros de exames
+        function limparFiltrosExames() {
+            document.getElementById('search-exames').value = '';
+            document.getElementById('filter-paciente-exame').value = '';
+            document.getElementById('filter-tipo-exame').value = '';
+            document.getElementById('filter-periodo-exame').value = '';
+            carregarExames(1);
+        }
+
+        // Abrir modal para novo exame
+        function abrirModalNovoExame() {
+            document.getElementById('modal-exame-title').innerHTML = '<i class="fas fa-upload"></i> Novo Exame Médico';
+            document.getElementById('btn-salvar-exame').innerHTML = '<i class="fas fa-upload"></i> Fazer Upload';
+            document.getElementById('form-exame').reset();
+            
+            // Definir data atual
+            const now = new Date();
+            document.getElementById('data-exame').value = now.toISOString().split('T')[0];
+            
+            carregarPacientesParaModalExame();
+            document.getElementById('modal-exame').style.display = 'block';
+        }
+
+        // Fechar modal de exame
+        function fecharModalExame() {
+            document.getElementById('modal-exame').style.display = 'none';
+            document.getElementById('form-exame').reset();
+            resetUploadArea();
+        }
+
+        // Carregar pacientes para modal de exame
+        async function carregarPacientesParaModalExame() {
+            try {
+                console.log('🔄 Carregando pacientes para modal de exame...');
+                const response = await fetch('/api/patients-db');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const select = document.getElementById('paciente-exame-select');
+                    
+                    // Limpar opções existentes (exceto a primeira)
+                    while (select.children.length > 1) {
+                        select.removeChild(select.lastChild);
+                    }
+                    
+                    result.data.forEach(paciente => {
+                        const option = document.createElement('option');
+                        option.value = paciente.id;
+                        option.textContent = `${paciente.nome} - ${paciente.cpf}`;
+                        select.appendChild(option);
+                    });
+                    
+                    console.log('✅ Pacientes carregados para modal de exame');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar pacientes:', error);
+                showError('Erro ao carregar lista de pacientes');
+            }
+        }
+
+        // Funções auxiliares
+        function formatarTamanhoArquivo(bytes) {
+            if (!bytes) return 'N/A';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function verDetalheExame(id) {
+            alert(`Visualizando detalhes do exame ${id} - Funcionalidade será implementada em breve!`);
+            // TODO: Implementar visualização detalhada
+        }
+
+        function editarExame(id) {
+            alert(`Editando exame ${id} - Funcionalidade será implementada em breve!`);
+            // TODO: Implementar edição
+        }
+
+        // Carregar pacientes no select
+        async function carregarPacientesSelect() {
+            try {
+                console.log('🔄 Carregando pacientes para select...');
+                
+                const response = await fetch('/api/patients-db?limit=100');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const select = document.getElementById('paciente-id-exame');
+                    select.innerHTML = '<option value="">Selecionar paciente...</option>';
+                    
+                    result.data.forEach(paciente => {
+                        const option = document.createElement('option');
+                        option.value = paciente.id;
+                        option.textContent = `${paciente.nome} - CPF: ${paciente.cpf || 'N/A'}`;
+                        select.appendChild(option);
+                    });
+                    
+                    console.log(`✅ ${result.data.length} pacientes carregados no select`);
+                } else {
+                    console.error('❌ Erro na resposta dos pacientes:', result);
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar pacientes:', error);
+                showError('Erro ao carregar lista de pacientes');
+            }
+        }
+
+        // ========================================
+        // FUNÇÕES UTILITÁRIAS
+        // ========================================
+
+        // Formatar tamanho de arquivo
+        function formatarTamanhoArquivo(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // ========================================
+        // SISTEMA DE UPLOAD
+        // ========================================
+
+        // Inicializar drag & drop
+        function initializeUpload() {
+            const uploadArea = document.getElementById('upload-area');
+            const fileInput = document.getElementById('arquivo-exame');
+            
+            // Click no upload area
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // Drag & drop events
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileSelect(files[0]);
+                }
+            });
+            
+            // File input change
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+        }
+
+        // Tratar seleção de arquivo
+        function handleFileSelect(file) {
+            console.log('📁 Arquivo selecionado:', file.name);
+            
+            // Validar tamanho (10MB)
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            if (file.size > maxSize) {
+                showError('Arquivo muito grande. Máximo permitido: 10MB');
+                return;
+            }
+            
+            // Validar tipo
+            const allowedTypes = [
+                'application/pdf',
+                'image/jpeg', 'image/jpg', 'image/png', 'image/gif',
+                'video/mp4', 'video/avi', 'video/mov',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ];
+            
+            if (!allowedTypes.includes(file.type)) {
+                showError('Tipo de arquivo não permitido');
+                return;
+            }
+            
+            // Mostrar preview
+            showFilePreview(file);
+        }
+
+        // Mostrar preview do arquivo
+        function showFilePreview(file) {
+            const previewContainer = document.getElementById('upload-preview');
+            const uploadArea = document.getElementById('upload-area');
+            
+            uploadArea.style.display = 'none';
+            previewContainer.style.display = 'block';
+            
+            let previewHTML = '';
+            
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewHTML = `
+                        <div class="upload-preview">
+                            <img src="${e.target.result}" alt="Preview">
+                            <div class="upload-preview-info">
+                                <div class="upload-preview-name">${file.name}</div>
+                                <div class="upload-preview-size">${formatarTamanhoArquivo(file.size)}</div>
+                            </div>
+                            <button type="button" class="upload-preview-remove" onclick="resetUploadArea()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    previewContainer.innerHTML = previewHTML;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                let icon = 'fas fa-file';
+                if (file.type === 'application/pdf') icon = 'fas fa-file-pdf';
+                else if (file.type.startsWith('video/')) icon = 'fas fa-file-video';
+                else if (file.type.includes('word')) icon = 'fas fa-file-word';
+                
+                previewHTML = `
+                    <div class="upload-preview">
+                        <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: #e2e8f0; border-radius: 0.375rem;">
+                            <i class="${icon}" style="font-size: 2rem; color: #4a5568;"></i>
+                        </div>
+                        <div class="upload-preview-info">
+                            <div class="upload-preview-name">${file.name}</div>
+                            <div class="upload-preview-size">${formatarTamanhoArquivo(file.size)}</div>
+                        </div>
+                        <button type="button" class="upload-preview-remove" onclick="resetUploadArea()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                previewContainer.innerHTML = previewHTML;
+            }
+        }
+
+        // Reset upload area
+        function resetUploadArea() {
+            const previewContainer = document.getElementById('upload-preview');
+            const uploadArea = document.getElementById('upload-area');
+            const fileInput = document.getElementById('arquivo-exame');
+            
+            previewContainer.style.display = 'none';
+            uploadArea.style.display = 'block';
+            fileInput.value = '';
+            previewContainer.innerHTML = '';
+        }
+
+        // Salvar exame
+        async function salvarExame(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('form-exame');
+            const btnSalvar = document.getElementById('btn-salvar-exame');
+            const originalText = btnSalvar.innerHTML;
+            
+            // Desabilitar botão
+            btnSalvar.disabled = true;
+            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fazendo Upload...';
+
+            try {
+                console.log('🔄 Salvando exame...');
+                
+                const formData = new FormData(form);
+                
+                // Mostrar barra de progresso
+                showUploadProgress();
+                
+                const response = await fetch('/api/exams/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log('✅ Exame salvo com sucesso!');
+                    
+                    // Fechar modal
+                    fecharModalExame();
+                    
+                    // Recarregar lista
+                    carregarExames();
+                    
+                    // Mostrar mensagem de sucesso
+                    showSuccess('Exame salvo com sucesso!');
+                } else {
+                    throw new Error(result.message || 'Erro ao salvar exame');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao salvar exame:', error);
+                showError('Erro ao salvar exame: ' + error.message);
+            } finally {
+                // Reabilitar botão
+                btnSalvar.disabled = false;
+                btnSalvar.innerHTML = originalText;
+                hideUploadProgress();
+            }
+        }
+
+        // Mostrar barra de progresso
+        function showUploadProgress() {
+            const progressContainer = document.getElementById('upload-progress');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            
+            progressContainer.style.display = 'block';
+            progressText.textContent = 'Fazendo upload...';
+            
+            // Simular progresso
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress > 90) progress = 90;
+                
+                progressBar.style.width = progress + '%';
+                progressText.textContent = `Enviando arquivo... ${Math.round(progress)}%`;
+                
+                if (progress >= 90) {
+                    clearInterval(interval);
+                    progressText.textContent = 'Processando arquivo...';
+                }
+            }, 200);
+        }
+
+        // Esconder barra de progresso
+        function hideUploadProgress() {
+            const progressContainer = document.getElementById('upload-progress');
+            const progressBar = document.getElementById('progress-bar');
+            
+            setTimeout(() => {
+                progressContainer.style.display = 'none';
+                progressBar.style.width = '0%';
+            }, 1000);
+        }
+
+        // Inicializar upload quando modal abrir
+        document.addEventListener('DOMContentLoaded', function() {
+            // Outras inicializações existentes...
+            
+            // Inicializar upload quando modal exame for aberto
+            const modalExame = document.getElementById('modal-exame');
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                        if (modalExame.style.display === 'block') {
+                            setTimeout(initializeUpload, 100);
+                        }
+                    }
+                });
+            });
+            
+            observer.observe(modalExame, { attributes: true });
+        });
+
+        // Ver detalhes do prontuário
+        function verDetalheProntuario(id) {
+            alert(`Visualizando detalhes do prontuário ${id} - Funcionalidade será implementada em breve!`);
+            // TODO: Implementar visualização detalhada
+        }
+
+        // Função para mostrar loading
+        function showLoading(type) {
+            const loadingElement = document.getElementById(`loading-${type}`);
+            if (loadingElement) {
+                loadingElement.style.display = 'block';
+            }
+        }
+
+        // Função para esconder loading
+        function hideLoading(type) {
+            const loadingElement = document.getElementById(`loading-${type}`);
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+        }
+
+        // Função para mostrar erro
+        function showError(message) {
+            // Criar um toast ou modal de erro
+            console.error('ERRO:', message);
+            alert('Erro: ' + message);
+        }
+
+        // Função para formatar data
+        function formatarData(dateString) {
+            if (!dateString) return 'Data não informada';
+            
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch (error) {
+                return 'Data inválida';
+            }
+        }
 
         // Function to load statistics for this page
         async function loadPageStatistics() {
@@ -560,6 +2808,492 @@
                 document.getElementById('stat-contraindicacoes-page').textContent = '89';
             }
         }
+
+        // ========================================
+        // SISTEMA DE ALERGIAS
+        // ========================================
+
+        // Carregar alergias
+        async function carregarAlergias(pagina = 1, busca = '', tipo = '', gravidade = '') {
+            try {
+                console.log('🔄 Carregando alergias...');
+                
+                // Mostrar loading
+                document.getElementById('loading-alergias').style.display = 'block';
+                document.getElementById('lista-alergias').style.display = 'none';
+                
+                // Carregar estatísticas primeiro
+                await carregarEstatisticasAlergias();
+                
+                const params = new URLSearchParams({
+                    page: pagina,
+                    limit: 20
+                });
+                
+                if (busca) params.append('search', busca);
+                if (tipo) params.append('tipo', tipo);
+                if (gravidade) params.append('gravidade', gravidade);
+                
+                const response = await fetch(`/api/allergies?${params}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    renderAlergias(result.data || []);
+                    if (result.pagination) {
+                        renderPaginacaoAlergias(result.pagination);
+                    }
+                    console.log(`✅ ${result.data?.length || 0} alergias carregadas`);
+                } else {
+                    throw new Error(result.message || 'Erro ao carregar alergias');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar alergias:', error);
+                showError('Erro ao carregar alergias: ' + error.message);
+                document.getElementById('lista-alergias').innerHTML = 
+                    '<div class="empty-state">Erro ao carregar alergias</div>';
+            } finally {
+                document.getElementById('loading-alergias').style.display = 'none';
+                document.getElementById('lista-alergias').style.display = 'block';
+            }
+        }
+
+        // Carregar estatísticas de alergias
+        async function carregarEstatisticasAlergias() {
+            try {
+                const response = await fetch('/api/allergies/statistics');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const stats = result.data;
+                    
+                    // Atualizar estatísticas na interface
+                    document.getElementById('stat-total-alergias').textContent = stats.total.toLocaleString('pt-BR');
+                    document.getElementById('stat-pacientes-alergias').textContent = stats.pacientesAfetados.toLocaleString('pt-BR');
+                    
+                    // Calcular alergias graves/severas
+                    const graves = (stats.porGravidade?.GRAVE || 0) + (stats.porGravidade?.SEVERA || 0);
+                    document.getElementById('stat-alergias-graves').textContent = graves.toLocaleString('pt-BR');
+                    
+                    // Alergias a medicamentos
+                    const medicamentos = stats.porTipo?.MEDICAMENTO || 0;
+                    document.getElementById('stat-alergias-medicamentos').textContent = medicamentos.toLocaleString('pt-BR');
+                    
+                    console.log('✅ Estatísticas de alergias carregadas');
+                } else {
+                    throw new Error('Dados de estatísticas inválidos');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar estatísticas de alergias:', error);
+                
+                // Fallback para valores padrão
+                document.getElementById('stat-total-alergias').textContent = '0';
+                document.getElementById('stat-pacientes-alergias').textContent = '0';
+                document.getElementById('stat-alergias-graves').textContent = '0';
+                document.getElementById('stat-alergias-medicamentos').textContent = '0';
+            }
+        }
+
+        // Renderizar alergias
+        function renderAlergias(alergias) {
+            const container = document.getElementById('lista-alergias');
+            
+            if (!alergias || alergias.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-allergies"></i>
+                        <h3>Nenhuma alergia encontrada</h3>
+                        <p>Adicione uma nova alergia para começar</p>
+                        <button class="btn btn-primary" onclick="abrirModalNovaAlergia()">
+                            <i class="fas fa-plus"></i>
+                            Nova Alergia
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const alergiasHTML = alergias.map(alergia => {
+                const gravidade = alergia.gravidade?.toLowerCase() || 'leve';
+                const gravidadeColor = {
+                    'leve': '#48bb78',
+                    'moderada': '#f6ad55', 
+                    'grave': '#f56565',
+                    'severa': '#e53e3e'
+                }[gravidade] || '#48bb78';
+
+                const tipoIcon = {
+                    'MEDICAMENTO': 'fas fa-pills',
+                    'ALIMENTO': 'fas fa-utensils',
+                    'AMBIENTAL': 'fas fa-leaf',
+                    'LATEX': 'fas fa-hand-paper',
+                    'CONTRASTE': 'fas fa-syringe',
+                    'OUTRO': 'fas fa-question'
+                }[alergia.tipo] || 'fas fa-allergies';
+
+                return `
+                    <div class="alergia-card" onclick="abrirDetalhesAlergia(${alergia.id})">
+                        <div class="alergia-header">
+                            <div class="alergia-info">
+                                <div class="alergia-nome">
+                                    <i class="${tipoIcon}" style="color: ${gravidadeColor};"></i>
+                                    ${alergia.nome}
+                                </div>
+                                <div class="alergia-paciente">
+                                    <i class="fas fa-user"></i>
+                                    ${alergia.paciente?.nome || 'Paciente não identificado'}
+                                </div>
+                            </div>
+                            <div class="alergia-badges">
+                                <span class="badge badge-tipo">${alergia.tipo}</span>
+                                <span class="badge badge-gravidade" style="background: ${gravidadeColor};">
+                                    ${alergia.gravidade}
+                                </span>
+                                ${alergia.status === 'ATIVO' ? 
+                                    '<span class="badge badge-ativo">ATIVO</span>' : 
+                                    '<span class="badge badge-inativo">INATIVO</span>'
+                                }
+                            </div>
+                        </div>
+                        
+                        ${alergia.sintomas ? `
+                            <div class="alergia-sintomas">
+                                <strong>Sintomas:</strong> ${alergia.sintomas}
+                            </div>
+                        ` : ''}
+                        
+                        <div class="alergia-footer">
+                            <span class="alergia-data">
+                                <i class="fas fa-calendar-alt"></i>
+                                ${formatarData(alergia.dataIdentificacao || alergia.createdAt)}
+                            </span>
+                            <div class="alergia-actions">
+                                <button class="btn-action" onclick="event.stopPropagation(); editarAlergia(${alergia.id})" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-action btn-danger" onclick="event.stopPropagation(); excluirAlergia(${alergia.id})" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = alergiasHTML;
+        }
+
+        // Abrir modal nova alergia
+        function abrirModalNovaAlergia() {
+            console.log('🆕 Abrindo modal de nova alergia...');
+            
+            // Resetar formulário
+            document.getElementById('form-alergia').reset();
+            document.getElementById('modal-alergia-title').innerHTML = '<i class="fas fa-plus"></i> Nova Alergia';
+            document.getElementById('btn-salvar-alergia').innerHTML = '<i class="fas fa-save"></i> Salvar Alergia';
+            
+            // Definir data atual
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('data-identificacao').value = hoje;
+            
+            // Carregar pacientes
+            carregarPacientesSelectAlergia();
+            
+            // Mostrar modal
+            document.getElementById('modal-alergia').style.display = 'block';
+        }
+
+        // Fechar modal alergia
+        function fecharModalAlergia() {
+            document.getElementById('modal-alergia').style.display = 'none';
+            document.getElementById('form-alergia').reset();
+        }
+
+        // Carregar pacientes para select de alergia
+        async function carregarPacientesSelectAlergia() {
+            try {
+                const response = await fetch('/api/patients-db?limit=100');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const select = document.getElementById('paciente-id-alergia');
+                    select.innerHTML = '<option value="">Selecionar paciente...</option>';
+                    
+                    result.data.forEach(paciente => {
+                        const option = document.createElement('option');
+                        option.value = paciente.id;
+                        option.textContent = `${paciente.nome} - CPF: ${paciente.cpf || 'N/A'}`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar pacientes:', error);
+                showError('Erro ao carregar lista de pacientes');
+            }
+        }
+
+        // Salvar alergia
+        async function salvarAlergia(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('form-alergia');
+            const btnSalvar = document.getElementById('btn-salvar-alergia');
+            const originalText = btnSalvar.innerHTML;
+            
+            // Desabilitar botão
+            btnSalvar.disabled = true;
+            btnSalvar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
+            try {
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData);
+                
+                console.log('💾 Salvando alergia:', data);
+                
+                const response = await fetch('/api/allergies', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log('✅ Alergia salva com sucesso!');
+                    
+                    // Fechar modal
+                    fecharModalAlergia();
+                    
+                    // Recarregar lista
+                    carregarAlergias();
+                    
+                    // Mostrar mensagem de sucesso
+                    showSuccess('Alergia registrada com sucesso!');
+                } else {
+                    throw new Error(result.message || 'Erro ao salvar alergia');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao salvar alergia:', error);
+                showError('Erro ao salvar alergia: ' + error.message);
+            } finally {
+                // Reabilitar botão
+                btnSalvar.disabled = false;
+                btnSalvar.innerHTML = originalText;
+            }
+        }
+
+        // Editar alergia
+        function editarAlergia(id) {
+            alert(`Editando alergia ${id} - Funcionalidade será implementada em breve!`);
+            // TODO: Implementar edição
+        }
+
+        // Excluir alergia
+        async function excluirAlergia(id) {
+            if (!confirm('Tem certeza que deseja excluir esta alergia? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+
+            try {
+                console.log(`🗑️ Excluindo alergia ${id}...`);
+                
+                const response = await fetch(`/api/allergies/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    console.log('✅ Alergia excluída com sucesso!');
+                    
+                    // Recarregar lista
+                    carregarAlergias();
+                    
+                    // Mostrar mensagem de sucesso
+                    showSuccess('Alergia excluída com sucesso!');
+                } else {
+                    throw new Error(result.message || 'Erro ao excluir alergia');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao excluir alergia:', error);
+                showError('Erro ao excluir alergia: ' + error.message);
+            }
+        }
+
+        // Event listeners para alergias
+        document.addEventListener('DOMContentLoaded', function() {
+            // Busca de alergias
+            const searchAlergias = document.getElementById('search-alergias');
+            const filtroTipo = document.getElementById('filtro-tipo-alergia');
+            const filtroGravidade = document.getElementById('filtro-gravidade');
+            
+            if (searchAlergias) {
+                searchAlergias.addEventListener('input', debounce(() => {
+                    carregarAlergias(1, searchAlergias.value, filtroTipo.value, filtroGravidade.value);
+                }, 500));
+            }
+            
+            if (filtroTipo) {
+                filtroTipo.addEventListener('change', () => {
+                    carregarAlergias(1, searchAlergias.value, filtroTipo.value, filtroGravidade.value);
+                });
+            }
+            
+            if (filtroGravidade) {
+                filtroGravidade.addEventListener('change', () => {
+                    carregarAlergias(1, searchAlergias.value, filtroTipo.value, filtroGravidade.value);
+                });
+            }
+        });
     </script>
+
+    <!-- Modal para Nova Alergia -->
+    <div id="modal-alergia" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 id="modal-alergia-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Nova Alergia
+                </h3>
+                <button class="modal-close" onclick="fecharModalAlergia()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="form-alergia" onsubmit="salvarAlergia(event)">
+                <div class="modal-body">
+                    <!-- Seleção de Paciente -->
+                    <div class="form-group">
+                        <label for="paciente-id-alergia">
+                            <i class="fas fa-user"></i>
+                            Paciente *
+                        </label>
+                        <select id="paciente-id-alergia" name="pacienteId" required class="form-control">
+                            <option value="">Selecionar paciente...</option>
+                        </select>
+                    </div>
+
+                    <!-- Tipo e Nome da Alergia -->
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="tipo-alergia">
+                                <i class="fas fa-tag"></i>
+                                Tipo de Alergia *
+                            </label>
+                            <select id="tipo-alergia" name="tipo" required class="form-control">
+                                <option value="">Selecionar tipo...</option>
+                                <option value="MEDICAMENTO">Medicamento</option>
+                                <option value="ALIMENTO">Alimento</option>
+                                <option value="AMBIENTAL">Ambiental</option>
+                                <option value="LATEX">Látex</option>
+                                <option value="CONTRASTE">Contraste</option>
+                                <option value="OUTRO">Outro</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 2;">
+                            <label for="nome-alergia">
+                                <i class="fas fa-allergies"></i>
+                                Nome/Substância *
+                            </label>
+                            <input type="text" id="nome-alergia" name="nome" required class="form-control" 
+                                   placeholder="Ex: Penicilina, Camarão, Pólen...">
+                        </div>
+                    </div>
+
+                    <!-- Gravidade e Status -->
+                    <div class="form-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="gravidade-alergia">
+                                <i class="fas fa-thermometer-half"></i>
+                                Gravidade *
+                            </label>
+                            <select id="gravidade-alergia" name="gravidade" required class="form-control">
+                                <option value="">Selecionar gravidade...</option>
+                                <option value="LEVE">Leve</option>
+                                <option value="MODERADA">Moderada</option>
+                                <option value="GRAVE">Grave</option>
+                                <option value="SEVERA">Severa</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="status-alergia">
+                                <i class="fas fa-toggle-on"></i>
+                                Status
+                            </label>
+                            <select id="status-alergia" name="status" class="form-control">
+                                <option value="ATIVO">Ativo</option>
+                                <option value="INATIVO">Inativo</option>
+                                <option value="SUSPEITO">Suspeito</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Sintomas -->
+                    <div class="form-group">
+                        <label for="sintomas-alergia">
+                            <i class="fas fa-heartbeat"></i>
+                            Sintomas/Reações
+                        </label>
+                        <textarea id="sintomas-alergia" name="sintomas" class="form-control" rows="3"
+                                  placeholder="Descreva os sintomas: coceira, inchaço, dificuldade respiratória..."></textarea>
+                    </div>
+
+                    <!-- Observações -->
+                    <div class="form-group">
+                        <label for="observacoes-alergia">
+                            <i class="fas fa-notes-medical"></i>
+                            Observações Médicas
+                        </label>
+                        <textarea id="observacoes-alergia" name="observacoes" class="form-control" rows="3"
+                                  placeholder="Informações adicionais, tratamentos, precauções..."></textarea>
+                    </div>
+
+                    <!-- Data de Identificação -->
+                    <div class="form-group">
+                        <label for="data-identificacao">
+                            <i class="fas fa-calendar-alt"></i>
+                            Data de Identificação
+                        </label>
+                        <input type="date" id="data-identificacao" name="dataIdentificacao" class="form-control">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalAlergia()">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="btn-salvar-alergia">
+                        <i class="fas fa-save"></i>
+                        Salvar Alergia
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

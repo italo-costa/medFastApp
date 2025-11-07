@@ -4,7 +4,7 @@ const medicosFixtures = require('../fixtures/medicosFixtures');
 describe('Validações de Médicos - Testes Unitários', () => {
   describe('Validação de CPF', () => {
     test('deve aceitar CPF válido', () => {
-      const cpfValido = '123.456.789-00';
+      const cpfValido = '111.444.777-35'; // CPF válido
       expect(TestHelpers.isValidCPF(cpfValido)).toBe(true);
     });
 
@@ -99,8 +99,9 @@ describe('Validações de Médicos - Testes Unitários', () => {
 
     test('deve rejeitar telefone inválido', () => {
       const telefonesInvalidos = [
-        '(11) 9999-9999',   // 8 dígitos (celular deve ter 9)
-        '(11) 3333-3333',   // fixo sem 9º dígito
+        '(11) 1999-9999',   // fixo com 1º dígito inválido
+        '(11) 8333-3333',   // celular sem 9 dígitos  
+        '(11) 9999-9999',   // fixo com 9 no 3º dígito (deveria ser celular)
         '11999999',         // muito curto
         '119999999999',     // muito longo
         'abcd-efgh',        // não numérico

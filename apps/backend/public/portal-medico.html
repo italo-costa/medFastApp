@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Médico - MediApp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --light-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--light-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .header-title .logo {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-role {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            padding: 0.25rem;
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            background: transparent;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: fit-content;
+        }
+
+        .nav-tab:hover {
+            background: var(--light-bg);
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.blue { background: var(--primary-color); }
+        .stat-icon.green { background: var(--success-color); }
+        .stat-icon.orange { background: var(--warning-color); }
+        .stat-icon.red { background: var(--danger-color); }
+
+        .stat-info h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-info p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Content Cards */
+        .content-card {
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+        }
+
+        /* Forms */
+        .search-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            background: var(--card-bg);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .loading i {
+            margin-right: 0.5rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .nav-tab {
+                justify-content: center;
+            }
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .alert-danger {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .quick-action {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .quick-action:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .quick-action i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-action h4 {
+            margin-bottom: 0.25rem;
+        }
+
+        .quick-action p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="header-title">
+                <div class="logo">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h1>Portal do Médico</h1>
+            </div>
+            <div class="header-user">
+                <div class="user-info">
+                    <div class="user-name" id="medico-nome">Dr. Carregando...</div>
+                    <div class="user-role">Médico</div>
+                </div>
+                <div class="user-avatar" id="medico-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
+                <i class="fas fa-chart-line"></i>
+                Dashboard
+            </button>
+            <button class="nav-tab" onclick="switchTab('pacientes')" data-tab="pacientes">
+                <i class="fas fa-users"></i>
+                Meus Pacientes
+            </button>
+            <button class="nav-tab" onclick="switchTab('consultas')" data-tab="consultas">
+                <i class="fas fa-calendar-check"></i>
+                Consultas
+            </button>
+            <button class="nav-tab" onclick="switchTab('prescricoes')" data-tab="prescricoes">
+                <i class="fas fa-prescription-bottle-alt"></i>
+                Prescrições
+            </button>
+            <button class="nav-tab" onclick="switchTab('agenda')" data-tab="agenda">
+                <i class="fas fa-calendar-alt"></i>
+                Agenda
+            </button>
+            <button class="nav-tab" onclick="switchTab('estatisticas')" data-tab="estatisticas">
+                <i class="fas fa-chart-bar"></i>
+                Estatísticas
+            </button>
+        </div>
+
+        <!-- Tab Content: Dashboard -->
+        <div id="dashboard-tab" class="tab-content active">
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="#" class="quick-action" onclick="switchTab('consultas')">
+                    <i class="fas fa-plus"></i>
+                    <h4>Nova Consulta</h4>
+                    <p>Registrar atendimento</p>
+                </a>
+                <a href="#" class="quick-action" onclick="switchTab('prescricoes')">
+                    <i class="fas fa-prescription"></i>
+                    <h4>Nova Receita</h4>
+                    <p>Prescrever medicamentos</p>
+                </a>
+                <a href="#" class="quick-action" onclick="switchTab('pacientes')">
+                    <i class="fas fa-user-plus"></i>
+                    <h4>Ver Pacientes</h4>
+                    <p>Lista de pacientes</p>
+                </a>
+                <a href="#" class="quick-action" onclick="switchTab('agenda')">
+                    <i class="fas fa-calendar-plus"></i>
+                    <h4>Agendar</h4>
+                    <p>Nova consulta</p>
+                </a>
+            </div>
+
+            <!-- Dashboard Statistics -->
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-pacientes">...</h3>
+                            <p>Total de Pacientes</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon green">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="consultas-mes">...</h3>
+                            <p>Consultas este Mês</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-prescription-bottle-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="prescricoes-mes">...</h3>
+                            <p>Receitas este Mês</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon red">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="agendamentos-pendentes">...</h3>
+                            <p>Agendamentos Pendentes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-clock"></i>
+                        Atividades Recentes
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div id="atividades-recentes" class="loading">
+                        <i class="fas fa-spinner"></i>
+                        Carregando atividades...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Meus Pacientes -->
+        <div id="pacientes-tab" class="tab-content">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-users"></i>
+                        Meus Pacientes
+                    </h2>
+                    <button class="btn" onclick="adicionarPaciente()">
+                        <i class="fas fa-plus"></i>
+                        Novo Paciente
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="search-container">
+                        <input type="text" id="search-pacientes" class="search-input" placeholder="Buscar pacientes...">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    
+                    <div id="lista-pacientes" class="loading">
+                        <i class="fas fa-spinner"></i>
+                        Carregando pacientes...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Consultas -->
+        <div id="consultas-tab" class="tab-content">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-calendar-check"></i>
+                        Minhas Consultas
+                    </h2>
+                    <button class="btn" onclick="novaConsulta()">
+                        <i class="fas fa-plus"></i>
+                        Nova Consulta
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="lista-consultas" class="loading">
+                        <i class="fas fa-spinner"></i>
+                        Carregando consultas...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Prescrições -->
+        <div id="prescricoes-tab" class="tab-content">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-prescription-bottle-alt"></i>
+                        Minhas Prescrições
+                    </h2>
+                    <button class="btn" onclick="novaPrescricao()">
+                        <i class="fas fa-plus"></i>
+                        Nova Receita
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="lista-prescricoes" class="loading">
+                        <i class="fas fa-spinner"></i>
+                        Carregando prescrições...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Agenda -->
+        <div id="agenda-tab" class="tab-content">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-calendar-alt"></i>
+                        Minha Agenda
+                    </h2>
+                    <button class="btn" onclick="novoAgendamento()">
+                        <i class="fas fa-plus"></i>
+                        Novo Agendamento
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="agenda-calendario" class="loading">
+                        <i class="fas fa-spinner"></i>
+                        Carregando agenda...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Estatísticas -->
+        <div id="estatisticas-tab" class="tab-content">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Minhas Estatísticas
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div id="estatisticas-detalhadas" class="loading">
+                        <i class="fas fa-spinner"></i>
+                        Carregando estatísticas...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =====================================
+        // CONFIGURAÇÃO INICIAL
+        // =====================================
+        
+        // ID do médico logado (será obtido da sessão)
+        let medicoLogado = {
+            id: null,
+            nome: '',
+            crm: '',
+            especialidade: ''
+        };
+
+        // Inicialização da página
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🏥 Portal do Médico carregado');
+            
+            // Carregar dados do médico logado
+            carregarDadosMedico();
+            
+            // Carregar dashboard inicial
+            carregarDashboard();
+        });
+
+        // =====================================
+        // GERENCIAMENTO DE ABAS
+        // =====================================
+        
+        function switchTab(tabName) {
+            console.log('🔄 Alternando para aba:', tabName);
+            
+            // Remover classe active de todas as abas
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Ativar aba selecionada
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Carregar dados específicos da aba
+            switch(tabName) {
+                case 'dashboard':
+                    carregarDashboard();
+                    break;
+                case 'pacientes':
+                    carregarPacientes();
+                    break;
+                case 'consultas':
+                    carregarConsultas();
+                    break;
+                case 'prescricoes':
+                    carregarPrescricoes();
+                    break;
+                case 'agenda':
+                    carregarAgenda();
+                    break;
+                case 'estatisticas':
+                    carregarEstatisticas();
+                    break;
+            }
+        }
+
+        // =====================================
+        // CARREGAMENTO DE DADOS
+        // =====================================
+        
+        async function carregarDadosMedico() {
+            try {
+                // Por enquanto, usar dados mock
+                // TODO: Implementar autenticação e obter ID real
+                medicoLogado = {
+                    id: 'cm2qnfvab0000hpcrx0eaivd6', // ID real do primeiro médico
+                    nome: 'Dr. João Silva',
+                    crm: '12345-SP',
+                    especialidade: 'Cardiologia'
+                };
+                
+                // Tentar carregar dados reais do dashboard
+                try {
+                    const response = await fetch(`/api/portal-medico/${medicoLogado.id}/dashboard`);
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success && result.data.medico) {
+                            medicoLogado.nome = result.data.medico.nome;
+                            medicoLogado.crm = result.data.medico.crm;
+                            medicoLogado.especialidade = result.data.medico.especialidade;
+                        }
+                    }
+                } catch (error) {
+                    console.log('ℹ️ Usando dados mock para o médico');
+                }
+                
+                // Atualizar interface
+                document.getElementById('medico-nome').textContent = medicoLogado.nome;
+                document.getElementById('medico-avatar').textContent = medicoLogado.nome.charAt(0);
+                
+                console.log('✅ Dados do médico carregados:', medicoLogado);
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados do médico:', error);
+            }
+        }
+
+        async function carregarDashboard() {
+            try {
+                console.log('📊 Carregando dashboard...');
+                
+                // Carregar estatísticas
+                await carregarEstatisticasDashboard();
+                
+                // Carregar atividades recentes
+                await carregarAtividadesRecentes();
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar dashboard:', error);
+            }
+        }
+
+        async function carregarEstatisticasDashboard() {
+            try {
+                console.log('📊 Carregando estatísticas do dashboard...');
+                
+                const response = await fetch(`/api/portal-medico/${medicoLogado.id}/dashboard`);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    if (result.success && result.data.estatisticas) {
+                        const stats = result.data.estatisticas;
+                        
+                        document.getElementById('total-pacientes').textContent = stats.totalPacientes;
+                        document.getElementById('consultas-mes').textContent = stats.consultasMes;
+                        document.getElementById('prescricoes-mes').textContent = stats.prescricoesMes;
+                        document.getElementById('agendamentos-pendentes').textContent = stats.agendamentosPendentes;
+                        
+                        console.log('✅ Estatísticas do dashboard carregadas via API');
+                        return;
+                    }
+                }
+                
+                // Fallback para dados mock se API falhar
+                console.log('ℹ️ Usando dados mock para estatísticas');
+                const stats = {
+                    totalPacientes: 156,
+                    consultasMes: 89,
+                    prescricoesMes: 67,
+                    agendamentosPendentes: 12
+                };
+                
+                document.getElementById('total-pacientes').textContent = stats.totalPacientes;
+                document.getElementById('consultas-mes').textContent = stats.consultasMes;
+                document.getElementById('prescricoes-mes').textContent = stats.prescricoesMes;
+                document.getElementById('agendamentos-pendentes').textContent = stats.agendamentosPendentes;
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar estatísticas:', error);
+                
+                // Valores padrão em caso de erro
+                document.getElementById('total-pacientes').textContent = '0';
+                document.getElementById('consultas-mes').textContent = '0';
+                document.getElementById('prescricoes-mes').textContent = '0';
+                document.getElementById('agendamentos-pendentes').textContent = '0';
+            }
+        }
+
+        async function carregarAtividadesRecentes() {
+            try {
+                console.log('🕒 Carregando atividades recentes...');
+                
+                const container = document.getElementById('atividades-recentes');
+                
+                const response = await fetch(`/api/portal-medico/${medicoLogado.id}/dashboard`);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    if (result.success && result.data.atividadesRecentes) {
+                        const atividades = result.data.atividadesRecentes;
+                        
+                        if (atividades.length === 0) {
+                            container.innerHTML = `
+                                <div class="empty-state">
+                                    <i class="fas fa-clock"></i>
+                                    <h3>Nenhuma atividade recente</h3>
+                                    <p>Suas atividades aparecerão aqui</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        const atividadesHTML = atividades.map(atividade => {
+                            const icone = {
+                                consulta: 'fas fa-stethoscope',
+                                prescricao: 'fas fa-prescription',
+                                agendamento: 'fas fa-calendar'
+                            }[atividade.tipo] || 'fas fa-circle';
+                            
+                            const cor = {
+                                consulta: 'blue',
+                                prescricao: 'green',
+                                agendamento: 'orange'
+                            }[atividade.tipo] || 'blue';
+                            
+                            return `
+                                <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--border-color);">
+                                    <div class="stat-icon ${cor}" style="width: 40px; height: 40px; font-size: 1rem;">
+                                        <i class="${icone}"></i>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <h4 style="margin-bottom: 0.25rem;">${atividade.paciente}</h4>
+                                        <p style="color: var(--text-secondary); margin-bottom: 0.25rem;">${atividade.descricao}</p>
+                                        <small style="color: var(--text-secondary);">${formatarDataHora(atividade.data)}</small>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                        
+                        container.innerHTML = atividadesHTML;
+                        console.log('✅ Atividades recentes carregadas via API');
+                        return;
+                    }
+                }
+                
+                // Fallback para dados mock
+                console.log('ℹ️ Usando dados mock para atividades');
+                const atividades = [
+                    {
+                        tipo: 'consulta',
+                        paciente: 'Maria Silva',
+                        data: '2024-11-04T10:30:00',
+                        descricao: 'Consulta de rotina realizada'
+                    },
+                    {
+                        tipo: 'prescricao',
+                        paciente: 'João Santos',
+                        data: '2024-11-04T09:15:00',
+                        descricao: 'Receita para hipertensão prescrita'
+                    },
+                    {
+                        tipo: 'agendamento',
+                        paciente: 'Ana Costa',
+                        data: '2024-11-04T08:45:00',
+                        descricao: 'Consulta agendada para 15/11'
+                    }
+                ];
+                
+                const atividadesHTML = atividades.map(atividade => {
+                    const icone = {
+                        consulta: 'fas fa-stethoscope',
+                        prescricao: 'fas fa-prescription',
+                        agendamento: 'fas fa-calendar'
+                    }[atividade.tipo] || 'fas fa-circle';
+                    
+                    const cor = {
+                        consulta: 'blue',
+                        prescricao: 'green',
+                        agendamento: 'orange'
+                    }[atividade.tipo] || 'blue';
+                    
+                    return `
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--border-color);">
+                            <div class="stat-icon ${cor}" style="width: 40px; height: 40px; font-size: 1rem;">
+                                <i class="${icone}"></i>
+                            </div>
+                            <div style="flex: 1;">
+                                <h4 style="margin-bottom: 0.25rem;">${atividade.paciente}</h4>
+                                <p style="color: var(--text-secondary); margin-bottom: 0.25rem;">${atividade.descricao}</p>
+                                <small style="color: var(--text-secondary);">${formatarDataHora(atividade.data)}</small>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                container.innerHTML = atividadesHTML;
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar atividades:', error);
+                document.getElementById('atividades-recentes').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erro ao carregar atividades</h3>
+                        <p>Tente novamente mais tarde</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Funções placeholder para outras abas
+        async function carregarPacientes() {
+            try {
+                console.log('👥 Carregando pacientes do médico...');
+                
+                const container = document.getElementById('lista-pacientes');
+                container.innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i>
+                        Carregando pacientes...
+                    </div>
+                `;
+                
+                const response = await fetch(`/api/portal-medico/${medicoLogado.id}/pacientes?limit=50`);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        renderPacientes(result.data || []);
+                        console.log(`✅ ${result.data?.length || 0} pacientes carregados`);
+                        return;
+                    }
+                }
+                
+                // Fallback
+                console.log('ℹ️ Usando dados mock para pacientes');
+                renderPacientesMock();
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar pacientes:', error);
+                document.getElementById('lista-pacientes').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erro ao carregar pacientes</h3>
+                        <p>Tente novamente mais tarde</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPacientes(pacientes) {
+            const container = document.getElementById('lista-pacientes');
+            
+            if (!pacientes || pacientes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <h3>Nenhum paciente encontrado</h3>
+                        <p>Você ainda não tem pacientes atendidos</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const pacientesHTML = pacientes.map(paciente => {
+                const alergiaAlert = paciente.temAlergiaGrave ? 
+                    '<span class="alert-danger" style="padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;"><i class="fas fa-exclamation-triangle"></i> Alergia</span>' : '';
+                
+                return `
+                    <div class="content-card" style="margin-bottom: 1rem;">
+                        <div style="padding: 1.5rem;">
+                            <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 1rem;">
+                                <div style="flex: 1;">
+                                    <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                        ${paciente.nome}
+                                        ${alergiaAlert}
+                                    </h3>
+                                    <p style="color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                        <i class="fas fa-id-card"></i> CPF: ${paciente.cpf}
+                                    </p>
+                                    <p style="color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                        <i class="fas fa-birthday-cake"></i> Idade: ${paciente.idade} anos
+                                    </p>
+                                    ${paciente.telefone ? `
+                                        <p style="color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                            <i class="fas fa-phone"></i> ${paciente.telefone}
+                                        </p>
+                                    ` : ''}
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="background: var(--primary-color); color: white; padding: 0.5rem; border-radius: 0.25rem; font-weight: 600;">
+                                        ${paciente.totalConsultas} consultas
+                                    </div>
+                                    ${paciente.ultimaConsulta ? `
+                                        <small style="color: var(--text-secondary);">
+                                            Última: ${formatarData(paciente.ultimaConsulta)}
+                                        </small>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            
+                            ${paciente.alergias && paciente.alergias.length > 0 ? `
+                                <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 0.375rem; padding: 0.75rem; margin-bottom: 1rem;">
+                                    <h4 style="color: #991b1b; margin-bottom: 0.5rem;">
+                                        <i class="fas fa-exclamation-triangle"></i> Alergias:
+                                    </h4>
+                                    <p style="color: #7f1d1d; margin: 0;">
+                                        ${paciente.alergias.join(', ')}
+                                    </p>
+                                </div>
+                            ` : ''}
+                            
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-primary" onclick="verHistoricoPaciente('${paciente.id}')">
+                                    <i class="fas fa-history"></i> Histórico
+                                </button>
+                                <button class="btn btn-secondary" onclick="novaConsultaPaciente('${paciente.id}')">
+                                    <i class="fas fa-plus"></i> Nova Consulta
+                                </button>
+                                <button class="btn btn-success" onclick="novaPrescricaoPaciente('${paciente.id}')">
+                                    <i class="fas fa-prescription"></i> Receita
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = pacientesHTML;
+        }
+
+        function renderPacientesMock() {
+            const pacientesMock = [
+                {
+                    id: '1',
+                    nome: 'Maria Silva Santos',
+                    cpf: '123.456.789-00',
+                    idade: 45,
+                    telefone: '(11) 99999-9999',
+                    totalConsultas: 8,
+                    ultimaConsulta: '2024-10-28',
+                    alergias: ['Penicilina'],
+                    temAlergiaGrave: true
+                },
+                {
+                    id: '2',
+                    nome: 'João Carlos Oliveira',
+                    cpf: '987.654.321-00',
+                    idade: 38,
+                    telefone: '(11) 88888-8888',
+                    totalConsultas: 12,
+                    ultimaConsulta: '2024-11-01',
+                    alergias: [],
+                    temAlergiaGrave: false
+                }
+            ];
+            
+            renderPacientes(pacientesMock);
+        }
+
+        async function carregarConsultas() {
+            try {
+                console.log('📅 Carregando consultas do médico...');
+                
+                const container = document.getElementById('lista-consultas');
+                container.innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i>
+                        Carregando consultas...
+                    </div>
+                `;
+                
+                const response = await fetch(`/api/portal-medico/${medicoLogado.id}/consultas?limit=20`);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        renderConsultas(result.data || []);
+                        console.log(`✅ ${result.data?.length || 0} consultas carregadas`);
+                        return;
+                    }
+                }
+                
+                // Fallback
+                console.log('ℹ️ Usando dados mock para consultas');
+                renderConsultasMock();
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar consultas:', error);
+                document.getElementById('lista-consultas').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erro ao carregar consultas</h3>
+                        <p>Tente novamente mais tarde</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderConsultas(consultas) {
+            const container = document.getElementById('lista-consultas');
+            
+            if (!consultas || consultas.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-check"></i>
+                        <h3>Nenhuma consulta encontrada</h3>
+                        <p>Suas consultas aparecerão aqui</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const consultasHTML = consultas.map(consulta => {
+                const statusColor = {
+                    'AGENDADA': 'orange',
+                    'EM_ANDAMENTO': 'blue',
+                    'CONCLUIDA': 'green',
+                    'CANCELADA': 'red',
+                    'NAO_COMPARECEU': 'red'
+                }[consulta.status] || 'blue';
+
+                const statusText = {
+                    'AGENDADA': 'Agendada',
+                    'EM_ANDAMENTO': 'Em Andamento',
+                    'CONCLUIDA': 'Concluída',
+                    'CANCELADA': 'Cancelada',
+                    'NAO_COMPARECEU': 'Não Compareceu'
+                }[consulta.status] || consulta.status;
+                
+                return `
+                    <div class="content-card" style="margin-bottom: 1rem;">
+                        <div style="padding: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                <div style="flex: 1;">
+                                    <h3 style="margin-bottom: 0.5rem;">
+                                        ${consulta.paciente.nome}
+                                    </h3>
+                                    <p style="color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                        <i class="fas fa-calendar"></i> ${formatarDataHora(consulta.dataHora)}
+                                    </p>
+                                    <p style="color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                        <i class="fas fa-stethoscope"></i> ${consulta.tipo}
+                                    </p>
+                                    ${consulta.paciente.contato ? `
+                                        <p style="color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                            <i class="fas fa-phone"></i> ${consulta.paciente.contato}
+                                        </p>
+                                    ` : ''}
+                                </div>
+                                <div style="text-align: right;">
+                                    <span class="badge" style="background: var(--${statusColor}-color); color: white; padding: 0.5rem; border-radius: 0.25rem;">
+                                        ${statusText}
+                                    </span>
+                                    ${consulta.valor ? `
+                                        <div style="margin-top: 0.5rem; font-weight: 600;">
+                                            R$ ${parseFloat(consulta.valor).toFixed(2)}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            
+                            ${consulta.observacoes ? `
+                                <div style="background: var(--light-bg); padding: 0.75rem; border-radius: 0.375rem; margin-bottom: 1rem;">
+                                    <strong>Observações:</strong> ${consulta.observacoes}
+                                </div>
+                            ` : ''}
+                            
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-primary" onclick="verDetalhesConsulta('${consulta.id}')">
+                                    <i class="fas fa-eye"></i> Detalhes
+                                </button>
+                                ${consulta.status === 'AGENDADA' ? `
+                                    <button class="btn btn-success" onclick="iniciarConsulta('${consulta.id}')">
+                                        <i class="fas fa-play"></i> Iniciar
+                                    </button>
+                                ` : ''}
+                                ${consulta.status === 'CONCLUIDA' ? `
+                                    <button class="btn btn-secondary" onclick="verProntuario('${consulta.id}')">
+                                        <i class="fas fa-file-medical"></i> Prontuário
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = consultasHTML;
+        }
+
+        function renderConsultasMock() {
+            const consultasMock = [
+                {
+                    id: '1',
+                    dataHora: '2024-11-04T14:00:00',
+                    tipo: 'CONSULTA_ROTINA',
+                    status: 'AGENDADA',
+                    valor: 150.00,
+                    observacoes: 'Paciente relata dores no peito',
+                    paciente: {
+                        nome: 'Maria Silva Santos',
+                        cpf: '123.456.789-00',
+                        contato: '(11) 99999-9999'
+                    }
+                },
+                {
+                    id: '2',
+                    dataHora: '2024-11-03T10:30:00',
+                    tipo: 'CONSULTA_RETORNO',
+                    status: 'CONCLUIDA',
+                    valor: 120.00,
+                    observacoes: null,
+                    paciente: {
+                        nome: 'João Carlos Oliveira',
+                        cpf: '987.654.321-00',
+                        contato: '(11) 88888-8888'
+                    }
+                }
+            ];
+            
+            renderConsultas(consultasMock);
+        }
+
+        async function carregarPrescricoes() {
+            try {
+                console.log('💊 Carregando prescrições do médico...');
+                
+                const container = document.getElementById('lista-prescricoes');
+                container.innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i>
+                        Carregando prescrições...
+                    </div>
+                `;
+                
+                const response = await fetch(`/api/portal-medico/${medicoLogado.id}/prescricoes?limit=20`);
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        renderPrescricoes(result.data || []);
+                        console.log(`✅ ${result.data?.length || 0} prescrições carregadas`);
+                        return;
+                    }
+                }
+                
+                // Fallback
+                console.log('ℹ️ Usando dados mock para prescrições');
+                renderPrescricoesMock();
+                
+            } catch (error) {
+                console.error('❌ Erro ao carregar prescrições:', error);
+                document.getElementById('lista-prescricoes').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erro ao carregar prescrições</h3>
+                        <p>Tente novamente mais tarde</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPrescricoes(prescricoes) {
+            const container = document.getElementById('lista-prescricoes');
+            
+            if (!prescricoes || prescricoes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-prescription-bottle-alt"></i>
+                        <h3>Nenhuma prescrição encontrada</h3>
+                        <p>Suas prescrições aparecerão aqui</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const prescricoesHTML = prescricoes.map(prescricao => {
+                const validaAtual = prescricao.valida;
+                const statusColor = validaAtual ? 'green' : 'red';
+                const statusText = validaAtual ? 'Válida' : 'Expirada';
+                
+                // Parse dos medicamentos se for JSON
+                let medicamentos = [];
+                try {
+                    if (typeof prescricao.medicamentos === 'string') {
+                        medicamentos = JSON.parse(prescricao.medicamentos);
+                    } else if (Array.isArray(prescricao.medicamentos)) {
+                        medicamentos = prescricao.medicamentos;
+                    }
+                } catch (e) {
+                    medicamentos = [{ nome: 'Medicamento não especificado' }];
+                }
+                
+                return `
+                    <div class="content-card" style="margin-bottom: 1rem;">
+                        <div style="padding: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                <div style="flex: 1;">
+                                    <h3 style="margin-bottom: 0.5rem;">
+                                        ${prescricao.paciente.nome}
+                                    </h3>
+                                    <p style="color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                        <i class="fas fa-calendar"></i> Emitida em: ${formatarData(prescricao.dataEmissao)}
+                                    </p>
+                                    ${prescricao.dataValidade ? `
+                                        <p style="color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                            <i class="fas fa-clock"></i> Válida até: ${formatarData(prescricao.dataValidade)}
+                                        </p>
+                                    ` : ''}
+                                    <p style="color: var(--text-secondary); margin-bottom: 0.25rem;">
+                                        <i class="fas fa-id-card"></i> CPF: ${prescricao.paciente.cpf}
+                                    </p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span class="badge" style="background: var(--${statusColor}-color); color: white; padding: 0.5rem; border-radius: 0.25rem;">
+                                        ${statusText}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div style="background: var(--light-bg); padding: 1rem; border-radius: 0.375rem; margin-bottom: 1rem;">
+                                <h4 style="margin-bottom: 0.5rem; color: var(--text-primary);">
+                                    <i class="fas fa-pills"></i> Medicamentos:
+                                </h4>
+                                ${medicamentos.map(med => `
+                                    <div style="margin-bottom: 0.5rem; padding: 0.5rem; background: white; border-radius: 0.25rem;">
+                                        <strong>${med.nome || 'Medicamento'}</strong>
+                                        ${med.dosagem ? `<br><small>Dosagem: ${med.dosagem}</small>` : ''}
+                                        ${med.frequencia ? `<br><small>Frequência: ${med.frequencia}</small>` : ''}
+                                        ${med.duracao ? `<br><small>Duração: ${med.duracao}</small>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                            
+                            ${prescricao.observacoes ? `
+                                <div style="background: #fef3c7; padding: 0.75rem; border-radius: 0.375rem; margin-bottom: 1rem; border-left: 4px solid #f59e0b;">
+                                    <strong>Observações:</strong> ${prescricao.observacoes}
+                                </div>
+                            ` : ''}
+                            
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-primary" onclick="imprimirReceita('${prescricao.id}')">
+                                    <i class="fas fa-print"></i> Imprimir
+                                </button>
+                                <button class="btn btn-secondary" onclick="verProntuarioPrescricao('${prescricao.prontuarioId}')">
+                                    <i class="fas fa-file-medical"></i> Prontuário
+                                </button>
+                                ${validaAtual ? `
+                                    <button class="btn btn-warning" onclick="renovarReceita('${prescricao.id}')">
+                                        <i class="fas fa-redo"></i> Renovar
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = prescricoesHTML;
+        }
+
+        function renderPrescricoesMock() {
+            const prescricoesMock = [
+                {
+                    id: '1',
+                    dataEmissao: '2024-11-01T10:30:00',
+                    dataValidade: '2024-12-01T23:59:59',
+                    medicamentos: [
+                        {
+                            nome: 'Losartana 50mg',
+                            dosagem: '1 comprimido',
+                            frequencia: '1x ao dia',
+                            duracao: '30 dias'
+                        },
+                        {
+                            nome: 'Hidroclorotiazida 25mg',
+                            dosagem: '1 comprimido',
+                            frequencia: '1x ao dia',
+                            duracao: '30 dias'
+                        }
+                    ],
+                    observacoes: 'Tomar em jejum. Acompanhar pressão arterial.',
+                    paciente: {
+                        nome: 'Maria Silva Santos',
+                        cpf: '123.456.789-00'
+                    },
+                    prontuarioId: '1',
+                    valida: true
+                },
+                {
+                    id: '2',
+                    dataEmissao: '2024-10-15T14:20:00',
+                    dataValidade: '2024-11-15T23:59:59',
+                    medicamentos: [
+                        {
+                            nome: 'Paracetamol 750mg',
+                            dosagem: '1 comprimido',
+                            frequencia: '3x ao dia',
+                            duracao: '7 dias'
+                        }
+                    ],
+                    observacoes: 'Tomar apenas se necessário para dor ou febre.',
+                    paciente: {
+                        nome: 'João Carlos Oliveira',
+                        cpf: '987.654.321-00'
+                    },
+                    prontuarioId: '2',
+                    valida: false
+                }
+            ];
+            
+            renderPrescricoes(prescricoesMock);
+        }
+
+        function carregarAgenda() {
+            console.log('📆 Carregando agenda...');
+            // TODO: Implementar carregamento de agenda
+        }
+
+        function carregarEstatisticas() {
+            console.log('📈 Carregando estatísticas...');
+            // TODO: Implementar carregamento de estatísticas
+        }
+
+        // =====================================
+        // FUNÇÕES AUXILIARES
+        // =====================================
+        
+        function formatarDataHora(dataString) {
+            const data = new Date(dataString);
+            return data.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function formatarData(dataString) {
+            const data = new Date(dataString);
+            return data.toLocaleDateString('pt-BR');
+        }
+
+        // Funções placeholder para ações
+        function adicionarPaciente() {
+            alert('Funcionalidade em desenvolvimento');
+        }
+
+        function novaConsulta() {
+            alert('Funcionalidade em desenvolvimento');
+        }
+
+        function novaPrescricao() {
+            alert('Funcionalidade em desenvolvimento');
+        }
+
+        function novoAgendamento() {
+            alert('Funcionalidade em desenvolvimento');
+        }
+
+        // Ações específicas de pacientes
+        function verHistoricoPaciente(pacienteId) {
+            alert(`Ver histórico do paciente ${pacienteId} - Em desenvolvimento`);
+        }
+
+        function novaConsultaPaciente(pacienteId) {
+            alert(`Nova consulta para paciente ${pacienteId} - Em desenvolvimento`);
+        }
+
+        function novaPrescricaoPaciente(pacienteId) {
+            alert(`Nova prescrição para paciente ${pacienteId} - Em desenvolvimento`);
+        }
+
+        // Ações específicas de consultas
+        function verDetalhesConsulta(consultaId) {
+            alert(`Ver detalhes da consulta ${consultaId} - Em desenvolvimento`);
+        }
+
+        function iniciarConsulta(consultaId) {
+            alert(`Iniciar consulta ${consultaId} - Em desenvolvimento`);
+        }
+
+        function verProntuario(consultaId) {
+            alert(`Ver prontuário da consulta ${consultaId} - Em desenvolvimento`);
+        }
+
+        // Ações específicas de prescrições
+        function imprimirReceita(prescricaoId) {
+            alert(`Imprimir receita ${prescricaoId} - Em desenvolvimento`);
+        }
+
+        function verProntuarioPrescricao(prontuarioId) {
+            alert(`Ver prontuário ${prontuarioId} - Em desenvolvimento`);
+        }
+
+        function renovarReceita(prescricaoId) {
+            alert(`Renovar receita ${prescricaoId} - Em desenvolvimento`);
+        }
+
+        // Busca de pacientes
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchPacientes = document.getElementById('search-pacientes');
+            if (searchPacientes) {
+                searchPacientes.addEventListener('input', debounce(() => {
+                    const termo = searchPacientes.value;
+                    // TODO: Implementar busca real
+                    console.log('🔍 Buscando pacientes:', termo);
+                }, 500));
+            }
+        });
+
+        // Função debounce para busca
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+</body>
+</html>

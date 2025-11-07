@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">4.5% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/111</span>
+                <span class='fraction'>5/111</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">14.28% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/14</span>
+                <span class='fraction'>2/14</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">4.8% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/104</span>
+                <span class='fraction'>5/104</span>
             </div>
         
             
@@ -392,8 +392,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -401,10 +401,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -653,7 +653,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -711,21 +711,21 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+<span class="cline-any cline-yes">2x</span></td><td class="text"><pre class="prettyprint lang-js">/**
  * Middleware de Validação em Tempo Real
  * Validações avançadas e dinâmicas para dados médicos
  */
 &nbsp;
-const databaseService = <span class="cstat-no" title="statement not covered" >require('../services/database');</span>
-const { validateDoctorData } = <span class="cstat-no" title="statement not covered" >require('../utils/validators');</span>
+const databaseService = require('../services/database');
+const { validateDoctorData } = require('../utils/validators');
 &nbsp;
 class ValidacaoTempoReal {
 &nbsp;
   /**
    * Middleware para validação de médico em tempo real
    */
-<span class="fstat-no" title="function not covered" >  st</span>atic validarMedicoTempoReal() {
-<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >as</span>ync (req, res, next) =&gt; {</span>
+  static validarMedicoTempoReal() {
+    return <span class="fstat-no" title="function not covered" >as</span>ync (req, res, next) =&gt; {
 <span class="cstat-no" title="statement not covered" >      try {</span>
         const dados = <span class="cstat-no" title="statement not covered" >req.body;</span>
         const { id } = <span class="cstat-no" title="statement not covered" >req.params;</span>
@@ -976,8 +976,8 @@ class ValidacaoTempoReal {
   /**
    * Middleware para validação de dados específicos em tempo real
    */
-<span class="fstat-no" title="function not covered" >  st</span>atic validarCampoEspecifico() {
-<span class="cstat-no" title="statement not covered" >    return <span class="fstat-no" title="function not covered" >as</span>ync (req, res, next) =&gt; {</span>
+  static validarCampoEspecifico() {
+    return <span class="fstat-no" title="function not covered" >as</span>ync (req, res, next) =&gt; {
 <span class="cstat-no" title="statement not covered" >      try {</span>
         const { campo, valor } = <span class="cstat-no" title="statement not covered" >req.body;</span>
         const { id } = <span class="cstat-no" title="statement not covered" >req.params;</span>
@@ -1035,14 +1035,14 @@ class ValidacaoTempoReal {
   }
 }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >module.exports = ValidacaoTempoReal;</span></pre></td></tr></table></pre>
+module.exports = ValidacaoTempoReal;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-03T12:11:48.421Z
+                at 2025-11-06T19:27:20.739Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

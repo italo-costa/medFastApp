@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Botões - MediApp</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border: none;
+            border-radius: 0.25rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            margin: 0.25rem;
+        }
+        .btn-secondary { background: #e2e8f0; color: #4a5568; }
+        .btn-warning { background: #dd6b20; color: white; }
+        .btn-danger { background: #e53e3e; color: white; }
+        .test-section {
+            background: white;
+            padding: 2rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste de Funcionalidade dos Botões</h1>
+    
+    <div class="test-section">
+        <h3>Teste de Ícones Font Awesome</h3>
+        <p>Se você ver os ícones abaixo, o Font Awesome está funcionando:</p>
+        <i class="fas fa-eye"></i> Visualizar
+        <i class="fas fa-edit"></i> Editar
+        <i class="fas fa-trash"></i> Excluir
+    </div>
+    
+    <div class="test-section">
+        <h3>Teste de Botões com JavaScript</h3>
+        <button type="button" class="btn btn-secondary" onclick="testVisualizarMedico('test123')" title="Visualizar">
+            <i class="fas fa-eye"></i> Visualizar
+        </button>
+        <button type="button" class="btn btn-warning" onclick="testEditarMedico('test123')" title="Editar">
+            <i class="fas fa-edit"></i> Editar
+        </button>
+        <button type="button" class="btn btn-danger" onclick="testExcluirMedico('test123', 'Dr. Teste')" title="Excluir">
+            <i class="fas fa-trash"></i> Excluir
+        </button>
+    </div>
+    
+    <div class="test-section">
+        <h3>Teste da API de Médicos</h3>
+        <button onclick="testAPIConnection()">Testar Conexão com API</button>
+        <div id="apiResult"></div>
+    </div>
+    
+    <script>
+        function testVisualizarMedico(id) {
+            alert(`Função visualizarMedico chamada com ID: ${id}`);
+            console.log('visualizarMedico:', id);
+        }
+        
+        function testEditarMedico(id) {
+            alert(`Função editarMedico chamada com ID: ${id}`);
+            console.log('editarMedico:', id);
+        }
+        
+        function testExcluirMedico(id, nome) {
+            alert(`Função excluirMedico chamada com ID: ${id}, Nome: ${nome}`);
+            console.log('excluirMedico:', id, nome);
+        }
+        
+        async function testAPIConnection() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.innerHTML = 'Testando...';
+            
+            try {
+                const response = await fetch('/api/medicos');
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <h4 style="color: green;">✅ API Funcionando!</h4>
+                        <p>Encontrados ${data.data.length} médicos</p>
+                        <pre>${JSON.stringify(data.data[0], null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<h4 style="color: red;">❌ Erro na API: ${data.message}</h4>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<h4 style="color: red;">❌ Erro de conexão: ${error.message}</h4>`;
+            }
+        }
+        
+        // Teste automático ao carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧪 Página de teste carregada');
+            console.log('Font Awesome CDN:', document.querySelector('link[href*="font-awesome"]'));
+            
+            // Verificar se Font Awesome carregou
+            setTimeout(() => {
+                const testIcon = document.createElement('i');
+                testIcon.className = 'fas fa-test';
+                document.body.appendChild(testIcon);
+                const computedStyle = getComputedStyle(testIcon, '::before');
+                const fontFamily = computedStyle.fontFamily;
+                
+                if (fontFamily.includes('Font Awesome')) {
+                    console.log('✅ Font Awesome carregado com sucesso');
+                } else {
+                    console.warn('⚠️ Font Awesome pode não ter carregado corretamente');
+                }
+                document.body.removeChild(testIcon);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

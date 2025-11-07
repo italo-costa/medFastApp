@@ -69,13 +69,23 @@ async function getRealDataFromDatabase() {
         // Get doctors data from database
         try {
             const totalMedicos = await databaseService.client.medico.count();
-            const medicosAtivos = await databaseService.client.medico.count({ where: { ativo: true } });
+            const medicosAtivos = await databaseService.client.medico.count({ 
+                where: { 
+                    usuario: { 
+                        ativo: true 
+                    } 
+                } 
+            });
             
             // Count unique specialties
             const especialidades = await databaseService.client.medico.findMany({
                 select: { especialidade: true },
                 distinct: ['especialidade'],
-                where: { ativo: true }
+                where: { 
+                    usuario: { 
+                        ativo: true 
+                    } 
+                }
             });
             
             realData.medicos.total = totalMedicos;

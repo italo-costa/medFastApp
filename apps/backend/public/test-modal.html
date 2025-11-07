@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Modais - MediApp</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary { background: #3182ce; color: white; }
+        .btn-primary:hover { background: #2c5282; }
+        .btn-secondary { background: #e2e8f0; color: #4a5568; }
+        .btn-warning { background: #dd6b20; color: white; }
+        .btn-danger { background: #e53e3e; color: white; }
+        .btn-sm { padding: 0.5rem 0.75rem; font-size: 0.75rem; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 0;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a0aec0;
+        }
+        
+        .test-section {
+            background: white;
+            padding: 2rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .log {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Teste de Modais e Botões</h1>
+    
+    <div class="test-section">
+        <h3>Botões de Teste</h3>
+        
+        <button type="button" class="btn btn-primary" onclick="testOpenModal('testModal')">
+            <i class="fas fa-plus"></i>
+            Novo Médico (Teste)
+        </button>
+        
+        <button type="button" class="btn btn-secondary btn-sm" onclick="testVisualizarMedico('test123')" title="Visualizar">
+            <i class="fas fa-eye"></i>
+            Visualizar
+        </button>
+        
+        <button type="button" class="btn btn-warning btn-sm" onclick="testEditarMedico('test123')" title="Editar">
+            <i class="fas fa-edit"></i>
+            Editar
+        </button>
+        
+        <button type="button" class="btn btn-danger btn-sm" onclick="testExcluirMedico('test123', 'Dr. Teste')" title="Excluir">
+            <i class="fas fa-trash"></i>
+            Excluir
+        </button>
+        
+        <div class="log" id="logOutput">
+            Logs aparecerão aqui...
+        </div>
+    </div>
+    
+    <!-- Test Modal -->
+    <div id="testModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Modal de Teste</h3>
+                <button type="button" class="modal-close" onclick="testCloseModal('testModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Este é um modal de teste para verificar se a funcionalidade está funcionando.</p>
+                <p>Se você está vendo isso, o modal abriu corretamente!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="testCloseModal('testModal')">
+                    Fechar
+                </button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Salvar (Teste)
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function log(message) {
+            const logOutput = document.getElementById('logOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            logOutput.innerHTML += `[${timestamp}] ${message}<br>`;
+            logOutput.scrollTop = logOutput.scrollHeight;
+            console.log(message);
+        }
+        
+        function testOpenModal(modalId) {
+            log(`🔄 Tentando abrir modal: ${modalId}`);
+            try {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('active');
+                    log(`✅ Modal ${modalId} aberto com sucesso!`);
+                } else {
+                    log(`❌ Modal ${modalId} não encontrado no DOM!`);
+                }
+            } catch (error) {
+                log(`❌ Erro ao abrir modal: ${error.message}`);
+            }
+        }
+        
+        function testCloseModal(modalId) {
+            log(`🔄 Tentando fechar modal: ${modalId}`);
+            try {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('active');
+                    log(`✅ Modal ${modalId} fechado com sucesso!`);
+                } else {
+                    log(`❌ Modal ${modalId} não encontrado no DOM!`);
+                }
+            } catch (error) {
+                log(`❌ Erro ao fechar modal: ${error.message}`);
+            }
+        }
+        
+        async function testVisualizarMedico(id) {
+            log(`🔄 Testando visualizarMedico com ID: ${id}`);
+            try {
+                const response = await fetch(`/api/medicos/${id}`);
+                log(`📡 Response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Dados recebidos: ${JSON.stringify(data, null, 2)}`);
+                } else {
+                    log(`❌ Erro na API: ${response.status} ${response.statusText}`);
+                }
+            } catch (error) {
+                log(`❌ Erro na requisição: ${error.message}`);
+            }
+        }
+        
+        function testEditarMedico(id) {
+            log(`🔄 Testando editarMedico com ID: ${id}`);
+            log(`✅ Função editarMedico chamada corretamente!`);
+        }
+        
+        function testExcluirMedico(id, nome) {
+            log(`🔄 Testando excluirMedico com ID: ${id}, Nome: ${nome}`);
+            log(`✅ Função excluirMedico chamada corretamente!`);
+        }
+        
+        // Teste automático ao carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Página de teste carregada');
+            
+            // Verificar se elementos existem
+            const testModal = document.getElementById('testModal');
+            log(`Modal testModal existe: ${testModal ? '✅ Sim' : '❌ Não'}`);
+            
+            // Verificar se Font Awesome carregou
+            const testIcon = document.querySelector('i.fas');
+            if (testIcon) {
+                log('✅ Ícones Font Awesome encontrados');
+            } else {
+                log('❌ Ícones Font Awesome não encontrados');
+            }
+            
+            // Testar chamada à API de médicos
+            log('🔄 Testando conexão com API...');
+            fetch('/api/medicos')
+                .then(response => {
+                    log(`📡 API /api/medicos status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    log(`✅ API funcionando! ${data.data ? data.data.length : 0} médicos encontrados`);
+                })
+                .catch(error => {
+                    log(`❌ Erro na API: ${error.message}`);
+                });
+        });
+        
+        // Fechar modal ao clicar fora
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                const modalId = event.target.id;
+                testCloseModal(modalId);
+                log(`🖱️ Modal ${modalId} fechado ao clicar fora`);
+            }
+        });
+    </script>
+</body>
+</html>

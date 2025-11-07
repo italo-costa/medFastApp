@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">12.79% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/85</span>
+                <span class='fraction'>11/86</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">12.79% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/85</span>
+                <span class='fraction'>11/86</span>
             </div>
         
             
@@ -507,18 +507,20 @@
 <a name='L442'></a><a href='#L442'>442</a>
 <a name='L443'></a><a href='#L443'>443</a>
 <a name='L444'></a><a href='#L444'>444</a>
-<a name='L445'></a><a href='#L445'>445</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L445'></a><a href='#L445'>445</a>
+<a name='L446'></a><a href='#L446'>446</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -605,7 +607,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -669,8 +671,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -777,7 +779,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -855,9 +857,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -910,7 +912,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -951,16 +953,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const express = <span class="cstat-no" title="statement not covered" >require('express');</span>
-const databaseService = <span class="cstat-no" title="statement not covered" >require('../services/database');</span>
-const router = <span class="cstat-no" title="statement not covered" >express.Router();</span>
+<span class="cline-any cline-yes">2x</span></td><td class="text"><pre class="prettyprint lang-js">const express = require('express');
+const databaseService = require('../services/database');
+const ResponseService = require('../services/responseService');
+const router = express.Router();
 &nbsp;
 // ====================================
 // ROTAS DE PRONTUÁRIOS MÉDICOS
 // ====================================
 &nbsp;
 // GET /api/records - Listar todos os prontuários
-<span class="cstat-no" title="statement not covered" >router.get('/', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {</span>
+router.get('/', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
 <span class="cstat-no" title="statement not covered" >  try {</span>
     const { page = <span class="branch-0 cbranch-no" title="branch not covered" >1,</span> limit = <span class="branch-0 cbranch-no" title="branch not covered" >10,</span> paciente_id, medico_id, data_inicio, data_fim } = <span class="cstat-no" title="statement not covered" >req.query;</span>
     
@@ -1049,7 +1052,7 @@ const router = <span class="cstat-no" title="statement not covered" >express.Rou
 });
 &nbsp;
 // GET /api/records/:id - Buscar prontuário específico
-<span class="cstat-no" title="statement not covered" >router.get('/:id', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {</span>
+router.get('/:id', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
 <span class="cstat-no" title="statement not covered" >  try {</span>
     const { id } = <span class="cstat-no" title="statement not covered" >req.params;</span>
     
@@ -1113,7 +1116,7 @@ const router = <span class="cstat-no" title="statement not covered" >express.Rou
 });
 &nbsp;
 // POST /api/records - Criar novo prontuário
-<span class="cstat-no" title="statement not covered" >router.post('/', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {</span>
+router.post('/', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
 <span class="cstat-no" title="statement not covered" >  try {</span>
     const {
       paciente_id,
@@ -1221,7 +1224,7 @@ const router = <span class="cstat-no" title="statement not covered" >express.Rou
 });
 &nbsp;
 // PUT /api/records/:id - Atualizar prontuário
-<span class="cstat-no" title="statement not covered" >router.put('/:id', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {</span>
+router.put('/:id', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
 <span class="cstat-no" title="statement not covered" >  try {</span>
     const { id } = <span class="cstat-no" title="statement not covered" >req.params;</span>
     const {
@@ -1299,7 +1302,7 @@ const router = <span class="cstat-no" title="statement not covered" >express.Rou
 });
 &nbsp;
 // DELETE /api/records/:id - Excluir prontuário
-<span class="cstat-no" title="statement not covered" >router.delete('/:id', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {</span>
+router.delete('/:id', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
 <span class="cstat-no" title="statement not covered" >  try {</span>
     const { id } = <span class="cstat-no" title="statement not covered" >req.params;</span>
 &nbsp;
@@ -1354,7 +1357,7 @@ const router = <span class="cstat-no" title="statement not covered" >express.Rou
 });
 &nbsp;
 // GET /api/records/patient/:paciente_id - Prontuários de um paciente específico
-<span class="cstat-no" title="statement not covered" >router.get('/patient/:paciente_id', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {</span>
+router.get('/patient/:paciente_id', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
 <span class="cstat-no" title="statement not covered" >  try {</span>
     const { paciente_id } = <span class="cstat-no" title="statement not covered" >req.params;</span>
     
@@ -1395,14 +1398,14 @@ const router = <span class="cstat-no" title="statement not covered" >express.Rou
   }
 });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >module.exports = router;</span></pre></td></tr></table></pre>
+module.exports = router;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-11-03T12:11:45.282Z
+                at 2025-11-06T19:27:17.015Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

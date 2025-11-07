@@ -22,11 +22,19 @@ class DashboardController {
         atividades: dados.atividadesRecentes.length
       });
 
-      res.success(dados, 'Dados do dashboard obtidos com sucesso');
+      return res.status(200).json({
+        success: true,
+        data: dados,
+        message: 'Dados do dashboard obtidos com sucesso'
+      });
 
     } catch (error) {
       console.error('❌ [DASHBOARD] Erro ao obter dados:', error.message);
-      res.error('Erro ao obter dados do dashboard', 500, error.message);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao obter dados do dashboard',
+        error: error.message
+      });
     }
   }
 
@@ -39,11 +47,19 @@ class DashboardController {
 
       const dados = await dashboardService.obterDadosDashboard();
 
-      res.success(dados.metricas, 'Métricas obtidas com sucesso');
+      res.status(200).json({
+        success: true,
+        data: dados.metricas,
+        message: 'Métricas obtidas com sucesso'
+      });
 
     } catch (error) {
       console.error('❌ [DASHBOARD] Erro ao obter métricas:', error.message);
-      res.error('Erro ao obter métricas', 500, error.message);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao obter métricas',
+        error: error.message
+      });
     }
   }
 
@@ -65,11 +81,19 @@ class DashboardController {
         resultado = { [tipo]: dados.graficos[tipo] };
       }
 
-      res.success(resultado, 'Dados de gráficos obtidos com sucesso');
+      res.status(200).json({
+        success: true,
+        data: resultado,
+        message: 'Dados de gráficos obtidos com sucesso'
+      });
 
     } catch (error) {
       console.error('❌ [DASHBOARD] Erro ao obter gráficos:', error.message);
-      res.error('Erro ao obter dados de gráficos', 500, error.message);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao obter dados de gráficos',
+        error: error.message
+      });
     }
   }
 
@@ -85,11 +109,19 @@ class DashboardController {
       const dados = await dashboardService.obterDadosDashboard();
       const atividades = dados.atividadesRecentes.slice(0, parseInt(limite));
 
-      res.success(atividades, 'Atividades recentes obtidas com sucesso');
+      res.status(200).json({
+        success: true,
+        data: atividades,
+        message: 'Atividades recentes obtidas com sucesso'
+      });
 
     } catch (error) {
       console.error('❌ [DASHBOARD] Erro ao obter atividades:', error.message);
-      res.error('Erro ao obter atividades recentes', 500, error.message);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao obter atividades recentes',
+        error: error.message
+      });
     }
   }
 
@@ -102,11 +134,19 @@ class DashboardController {
 
       const dados = await dashboardService.obterDadosDashboard();
 
-      res.success(dados.estatisticas, 'Estatísticas detalhadas obtidas com sucesso');
+      res.status(200).json({
+        success: true,
+        data: dados.estatisticas,
+        message: 'Estatísticas detalhadas obtidas com sucesso'
+      });
 
     } catch (error) {
       console.error('❌ [DASHBOARD] Erro ao obter estatísticas detalhadas:', error.message);
-      res.error('Erro ao obter estatísticas detalhadas', 500, error.message);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao obter estatísticas detalhadas',
+        error: error.message
+      });
     }
   }
 }
