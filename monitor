@@ -1,0 +1,574 @@
+#!/usr/bin/env bash
+# 🏥 MediApp v3.0.0 - Sistema de Monitoramento
+# Monitoramento unificado da aplicação
+
+set -euo pipefail
+
+# Configurações
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly APP_NAME="MediApp"
+readonly VERSION="3.0.0"
+readonly CONFIG_DIR="$SCRIPT_DIR/config"
+readonly LOG_DIR="/tmp/mediapp-monitor"
+
+# Cores para output
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly BLUE='\033[0;34m'
+readonly PURPLE='\033[0;35m'
+readonly CYAN='\033[0;36m'
+readonly NC='\033[0m'
+
+# Configuração padrão
+ENVIRONMENT="development"
+CHECK_INTERVAL=30
+ALERT_THRESHOLD=3
+LOG_RETENTION_DAYS=7
+
+# Logging
+log() {
+    local level=$1; shift
+    local msg="$*"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    
+    mkdir -p "$LOG_DIR"
+    
+    case $level in
+        "INFO")  echo -e "${GREEN}[INFO]${NC}  [$timestamp] $msg" | tee -a "$LOG_DIR/monitor.log" ;;
+        "WARN")  echo -e "${YELLOW}[WARN]${NC}  [$timestamp] $msg" | tee -a "$LOG_DIR/monitor.log" ;;
+        "ERROR") echo -e "${RED}[ERROR]${NC} [$timestamp] $msg" | tee -a "$LOG_DIR/monitor.log" ;;
+        "DEBUG") echo -e "${BLUE}[DEBUG]${NC} [$timestamp] $msg" | tee -a "$LOG_DIR/monitor.log" ;;
+        "SUCCESS") echo -e "${PURPLE}[SUCCESS]${NC} [$timestamp] $msg" | tee -a "$LOG_DIR/monitor.log" ;;
+    esac
+}
+
+# Banner
+print_banner() {
+    clear
+    echo -e "${CYAN}"
+    cat << 'EOF'
+📊 ========================================================
+   __  __          _ _    _                
+  |  \/  | ___  __| (_)  / \   _ __  _ __  
+  | |\/| |/ _ \/ _` | | / _ \ | '_ \| '_ \ 
+  | |  | |  __/ (_| | |/ ___ \| |_) | |_) |
+  |_|  |_|\___|\__,_|_/_/   \_\ .__/| .__/ 
+                              |_|   |_|    
+        Sistema de Monitoramento v3.0.0
+📊 ========================================================
+EOF
+    echo -e "${NC}"
+}
+
+# Ajuda
+show_help() {
+    echo -e "${CYAN}USO:${NC}"
+    echo "  $0 [COMMAND] [OPTIONS]"
+    echo ""
+    echo -e "${CYAN}COMMANDS:${NC}"
+    echo "  status           Verificar status dos serviços"
+    echo "  health           Health check completo"
+    echo "  logs             Visualizar logs"
+    echo "  metrics          Coletar métricas"
+    echo "  alerts           Verificar alertas"
+    echo "  watch            Monitoramento contínuo"
+    echo "  dashboard        Abrir dashboard web"
+    echo "  report           Gerar relatório"
+    echo ""
+    echo -e "${CYAN}OPTIONS:${NC}"
+    echo "  -e, --environment ENV    Ambiente (development|staging|production)"
+    echo "  -i, --interval SEC       Intervalo de verificação (padrão: 30s)"
+    echo "  -t, --threshold NUM      Limite de falhas para alerta (padrão: 3)"
+    echo "  -v, --verbose           Modo verboso"
+    echo "  -h, --help              Mostrar ajuda"
+}
+
+# Parse argumentos
+parse_args() {
+    local command=""
+    local verbose=false
+    
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            status|health|logs|metrics|alerts|watch|dashboard|report)
+                command="$1"
+                shift
+                ;;
+            -e|--environment)
+                ENVIRONMENT="$2"
+                shift 2
+                ;;
+            -i|--interval)
+                CHECK_INTERVAL="$2"
+                shift 2
+                ;;
+            -t|--threshold)
+                ALERT_THRESHOLD="$2"
+                shift 2
+                ;;
+            -v|--verbose)
+                verbose=true
+                shift
+                ;;
+            -h|--help)
+                show_help
+                exit 0
+                ;;
+            *)
+                log "ERROR" "Argumento desconhecido: $1"
+                show_help
+                exit 1
+                ;;
+        esac
+    done
+    
+    export MONITOR_COMMAND="$command"
+    export VERBOSE="$verbose"
+}
+
+# Carregar configuração do ambiente
+load_environment_config() {
+    local env_file="$CONFIG_DIR/environments/${ENVIRONMENT}.env"
+    
+    if [[ -f "$env_file" ]]; then
+        set -a
+        source "$env_file"
+        set +a
+        log "DEBUG" "Configuração carregada: $env_file"
+    else
+        log "WARN" "Arquivo de configuração não encontrado: $env_file"
+    fi
+}
+
+# Verificar status dos serviços
+check_service_status() {
+    log "INFO" "🔍 Verificando status dos serviços..."
+    
+    local services_ok=true
+    local status_report=""
+    
+    # PostgreSQL
+    local db_status="❌ OFFLINE"
+    local db_container="mediapp-db-${ENVIRONMENT}"
+    
+    if docker ps --format "table {{.Names}}" | grep -q "$db_container"; then
+        if docker exec "$db_container" pg_isready -U "${DB_USER:-mediapp}" >/dev/null 2>&1; then
+            db_status="✅ ONLINE"
+        else
+            db_status="⚠️ CONTAINER UP, DB NOT READY"
+            services_ok=false
+        fi
+    else
+        services_ok=false
+    fi
+    
+    status_report+="🐘 PostgreSQL: $db_status\n"
+    
+    # Backend Application
+    local app_status="❌ OFFLINE"
+    local app_port="${PORT:-3002}"
+    
+    if curl -s -f "http://localhost:$app_port/health" >/dev/null 2>&1; then
+        app_status="✅ ONLINE"
+    else
+        services_ok=false
+    fi
+    
+    status_report+="🚀 Backend: $app_status (porta $app_port)\n"
+    
+    # Redis (se configurado)
+    if [[ "${CACHE_ENABLED:-false}" == "true" ]]; then
+        local redis_status="❌ OFFLINE"
+        local redis_container="mediapp-redis-${ENVIRONMENT}"
+        
+        if docker ps --format "table {{.Names}}" | grep -q "$redis_container"; then
+            if docker exec "$redis_container" redis-cli ping 2>/dev/null | grep -q "PONG"; then
+                redis_status="✅ ONLINE"
+            else
+                redis_status="⚠️ CONTAINER UP, REDIS NOT READY"
+                services_ok=false
+            fi
+        else
+            services_ok=false
+        fi
+        
+        status_report+="📊 Redis: $redis_status\n"
+    fi
+    
+    # Exibir resultado
+    echo -e "\n📊 STATUS DOS SERVIÇOS:"
+    echo "=========================="
+    echo -e "$status_report"
+    
+    if [[ "$services_ok" == true ]]; then
+        log "SUCCESS" "✅ Todos os serviços estão funcionais"
+        return 0
+    else
+        log "ERROR" "❌ Alguns serviços apresentam problemas"
+        return 1
+    fi
+}
+
+# Health check avançado
+perform_health_check() {
+    log "INFO" "🏥 Executando health check avançado..."
+    
+    local health_score=100
+    local checks_total=0
+    local checks_passed=0
+    
+    # Health check da aplicação
+    ((checks_total++))
+    local app_port="${PORT:-3002}"
+    local health_response
+    
+    if health_response=$(curl -s "http://localhost:$app_port/health" 2>/dev/null); then
+        ((checks_passed++))
+        log "DEBUG" "✅ Application health check OK"
+        
+        # Verificar detalhes do health check
+        if command -v jq >/dev/null 2>&1; then
+            local db_status=$(echo "$health_response" | jq -r '.database // "unknown"' 2>/dev/null)
+            local uptime=$(echo "$health_response" | jq -r '.uptime // "unknown"' 2>/dev/null)
+            
+            log "DEBUG" "Database: $db_status, Uptime: $uptime"
+        fi
+    else
+        log "ERROR" "❌ Application health check failed"
+        health_score=$((health_score - 30))
+    fi
+    
+    # Verificar endpoints críticos
+    local critical_endpoints=("/api/medicos" "/api/pacientes" "/api/statistics/dashboard")
+    
+    for endpoint in "${critical_endpoints[@]}"; do
+        ((checks_total++))
+        if curl -s -f "http://localhost:$app_port$endpoint" >/dev/null 2>&1; then
+            ((checks_passed++))
+            log "DEBUG" "✅ Endpoint $endpoint OK"
+        else
+            log "WARN" "⚠️ Endpoint $endpoint failed"
+            health_score=$((health_score - 10))
+        fi
+    done
+    
+    # Verificar conectividade do banco
+    ((checks_total++))
+    local db_container="mediapp-db-${ENVIRONMENT}"
+    
+    if docker exec "$db_container" psql -U "${DB_USER:-mediapp}" -d "${DB_NAME:-mediapp_dev}" -c "SELECT 1;" >/dev/null 2>&1; then
+        ((checks_passed++))
+        log "DEBUG" "✅ Database connectivity OK"
+    else
+        log "ERROR" "❌ Database connectivity failed"
+        health_score=$((health_score - 25))
+    fi
+    
+    # Verificar espaço em disco
+    ((checks_total++))
+    local disk_usage
+    disk_usage=$(df / | awk 'NR==2 {print $5}' | sed 's/%//')
+    
+    if [[ $disk_usage -lt 80 ]]; then
+        ((checks_passed++))
+        log "DEBUG" "✅ Disk usage OK ($disk_usage%)"
+    else
+        log "WARN" "⚠️ High disk usage: $disk_usage%"
+        health_score=$((health_score - 15))
+    fi
+    
+    # Verificar memória
+    ((checks_total++))
+    local mem_usage
+    mem_usage=$(free | awk 'NR==2{printf "%.0f", $3*100/($3+$4)}')
+    
+    if [[ $mem_usage -lt 85 ]]; then
+        ((checks_passed++))
+        log "DEBUG" "✅ Memory usage OK ($mem_usage%)"
+    else
+        log "WARN" "⚠️ High memory usage: $mem_usage%"
+        health_score=$((health_score - 10))
+    fi
+    
+    # Resultado final
+    echo ""
+    log "INFO" "📊 HEALTH CHECK SUMMARY:"
+    log "INFO" "Checks passed: $checks_passed/$checks_total"
+    log "INFO" "Health score: $health_score/100"
+    
+    if [[ $health_score -ge 90 ]]; then
+        log "SUCCESS" "✅ Sistema em excelente estado"
+        return 0
+    elif [[ $health_score -ge 70 ]]; then
+        log "WARN" "⚠️ Sistema funcional com algumas questões"
+        return 1
+    else
+        log "ERROR" "❌ Sistema com problemas críticos"
+        return 2
+    fi
+}
+
+# Coletar métricas
+collect_metrics() {
+    log "INFO" "📊 Coletando métricas do sistema..."
+    
+    local metrics_file="$LOG_DIR/metrics-$(date +%Y%m%d-%H%M%S).json"
+    local app_port="${PORT:-3002}"
+    
+    # Coletar métricas da aplicação
+    local app_metrics=""
+    if app_metrics=$(curl -s "http://localhost:$app_port/api/statistics/dashboard" 2>/dev/null); then
+        log "DEBUG" "✅ Métricas da aplicação coletadas"
+    else
+        log "WARN" "⚠️ Falha ao coletar métricas da aplicação"
+        app_metrics='{"error": "Failed to collect app metrics"}'
+    fi
+    
+    # Métricas do sistema
+    local system_metrics
+    system_metrics=$(cat << EOF
+{
+  "timestamp": "$(date -Iseconds)",
+  "environment": "$ENVIRONMENT",
+  "system": {
+    "cpu_usage": $(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}'),
+    "memory_usage": $(free | awk 'NR==2{printf "%.1f", $3*100/($3+$4)}'),
+    "disk_usage": $(df / | awk 'NR==2 {print $5}' | sed 's/%//'),
+    "load_average": "$(uptime | awk -F'load average:' '{print $2}')",
+    "uptime": "$(uptime -p)"
+  },
+  "docker": {
+    "containers_running": $(docker ps -q | wc -l),
+    "images_count": $(docker images -q | wc -l)
+  },
+  "application": $app_metrics
+}
+EOF
+)
+    
+    # Salvar métricas
+    echo "$system_metrics" > "$metrics_file"
+    
+    # Exibir resumo
+    echo ""
+    log "INFO" "📊 MÉTRICAS COLETADAS:"
+    
+    if command -v jq >/dev/null 2>&1; then
+        echo "$system_metrics" | jq -r '
+            "CPU: " + (.system.cpu_usage | tostring) + "%",
+            "Memory: " + (.system.memory_usage | tostring) + "%", 
+            "Disk: " + (.system.disk_usage | tostring) + "%",
+            "Load: " + .system.load_average,
+            "Containers: " + (.docker.containers_running | tostring)
+        '
+    else
+        log "DEBUG" "Métricas salvas em: $metrics_file"
+    fi
+    
+    log "SUCCESS" "✅ Métricas coletadas em: $metrics_file"
+}
+
+# Visualizar logs
+view_logs() {
+    log "INFO" "📋 Visualizando logs do sistema..."
+    
+    local log_type="${1:-all}"
+    local lines="${2:-50}"
+    
+    case $log_type in
+        "app"|"application")
+            log "INFO" "Logs da aplicação (últimas $lines linhas):"
+            tail -n "$lines" "$LOG_DIR"/../mediapp-logs/app.log 2>/dev/null || log "WARN" "Log da aplicação não encontrado"
+            ;;
+        "db"|"database")
+            log "INFO" "Logs do PostgreSQL:"
+            docker logs "mediapp-db-${ENVIRONMENT}" --tail "$lines" 2>/dev/null || log "WARN" "Container PostgreSQL não encontrado"
+            ;;
+        "monitor")
+            log "INFO" "Logs do monitor (últimas $lines linhas):"
+            tail -n "$lines" "$LOG_DIR/monitor.log" 2>/dev/null || log "WARN" "Log do monitor não encontrado"
+            ;;
+        "all"|*)
+            log "INFO" "Todos os logs disponíveis:"
+            echo ""
+            echo "📋 APPLICATION LOGS:"
+            tail -n 10 "$LOG_DIR"/../mediapp-logs/app.log 2>/dev/null || echo "  Não disponível"
+            echo ""
+            echo "📋 DATABASE LOGS:"
+            docker logs "mediapp-db-${ENVIRONMENT}" --tail 5 2>/dev/null || echo "  Container não encontrado"
+            echo ""
+            echo "📋 MONITOR LOGS:"
+            tail -n 10 "$LOG_DIR/monitor.log" 2>/dev/null || echo "  Não disponível"
+            ;;
+    esac
+}
+
+# Monitoramento contínuo
+continuous_monitoring() {
+    log "INFO" "👀 Iniciando monitoramento contínuo (intervalo: ${CHECK_INTERVAL}s)..."
+    log "INFO" "Pressione Ctrl+C para parar"
+    
+    local consecutive_failures=0
+    local start_time=$(date +%s)
+    
+    while true; do
+        echo ""
+        echo "======================================"
+        echo "🕐 $(date '+%Y-%m-%d %H:%M:%S')"
+        echo "======================================"
+        
+        if check_service_status >/dev/null 2>&1; then
+            consecutive_failures=0
+            log "SUCCESS" "✅ Todos os serviços OK"
+        else
+            ((consecutive_failures++))
+            log "ERROR" "❌ Falha detectada ($consecutive_failures/$ALERT_THRESHOLD)"
+            
+            if [[ $consecutive_failures -ge $ALERT_THRESHOLD ]]; then
+                send_alert "Serviços com falha por $consecutive_failures verificações consecutivas"
+                consecutive_failures=0  # Reset para evitar spam
+            fi
+        fi
+        
+        # Estatísticas de uptime
+        local current_time=$(date +%s)
+        local uptime_seconds=$((current_time - start_time))
+        local uptime_minutes=$((uptime_seconds / 60))
+        
+        log "INFO" "Monitor rodando há ${uptime_minutes} minutos"
+        
+        sleep "$CHECK_INTERVAL"
+    done
+}
+
+# Enviar alerta
+send_alert() {
+    local message="$1"
+    
+    log "ERROR" "🚨 ALERTA: $message"
+    
+    # Slack webhook (se configurado)
+    if [[ -n "${SLACK_WEBHOOK_URL:-}" ]]; then
+        curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"🚨 MediApp Alert: $message\"}" \
+            "$SLACK_WEBHOOK_URL" >/dev/null 2>&1 || true
+    fi
+    
+    # Email (se configurado)
+    if command -v mail >/dev/null 2>&1 && [[ -n "${ALERT_EMAIL:-}" ]]; then
+        echo "Alert from MediApp: $message" | mail -s "🚨 MediApp Alert" "$ALERT_EMAIL" || true
+    fi
+    
+    # Log local
+    echo "$(date -Iseconds) ALERT: $message" >> "$LOG_DIR/alerts.log"
+}
+
+# Gerar relatório
+generate_report() {
+    log "INFO" "📊 Gerando relatório do sistema..."
+    
+    local report_file="$LOG_DIR/report-$(date +%Y%m%d-%H%M%S).md"
+    
+    cat > "$report_file" << EOF
+# 📊 MediApp System Report
+
+**Generated:** $(date '+%Y-%m-%d %H:%M:%S')  
+**Environment:** $ENVIRONMENT  
+**Version:** $VERSION
+
+## 🔍 Service Status
+
+EOF
+    
+    # Adicionar status dos serviços
+    if check_service_status >> "$report_file" 2>&1; then
+        echo "✅ **Overall Status:** HEALTHY" >> "$report_file"
+    else
+        echo "❌ **Overall Status:** ISSUES DETECTED" >> "$report_file"
+    fi
+    
+    echo "" >> "$report_file"
+    echo "## 📊 System Metrics" >> "$report_file"
+    echo "" >> "$report_file"
+    
+    # Adicionar métricas
+    cat << EOF >> "$report_file"
+- **CPU Usage:** $(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')%
+- **Memory Usage:** $(free | awk 'NR==2{printf "%.1f", $3*100/($3+$4)}')%  
+- **Disk Usage:** $(df / | awk 'NR==2 {print $5}')
+- **Load Average:** $(uptime | awk -F'load average:' '{print $2}')
+- **Uptime:** $(uptime -p)
+
+## 🐳 Docker Status
+
+- **Running Containers:** $(docker ps -q | wc -l)
+- **Total Images:** $(docker images -q | wc -l)
+
+EOF
+    
+    log "SUCCESS" "✅ Relatório gerado: $report_file"
+    
+    # Abrir relatório se possível
+    if command -v xdg-open >/dev/null 2>&1; then
+        xdg-open "$report_file" 2>/dev/null || true
+    fi
+}
+
+# Função principal
+main() {
+    if [[ -z "${MONITOR_COMMAND:-}" ]]; then
+        print_banner
+        show_help
+        exit 0
+    fi
+    
+    print_banner
+    log "INFO" "🚀 MediApp Monitor v$VERSION"
+    log "INFO" "Environment: $ENVIRONMENT"
+    
+    load_environment_config
+    
+    case "$MONITOR_COMMAND" in
+        "status")
+            check_service_status
+            ;;
+        "health")
+            perform_health_check
+            ;;
+        "logs")
+            view_logs "$@"
+            ;;
+        "metrics")
+            collect_metrics
+            ;;
+        "watch")
+            continuous_monitoring
+            ;;
+        "report")
+            generate_report
+            ;;
+        "dashboard")
+            log "INFO" "🌐 Abrindo dashboard..."
+            local app_port="${PORT:-3002}"
+            
+            if command -v xdg-open >/dev/null 2>&1; then
+                xdg-open "http://localhost:$app_port" 2>/dev/null || true
+            else
+                log "INFO" "Dashboard disponível em: http://localhost:$app_port"
+            fi
+            ;;
+        *)
+            log "ERROR" "Comando desconhecido: $MONITOR_COMMAND"
+            show_help
+            exit 1
+            ;;
+    esac
+}
+
+# Trap para cleanup
+trap 'log "INFO" "Monitor interrompido"; exit 0' INT TERM
+
+# Executar função principal
+parse_args "$@"
+main "$@"

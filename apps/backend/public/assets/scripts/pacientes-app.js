@@ -51,6 +51,33 @@ class PacientesApp extends MediAppCore {
         if (cepInput) {
             cepInput.addEventListener('blur', () => this.buscarCep());
         }
+
+        // Event delegation for action buttons
+        document.addEventListener('click', (e) => {
+            const actionBtn = e.target.closest('[data-action]');
+            if (!actionBtn) return;
+
+            const action = actionBtn.dataset.action;
+            const pacienteId = actionBtn.dataset.pacienteId;
+
+            switch (action) {
+                case 'editar':
+                    this.editarPaciente(pacienteId);
+                    break;
+                case 'visualizar':
+                    this.verPaciente(pacienteId);
+                    break;
+                case 'excluir':
+                    this.excluirPaciente(pacienteId);
+                    break;
+                case 'fechar-modal':
+                    this.closeModal();
+                    break;
+                case 'salvar-paciente':
+                    this.salvarPaciente();
+                    break;
+            }
+        });
     }
 
     async loadPacientes() {
@@ -143,13 +170,13 @@ class PacientesApp extends MediAppCore {
                 </td>
                 <td>
                     <div class="action-buttons">
-                        <button class="btn btn-sm btn-outline-primary" onclick="PacientesApp.editarPaciente('${paciente.id}')">
+                        <button class="btn btn-sm btn-outline-primary" data-action="editar" data-paciente-id="${paciente.id}">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-info" onclick="PacientesApp.verPaciente('${paciente.id}')">
+                        <button class="btn btn-sm btn-outline-info" data-action="visualizar" data-paciente-id="${paciente.id}">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="PacientesApp.excluirPaciente('${paciente.id}')">
+                        <button class="btn btn-sm btn-outline-danger" data-action="excluir" data-paciente-id="${paciente.id}">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>

@@ -1,0 +1,309 @@
+#!/usr/bin/env bash
+# 🏥 MediApp - Gerenciador de Sistema v3.0.0
+# Interface unificada para todos os scripts e operações
+
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BACKEND_DIR="$SCRIPT_DIR/apps/backend"
+SERVICES_CONFIG="/tmp/mediapp-services.json"
+
+# Função de ajuda
+show_help() {
+    echo -e "${PURPLE}"
+    cat << 'EOF'
+🏥 ================================================
+   MediApp v3.0.0 - Gerenciador de Sistema
+🏥 ================================================
+EOF
+    echo -e "${NC}"
+    
+    echo -e "${CYAN}COMANDOS DISPONÍVEIS:${NC}"
+    echo ""
+    echo -e "${GREEN}📋 OPERAÇÕES PRINCIPAIS:${NC}"
+    echo "  start          Iniciar sistema completo (recomendado)"
+    echo "  stop           Parar todos os serviços"
+    echo "  restart        Reiniciar sistema completo"
+    echo "  status         Verificar status de todos os serviços"
+    echo ""
+    echo -e "${GREEN}🔧 OPERAÇÕES DE MANUTENÇÃO:${NC}"
+    echo "  cleanup        Limpar processos e arquivos temporários"
+    echo "  ports          Gerenciar e verificar portas"
+    echo "  logs           Visualizar logs do sistema"
+    echo "  health         Verificar saúde do sistema"
+    echo ""
+    echo -e "${GREEN}🐘 OPERAÇÕES DE BANCO:${NC}"
+    echo "  db-setup       Configurar apenas PostgreSQL"
+    echo "  db-reset       Resetar banco de dados"
+    echo "  db-migrate     Aplicar migrações"
+    echo "  db-status      Status do banco de dados"
+    echo ""
+    echo -e "${GREEN}🚀 MODOS DE DESENVOLVIMENTO:${NC}"
+    echo "  dev            Modo desenvolvimento (com hot-reload)"
+    echo "  minimal        Iniciar apenas servidor mínimo"
+    echo "  demo           Iniciar servidor demo"
+    echo "  test           Iniciar ambiente de teste"
+    echo ""
+    echo -e "${GREEN}📊 INFORMAÇÕES:${NC}"
+    echo "  info           Informações do sistema"
+    echo "  config         Mostrar configuração atual"
+    echo "  report         Gerar relatório completo"
+    echo ""
+    echo -e "${YELLOW}EXEMPLOS DE USO:${NC}"
+    echo "  $0 start                 # Iniciar sistema completo"
+    echo "  $0 ports --check         # Verificar conflitos de porta"  
+    echo "  $0 logs --follow         # Acompanhar logs em tempo real"
+    echo "  $0 dev --port 3001       # Desenvolvimento na porta 3001"
+    echo ""
+}
+
+# Função para verificar status
+check_status() {
+    echo -e "${BLUE}📊 Status do Sistema MediApp${NC}"
+    echo "================================"
+    
+    # PostgreSQL
+    if docker ps | grep -q "mediapp-db"; then
+        local db_port=$(docker port mediapp-db 5432/tcp 2>/dev/null | cut -d: -f2 || echo "N/A")
+        echo -e "${GREEN}✅ PostgreSQL: RODANDO${NC} (porta: $db_port)"
+    else
+        echo -e "${RED}❌ PostgreSQL: PARADO${NC}"
+    fi
+    
+    # Servidor Node.js
+    local main_pid=""
+    if [ -f "/tmp/mediapp-main.pid" ]; then
+        main_pid=$(cat "/tmp/mediapp-main.pid" 2>/dev/null)
+    fi
+    
+    if [ -n "$main_pid" ] && kill -0 "$main_pid" 2>/dev/null; then
+        local port="N/A"
+        if [ -f "$SERVICES_CONFIG" ]; then
+            port=$(grep -o '"main": [0-9]*' "$SERVICES_CONFIG" 2>/dev/null | cut -d' ' -f2 || echo "N/A")
+        fi
+        echo -e "${GREEN}✅ Servidor Principal: RODANDO${NC} (PID: $main_pid, porta: $port)"
+    else
+        echo -e "${RED}❌ Servidor Principal: PARADO${NC}"
+    fi
+    
+    # Arquivos de configuração
+    echo ""
+    echo -e "${BLUE}📁 Arquivos de Sistema:${NC}"
+    
+    if [ -f "$SERVICES_CONFIG" ]; then
+        echo -e "${GREEN}✅ Configuração: PRESENTE${NC} ($SERVICES_CONFIG)"
+    else
+        echo -e "${YELLOW}⚠️ Configuração: AUSENTE${NC}"
+    fi
+    
+    if [ -d "/tmp/mediapp-logs" ]; then
+        local log_count=$(find /tmp/mediapp-logs -name "*.log" 2>/dev/null | wc -l)
+        echo -e "${GREEN}✅ Logs: $log_count arquivos${NC} (/tmp/mediapp-logs/)"
+    else
+        echo -e "${YELLOW}⚠️ Logs: DIRETÓRIO AUSENTE${NC}"
+    fi
+}
+
+# Função para limpar sistema
+cleanup_system() {
+    echo -e "${YELLOW}🧹 Limpando sistema...${NC}"
+    
+    # Parar processos Node.js
+    echo "Parando processos Node.js..."
+    pkill -f "node.*app" 2>/dev/null || true
+    pkill -f "node.*server" 2>/dev/null || true
+    
+    # Parar containers Docker
+    echo "Parando containers Docker..."
+    docker stop mediapp-db 2>/dev/null || true
+    docker rm mediapp-db 2>/dev/null || true
+    
+    # Remover arquivos temporários
+    echo "Removendo arquivos temporários..."
+    rm -f /tmp/mediapp-*.pid 2>/dev/null || true
+    rm -f /tmp/mediapp-*.log 2>/dev/null || true
+    
+    echo -e "${GREEN}✅ Limpeza concluída${NC}"
+}
+
+# Função para gerenciar portas
+manage_ports() {
+    local action=${1:-"check"}
+    
+    case $action in
+        "check"|"--check")
+            echo -e "${BLUE}🔍 Verificando conflitos de porta...${NC}"
+            
+            # Portas principais do MediApp
+            local ports=(3001 3002 3003 3004 5432 5433 5434)
+            
+            for port in "${ports[@]}"; do
+                if netstat -tlnp 2>/dev/null | grep -q ":${port}.*LISTEN"; then
+                    local pid=$(lsof -ti:$port 2>/dev/null || echo "N/A")
+                    echo -e "${RED}❌ Porta $port: EM USO${NC} (PID: $pid)"
+                else
+                    echo -e "${GREEN}✅ Porta $port: LIVRE${NC}"
+                fi
+            done
+            ;;
+        "free"|"--free")
+            local target_port=$2
+            if [ -z "$target_port" ]; then
+                echo -e "${RED}Erro: Especifique a porta para liberar${NC}"
+                echo "Uso: $0 ports free <porta>"
+                return 1
+            fi
+            
+            echo -e "${YELLOW}🔄 Liberando porta $target_port...${NC}"
+            local pids=$(lsof -ti:$target_port 2>/dev/null || echo "")
+            
+            if [ -n "$pids" ]; then
+                echo "Finalizando processos: $pids"
+                echo "$pids" | xargs -r kill -9 2>/dev/null || true
+                sleep 1
+                echo -e "${GREEN}✅ Porta $target_port liberada${NC}"
+            else
+                echo -e "${YELLOW}⚠️ Nenhum processo encontrado na porta $target_port${NC}"
+            fi
+            ;;
+        *)
+            echo -e "${YELLOW}Ações disponíveis para portas:${NC}"
+            echo "  check    Verificar conflitos"
+            echo "  free     Liberar porta específica"
+            ;;
+    esac
+}
+
+# Função para visualizar logs
+show_logs() {
+    local action=${1:-"latest"}
+    local log_dir="/tmp/mediapp-logs"
+    
+    if [ ! -d "$log_dir" ]; then
+        echo -e "${YELLOW}⚠️ Diretório de logs não encontrado: $log_dir${NC}"
+        return 1
+    fi
+    
+    case $action in
+        "latest"|"--latest")
+            echo -e "${BLUE}📋 Últimos logs do sistema:${NC}"
+            echo "================================"
+            
+            for log_file in "$log_dir"/*.log; do
+                if [ -f "$log_file" ]; then
+                    echo -e "\n${CYAN}$(basename "$log_file"):${NC}"
+                    tail -5 "$log_file" | sed 's/^/  /'
+                fi
+            done
+            ;;
+        "follow"|"--follow")
+            echo -e "${BLUE}📋 Acompanhando logs em tempo real (Ctrl+C para sair):${NC}"
+            if [ -f "$log_dir/app.log" ]; then
+                tail -f "$log_dir/app.log"
+            else
+                echo -e "${YELLOW}⚠️ Arquivo app.log não encontrado${NC}"
+            fi
+            ;;
+        "clear"|"--clear")
+            echo -e "${YELLOW}🗑️ Limpando logs...${NC}"
+            rm -f "$log_dir"/*.log 2>/dev/null || true
+            echo -e "${GREEN}✅ Logs limpos${NC}"
+            ;;
+        *)
+            echo -e "${YELLOW}Ações disponíveis para logs:${NC}"
+            echo "  latest   Mostrar últimos logs"
+            echo "  follow   Acompanhar em tempo real"
+            echo "  clear    Limpar todos os logs"
+            ;;
+    esac
+}
+
+# Função principal
+main() {
+    local command=${1:-"help"}
+    shift || true
+    
+    case $command in
+        "start")
+            echo -e "${CYAN}🚀 Iniciando MediApp v3.0.0...${NC}"
+            chmod +x "$SCRIPT_DIR/start-unified.sh"
+            "$SCRIPT_DIR/start-unified.sh" "$@"
+            ;;
+        "stop")
+            echo -e "${YELLOW}🛑 Parando sistema...${NC}"
+            cleanup_system
+            ;;
+        "restart")
+            echo -e "${CYAN}🔄 Reiniciando sistema...${NC}"
+            cleanup_system
+            sleep 2
+            chmod +x "$SCRIPT_DIR/start-unified.sh"
+            "$SCRIPT_DIR/start-unified.sh" "$@"
+            ;;
+        "status")
+            check_status
+            ;;
+        "cleanup")
+            cleanup_system
+            ;;
+        "ports")
+            manage_ports "$@"
+            ;;
+        "logs")
+            show_logs "$@"
+            ;;
+        "health")
+            echo -e "${BLUE}🏥 Verificação de saúde...${NC}"
+            check_status
+            
+            # Teste de conectividade
+            if [ -f "$SERVICES_CONFIG" ]; then
+                local port=$(grep -o '"main": [0-9]*' "$SERVICES_CONFIG" 2>/dev/null | cut -d' ' -f2)
+                if [ -n "$port" ]; then
+                    echo ""
+                    echo -e "${BLUE}🌐 Teste de conectividade:${NC}"
+                    if timeout 3 bash -c "</dev/tcp/localhost/$port" 2>/dev/null; then
+                        echo -e "${GREEN}✅ Servidor acessível na porta $port${NC}"
+                    else
+                        echo -e "${RED}❌ Servidor não acessível na porta $port${NC}"
+                    fi
+                fi
+            fi
+            ;;
+        "info")
+            echo -e "${PURPLE}ℹ️ Informações do Sistema MediApp v3.0.0${NC}"
+            echo "=========================================="
+            echo "Diretório: $SCRIPT_DIR"
+            echo "Backend: $BACKEND_DIR"
+            echo "Configuração: $SERVICES_CONFIG"
+            echo "Node.js: $(node -v 2>/dev/null || echo 'Não encontrado')"
+            echo "Docker: $(docker --version 2>/dev/null | cut -d' ' -f3 | cut -d',' -f1 || echo 'Não encontrado')"
+            ;;
+        "config")
+            if [ -f "$SERVICES_CONFIG" ]; then
+                echo -e "${BLUE}📋 Configuração Atual:${NC}"
+                cat "$SERVICES_CONFIG" | python3 -m json.tool 2>/dev/null || cat "$SERVICES_CONFIG"
+            else
+                echo -e "${YELLOW}⚠️ Arquivo de configuração não encontrado: $SERVICES_CONFIG${NC}"
+            fi
+            ;;
+        "help"|"-h"|"--help"|"")
+            show_help
+            ;;
+        *)
+            echo -e "${RED}❌ Comando não reconhecido: $command${NC}"
+            echo ""
+            show_help
+            exit 1
+            ;;
+    esac
+}
+
+# Executar função principal
+main "$@"

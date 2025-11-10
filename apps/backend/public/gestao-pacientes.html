@@ -137,7 +137,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="modalTitle">Novo Paciente</h3>
-                <button type="button" class="modal-close" onclick="PacientesApp.closeModal()">&times;</button>
+                <button type="button" class="modal-close" data-action="fechar-modal">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="pacienteForm">
@@ -269,11 +269,11 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="PacientesApp.closeModal()">
+                <button type="button" class="btn btn-secondary" data-action="fechar-modal">
                     <i class="fas fa-times"></i>
                     Cancelar
                 </button>
-                <button type="button" class="btn btn-primary" onclick="PacientesApp.salvarPaciente()">
+                <button type="button" class="btn btn-primary" data-action="salvar-paciente">
                     <i class="fas fa-save"></i>
                     Salvar
                 </button>
@@ -1155,11 +1155,11 @@
                 params.append('page', page);
                 params.append('limit', limit);
                 
-                const response = await fetch(`http://localhost:3001/api/patients?${params}`);
+                const response = await fetch(`/api/pacientes?${params}`);
                 const data = await response.json();
                 
                 if (response.ok && data.success) {
-                    pacientes = data.patients || [];
+                    pacientes = data.data || [];
                     paginacao = data.pagination || {};
                     renderizarListaPacientes(pacientes);
                     atualizarEstatisticas();
@@ -1478,14 +1478,14 @@
         // Carregar estatísticas
         async function carregarEstatisticas() {
             try {
-                const response = await fetch('/api/patients/stats/overview');
+                const response = await fetch('/api/statistics/dashboard');
                 const data = await response.json();
                 
-                if (response.ok) {
-                    document.getElementById('totalPacientes').textContent = data.stats.totalPacientes;
-                    document.getElementById('consultasHoje').textContent = data.stats.consultasHoje;
-                    document.getElementById('pacientesAlergias').textContent = data.stats.pacientesAlergias;
-                    document.getElementById('prontuariosAtivos').textContent = data.stats.prontuariosAtivos;
+                if (response.ok && data.success) {
+                    document.getElementById('totalPacientes').textContent = data.pacientes?.total || '0';
+                    document.getElementById('consultasHoje').textContent = data.consultas?.total || '0';
+                    document.getElementById('pacientesAlergias').textContent = '0'; // Não temos esses dados ainda
+                    document.getElementById('prontuariosAtivos').textContent = data.pacientes?.total || '0';
                 } else {
                     console.error('Erro ao carregar estatísticas:', data.message);
                     // Fallback para valores padrão
@@ -1607,8 +1607,8 @@
                 console.log(`📝 ${isEdit ? 'Atualizando' : 'Enviando'} dados do paciente:`, dados);
                 
                 const url = isEdit ? 
-                    `http://localhost:3002/api/patients/${editId}` : 
-                    'http://localhost:3002/api/patients';
+                    `/api/pacientes/${editId}` : 
+                    '/api/pacientes';
                 
                 const method = isEdit ? 'PUT' : 'POST';
                 
@@ -1715,7 +1715,7 @@
         async function editarPaciente(id) {
             try {
                 // Buscar dados completos do paciente
-                const response = await fetch(`http://localhost:3002/api/patients/${id}`);
+                const response = await fetch(`/api/pacientes/${id}`);
                 const result = await response.json();
                 
                 if (response.ok && result.success) {
@@ -1808,7 +1808,7 @@
             }
             
             try {
-                const response = await fetch(`http://localhost:3002/api/patients/${id}`, {
+                const response = await fetch(`/api/pacientes/${id}`, {
                     method: 'DELETE'
                 });
                 

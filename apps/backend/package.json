@@ -4,24 +4,34 @@
   "description": "🏥 MediApp Backend - Sistema Médico Completo v3.0.0",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
-    "test": "NODE_ENV=test jest --runInBand",
+    "start": "node server-robust.js",
+    "start:prod": "NODE_ENV=production node server-robust.js",
+    "start:dev": "NODE_ENV=development nodemon server-robust.js",
+    "dev": "nodemon server-robust.js",
+    "build": "npm run db:generate && npm run lint",
+    "test": "NODE_ENV=test jest --runInBand --detectOpenHandles",
     "test:watch": "NODE_ENV=test jest --watch --runInBand",
-    "test:coverage": "NODE_ENV=test jest --coverage --runInBand",
-    "test:unit": "NODE_ENV=test jest tests/unit --runInBand",
-    "test:integration": "NODE_ENV=test jest tests/integration --runInBand",
-    "test:e2e": "NODE_ENV=test jest tests/e2e --runInBand",
+    "test:coverage": "NODE_ENV=test jest --coverage --runInBand --detectOpenHandles",
+    "test:unit": "NODE_ENV=test jest tests/unit --runInBand --detectOpenHandles",
+    "test:integration": "NODE_ENV=test jest tests/integration --runInBand --detectOpenHandles",
+    "test:e2e": "NODE_ENV=test jest tests/e2e --runInBand --detectOpenHandles",
     "test:validate": "NODE_ENV=test jest tests/unit/validation.test.js --runInBand",
     "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:test": "NODE_ENV=test prisma migrate deploy",
     "db:generate": "prisma generate",
-    "db:seed": "node src/database/seed.js",
+    "db:seed": "node prisma/seed.js",
     "db:reset": "prisma migrate reset --force",
     "db:studio": "prisma studio",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
-    "health": "curl -s http://localhost:3001/health | jq ."
+    "db:push": "prisma db push",
+    "lint": "eslint . --ext .js,.ts --ignore-path .gitignore",
+    "lint:fix": "eslint . --ext .js,.ts --fix --ignore-path .gitignore",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "health": "curl -s http://localhost:3002/health",
+    "deploy": "npm run build && npm run start:prod",
+    "precommit": "npm run lint && npm run test:unit",
+    "prepare": "npm run db:generate"
   },
   "keywords": [
     "medical",
@@ -74,10 +84,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mediapp/backend.git"
+    "url": "git+https://github.com/italo-costa/medFastApp.git"
   },
   "bugs": {
-    "url": "https://github.com/mediapp/backend/issues"
+    "url": "https://github.com/italo-costa/medFastApp/issues"
   },
-  "homepage": "https://github.com/mediapp/backend#readme"
+  "homepage": "https://github.com/italo-costa/medFastApp#readme"
 }

@@ -1,0 +1,28 @@
+MediApp Backup Manifest
+======================
+Timestamp: Sat Nov  8 13:38:40 -03 2025
+Backup ID: mediapp_backup_20251108_133838
+
+Files included:
+- Database: mediapp_backup_20251108_133838_database.sql.gz (416 bytes)
+- Uploads: mediapp_backup_20251108_133838_uploads.tar.gz (106 bytes)
+- Config: mediapp_backup_20251108_133838_config.tar.gz (122 bytes)
+
+Docker containers status at backup time:
+NAMES              STATUS                                     IMAGE
+mediapp-nginx      Up 2 seconds                               nginx:alpine
+mediapp-backend    Up Less than a second (health: starting)   docker-mediapp-backend
+mediapp-postgres   Up 2 seconds (health: starting)            postgres:15-alpine
+mediapp-redis      Up 2 seconds                               redis:7-alpine
+
+Environment info:
+- Host: Italo-Costa
+- User: italo_unix_user
+- Docker version: Docker version 28.3.3, build 980b856
+- Compose version: docker-compose version 1.29.2, build unknown
+
+Restore instructions:
+1. Stop current containers: docker-compose down
+2. Restore database: gunzip -c mediapp_backup_20251108_133838_database.sql.gz | docker exec -i mediapp-postgres psql -U mediapp mediapp_db
+3. Restore uploads: docker cp mediapp_backup_20251108_133838_uploads.tar.gz mediapp-backend:/tmp/ && docker exec mediapp-backend tar -xzf /tmp/mediapp_backup_20251108_133838_uploads.tar.gz -C /app
+4. Restart containers: docker-compose up -d

@@ -1,0 +1,47 @@
+{
+  "name": "mediapp-system",
+  "version": "3.0.0",
+  "description": "🏥 Sistema Médico Completo - Gestão de Pacientes, Médicos e Prontuários",
+  "private": false,
+  "keywords": [
+    "medical",
+    "healthcare", 
+    "patient-management",
+    "doctor-management",
+    "medical-records",
+    "nodejs",
+    "express",
+    "postgresql",
+    "prisma"
+  ],
+  "author": {
+    "name": "MediApp Team",
+    "email": "dev@mediapp.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/italo-costa/medFastApp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/italo-costa/medFastApp/issues"
+  },
+  "homepage": "https://github.com/italo-costa/medFastApp#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "scripts": {
+    "prepare": "cd mediapp-backend && npm install",
+    "build": "cd mediapp-backend && npm run build",
+    "start": "cd mediapp-backend && npm start",
+    "dev": "cd mediapp-backend && npm run dev",
+    "test": "cd mediapp-backend && npm test",
+    "lint": "cd mediapp-backend && npm run lint",
+    "deploy": "./scripts/deploy.sh"
+  },
+  "workspaces": [
+    "mediapp-backend",
+    "mediapp-frontend"
+  ]
+}

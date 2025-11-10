@@ -1,0 +1,93 @@
+services:
+  # 🐘 PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: mediapp-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-mediapp}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-mediapp123}
+      POSTGRES_DB: ${DB_NAME:-mediapp_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    networks:
+      - mediapp-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-mediapp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 🚀 MediApp Backend
+  mediapp-backend:
+    build:
+      context: ../../apps/backend
+      dockerfile: ../../infra-deploy/docker/Dockerfile
+    container_name: mediapp-backend
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-mediapp}:${DB_PASSWORD:-mediapp123}@postgres:5432/${DB_NAME:-mediapp_db}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-mediapp_jwt_secret_super_secure_2025}
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3002
+    ports:
+      - "${APP_PORT:-3002}:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - mediapp-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 🌐 Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: mediapp-nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ../../apps/backend/public:/usr/share/nginx/html:ro
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    depends_on:
+      - mediapp-backend
+    networks:
+      - mediapp-network
+    restart: unless-stopped
+
+  # 📊 Redis Cache (Opcional)
+  redis:
+    image: redis:7-alpine
+    container_name: mediapp-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mediapp-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+# 🔌 Networks
+networks:
+  mediapp-network:
+    driver: bridge
+
+# 💾 Volumes
+volumes:
+  postgres_data:
+    driver: local
+  uploads_data:
+    driver: local  
+  redis_data:
+    driver: local

@@ -1,0 +1,38 @@
+{
+    "timestamp": "2025-11-08T16:40:38Z",
+    "mediapp_version": "3.0.0",
+    "system": {
+        "hostname": "Italo-Costa",
+        "uptime": "up 6 minutes",
+        "load_average": "N/A"
+    },
+    "containers": {
+        "mediapp-backend": {
+            "status": "stopped",
+            "cpu_percent": 0,
+            "memory_percent": 0
+        }
+,
+        "mediapp-postgres": {
+            "status": "stopped",
+            "cpu_percent": 0,
+            "memory_percent": 0
+        }
+,
+        "mediapp-nginx": {
+            "status": "stopped",
+            "cpu_percent": 0,
+            "memory_percent": 0
+        }
+    },
+    "database": {
+        "medicos": 0,
+        "pacientes": 0,
+        "exames": 0,
+        "prescricoes": 0
+    },
+    "health_checks": {
+        "api_health": false,
+        "frontend": false
+    }
+}

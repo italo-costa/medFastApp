@@ -1,0 +1,3 @@
+@echo off
+echo Iniciando servidor MediApp...
+wsl -e bash -c "cd /mnt/c/workspace/aplicativo/apps/backend && PORT=3000 node server-robust.js"

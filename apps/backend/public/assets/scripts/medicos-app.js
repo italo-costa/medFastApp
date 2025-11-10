@@ -59,6 +59,34 @@ class MedicoApp {
                 this.closeModal();
             }
         });
+
+        // Event delegation for action buttons
+        document.addEventListener('click', (e) => {
+            const actionBtn = e.target.closest('[data-action]');
+            if (!actionBtn) return;
+
+            const action = actionBtn.dataset.action;
+            const medicoId = actionBtn.dataset.medicoId;
+            const medicoNome = actionBtn.dataset.medicoNome;
+
+            switch (action) {
+                case 'visualizar':
+                    this.visualizarMedico(medicoId);
+                    break;
+                case 'editar':
+                    this.editarMedico(medicoId);
+                    break;
+                case 'excluir':
+                    this.confirmarExclusao(medicoId, medicoNome);
+                    break;
+                case 'fechar-modal':
+                    this.closeModal();
+                    break;
+                case 'salvar-medico':
+                    this.salvarMedico();
+                    break;
+            }
+        });
     }
     
     carregarEspecialidades() {
@@ -91,11 +119,12 @@ class MedicoApp {
             const response = await fetch('/api/statistics/dashboard');
             if (response.ok) {
                 const result = await response.json();
-                if (result.success && result.data) {
-                    const stats = result.data;
-                    this.updateElement('totalMedicos', stats.totalMedicos || 0);
-                    this.updateElement('medicosAtivos', stats.totalMedicos || 0);
-                    this.updateElement('especialidades', stats.especialidades || 0);
+                if (result.success) {
+                    // API retorna estrutura: {medicos: {total, ativos, especialidades}, ...}
+                    const medicos = result.medicos || {};
+                    this.updateElement('totalMedicos', medicos.total || 0);
+                    this.updateElement('medicosAtivos', medicos.ativos || 0);
+                    this.updateElement('especialidades', medicos.especialidades || 0);
                 }
             }
         } catch (error) {
@@ -146,22 +175,27 @@ class MedicoApp {
         this.hideElement(emptyState);
         
         this.medicosFiltered.forEach(medico => {
+            // Extrair dados do médico considerando a estrutura da API
+            const nome = medico.usuario?.nome || medico.nomeCompleto || medico.nome || 'N/A';
+            const email = medico.usuario?.email || medico.email || 'N/A';
+            const telefone = medico.celular || medico.telefone || 'N/A';
+            
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><strong>${medico.nomeCompleto || medico.nome || 'N/A'}</strong></td>
+                <td><strong>${nome}</strong></td>
                 <td>${medico.crm || 'N/A'} <small style="color: #718096;">${medico.crm_uf || ''}</small></td>
                 <td><span class="badge badge-blue">${medico.especialidade || 'N/A'}</span></td>
-                <td>${medico.email || 'N/A'}</td>
-                <td>${medico.telefone || 'N/A'}</td>
+                <td>${email}</td>
+                <td>${telefone}</td>
                 <td>
                     <div class="action-buttons">
-                        <button type="button" class="btn btn-secondary btn-sm" onclick="medicoApp.visualizarMedico('${medico.id}')" title="Visualizar">
+                        <button type="button" class="btn btn-secondary btn-sm" data-action="visualizar" data-medico-id="${medico.id}" title="Visualizar">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button type="button" class="btn btn-warning btn-sm" onclick="medicoApp.editarMedico('${medico.id}')" title="Editar">
+                        <button type="button" class="btn btn-warning btn-sm" data-action="editar" data-medico-id="${medico.id}" title="Editar">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="medicoApp.confirmarExclusao('${medico.id}', '${this.escapeName(medico.nomeCompleto || medico.nome)}')" title="Excluir">
+                        <button type="button" class="btn btn-danger btn-sm" data-action="excluir" data-medico-id="${medico.id}" data-medico-nome="${this.escapeName(nome)}" title="Excluir">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -465,9 +499,5 @@ class MedicoApp {
 // Initialize the app
 const medicoApp = new MedicoApp();
 
-// Expose methods for onclick handlers
-window.MedicoApp = {
-    openModal: (mode, id) => medicoApp.openModal(mode, id),
-    closeModal: () => medicoApp.closeModal(),
-    salvarMedico: () => medicoApp.salvarMedico()
-};
+// Expose app instance globally for debugging
+window.medicoApp = medicoApp;

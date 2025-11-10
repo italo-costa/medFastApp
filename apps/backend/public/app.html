@@ -72,7 +72,7 @@
         <!-- Main Features Grid -->
         <div class="grid grid-cols-3 gap-6 mb-8">
             <!-- Gestão de Médicos -->
-            <div class="card feature-card" onclick="window.location.href='/gestao-medicos.html'">
+            <div class="card feature-card" data-navigate="/gestao-medicos.html">
                 <div class="card-body text-center p-8">
                     <div class="feature-icon text-primary mb-4">
                         <i class="fas fa-user-md"></i>
@@ -93,7 +93,7 @@
             </div>
 
             <!-- Gestão de Pacientes -->
-            <div class="card feature-card" onclick="window.location.href='/gestao-pacientes.html'">
+            <div class="card feature-card" data-navigate="/gestao-pacientes.html">
                 <div class="card-body text-center p-8">
                     <div class="feature-icon text-success mb-4">
                         <i class="fas fa-users"></i>
@@ -114,7 +114,7 @@
             </div>
 
             <!-- Gestão de Consultas -->
-            <div class="card feature-card" onclick="window.location.href='/gestao-consultas.html'">
+            <div class="card feature-card" data-navigate="/gestao-consultas.html">
                 <div class="card-body text-center p-8">
                     <div class="feature-icon text-info mb-4">
                         <i class="fas fa-calendar-alt"></i>
@@ -135,7 +135,7 @@
             </div>
 
             <!-- Prontuários -->
-            <div class="card feature-card" onclick="window.location.href='/prontuarios.html'">
+            <div class="card feature-card" data-navigate="/prontuarios.html">
                 <div class="card-body text-center p-8">
                     <div class="feature-icon text-warning mb-4">
                         <i class="fas fa-file-medical"></i>
@@ -156,7 +156,7 @@
             </div>
 
             <!-- Prescrições -->
-            <div class="card feature-card" onclick="window.location.href='/prescricao-medica.html'">
+            <div class="card feature-card" data-navigate="/prescricao-medica.html">
                 <div class="card-body text-center p-8">
                     <div class="feature-icon text-purple mb-4">
                         <i class="fas fa-prescription-bottle"></i>
@@ -177,7 +177,7 @@
             </div>
 
             <!-- Relatórios -->
-            <div class="card feature-card" onclick="window.location.href='/relatorios.html'">
+            <div class="card feature-card" data-navigate="/relatorios.html">
                 <div class="card-body text-center p-8">
                     <div class="feature-icon text-secondary mb-4">
                         <i class="fas fa-chart-bar"></i>
@@ -208,19 +208,19 @@
             </div>
             <div class="card-body">
                 <div class="grid grid-cols-4 gap-4">
-                    <button class="btn btn-primary btn-lg" onclick="window.location.href='/gestao-medicos.html'">
+                    <button class="btn btn-primary btn-lg" data-navigate="/gestao-medicos.html">
                         <i class="fas fa-user-md"></i>
                         Novo Médico
                     </button>
-                    <button class="btn btn-success btn-lg" onclick="window.location.href='/gestao-pacientes.html'">
+                    <button class="btn btn-success btn-lg" data-navigate="/gestao-pacientes.html">
                         <i class="fas fa-user-plus"></i>
                         Novo Paciente
                     </button>
-                    <button class="btn btn-info btn-lg" onclick="window.location.href='/gestao-consultas.html'">
+                    <button class="btn btn-info btn-lg" data-navigate="/gestao-consultas.html">
                         <i class="fas fa-calendar-plus"></i>
                         Nova Consulta
                     </button>
-                    <button class="btn btn-warning btn-lg" onclick="window.location.href='/prontuarios.html'">
+                    <button class="btn btn-warning btn-lg" data-navigate="/prontuarios.html">
                         <i class="fas fa-file-medical-alt"></i>
                         Novo Prontuário
                     </button>
@@ -294,21 +294,27 @@
                 if (response.ok) {
                     const result = await response.json();
                     
-                    if (result.success && result.data) {
-                        const stats = result.data;
+                    if (result.success) {
+                        // Nossa API retorna: {medicos: {total, ativos}, pacientes: {total}, ...}
                         
                         // Atualizar cards principais
-                        document.getElementById('totalMedicos').textContent = stats.medicosAtivos?.value || '15';
-                        document.getElementById('totalPacientes').textContent = stats.pacientesCadastrados?.value || '5';
-                        document.getElementById('consultasHoje').textContent = stats.consultasHoje?.value || '0';
-                        document.getElementById('consultasSemana').textContent = stats.consultasSemana?.value || '1.456';
+                        document.getElementById('totalMedicos').textContent = result.medicos?.ativos || '0';
+                        document.getElementById('totalPacientes').textContent = result.pacientes?.total || '0';
+                        document.getElementById('consultasHoje').textContent = result.consultas?.total || '0';
+                        document.getElementById('consultasSemana').textContent = result.consultas?.total || '0';
                         
-                        // Atualizar cards de funcionalidades
-                        document.getElementById('totalMedicosCard').textContent = stats.medicosAtivos?.value || '15';
-                        document.getElementById('totalPacientesCard').textContent = stats.pacientesCadastrados?.value || '5';
-                        document.getElementById('consultasHojeCard').textContent = stats.consultasHoje?.value || '0';
-                        document.getElementById('prontuariosCard').textContent = stats.prontuariosCriados?.value || '0';
-                        document.getElementById('prescricoesCard').textContent = stats.prescricoesEmitidas?.value || '0';
+                        // Atualizar cards de funcionalidades (se existirem)
+                        const totalMedicosCard = document.getElementById('totalMedicosCard');
+                        const totalPacientesCard = document.getElementById('totalPacientesCard');
+                        const consultasHojeCard = document.getElementById('consultasHojeCard');
+                        const prontuariosCard = document.getElementById('prontuariosCard');
+                        const prescricoesCard = document.getElementById('prescricoesCard');
+                        
+                        if (totalMedicosCard) totalMedicosCard.textContent = result.medicos?.total || '0';
+                        if (totalPacientesCard) totalPacientesCard.textContent = result.pacientes?.total || '0';
+                        if (consultasHojeCard) consultasHojeCard.textContent = result.consultas?.total || '0';
+                        if (prontuariosCard) prontuariosCard.textContent = '0'; // Não temos esses dados ainda
+                        if (prescricoesCard) prescricoesCard.textContent = '0'; // Não temos esses dados ainda
                         
                         console.log('✅ Estatísticas carregadas com sucesso!');
                     }

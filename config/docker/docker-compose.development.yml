@@ -1,0 +1,139 @@
+services:
+  # 🐘 PostgreSQL Database - Development
+  postgres:
+    image: postgres:15-alpine
+    container_name: mediapp-db-development
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=trust"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    ports:
+      - "${DB_PORT}:5432"
+    networks:
+      - mediapp-dev
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # 🚀 MediApp Backend - Development
+  mediapp-backend:
+    build:
+      context: ../../apps/backend
+      dockerfile: Dockerfile.development
+    container_name: mediapp-backend-development
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - DEBUG_ENABLED=${DEBUG_ENABLED}
+      - LOG_LEVEL=${LOG_LEVEL}
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ../../apps/backend:/app
+      - node_modules_dev:/app/node_modules
+      - uploads_dev_data:/app/uploads
+      - logs_dev_data:/app/logs
+    networks:
+      - mediapp-dev
+    restart: unless-stopped
+    command: ["npm", "run", "dev"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # 📊 Redis Cache - Development (Opcional)
+  redis:
+    image: redis:7-alpine
+    container_name: mediapp-redis-development
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - mediapp-dev
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # 📊 Prometheus - Monitoring (Development)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mediapp-prometheus-dev
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_dev_data:/prometheus
+    networks:
+      - mediapp-dev
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+
+  # 📈 Grafana - Dashboards (Development)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mediapp-grafana-dev
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - grafana_dev_data:/var/lib/grafana
+      - ./monitoring/grafana:/etc/grafana/provisioning
+    networks:
+      - mediapp-dev
+    restart: unless-stopped
+
+# 🔌 Networks
+networks:
+  mediapp-dev:
+    name: ${DOCKER_NETWORK}
+    driver: bridge
+
+# 💾 Volumes
+volumes:
+  postgres_dev_data:
+    name: mediapp_postgres_dev_data
+    driver: local
+  redis_dev_data:
+    name: mediapp_redis_dev_data
+    driver: local
+  uploads_dev_data:
+    name: mediapp_uploads_dev_data
+    driver: local
+  logs_dev_data:
+    name: mediapp_logs_dev_data
+    driver: local
+  node_modules_dev:
+    name: mediapp_node_modules_dev
+    driver: local
+  prometheus_dev_data:
+    name: mediapp_prometheus_dev_data
+    driver: local
+  grafana_dev_data:
+    name: mediapp_grafana_dev_data
+    driver: local

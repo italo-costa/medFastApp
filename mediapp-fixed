@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+# MediApp v3.0.0 - Gerenciador de Sistema
+# Interface unificada para todos os scripts e operações
+
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BACKEND_DIR="$SCRIPT_DIR/apps/backend"
+SERVICES_CONFIG="/tmp/mediapp-services.json"
+
+show_help() {
+    echo -e "${PURPLE}"
+    cat << 'EOF'
+🏥 ================================================
+   MediApp v3.0.0 - Gerenciador de Sistema
+🏥 ================================================
+EOF
+    echo -e "${NC}"
+    
+    echo -e "${CYAN}COMANDOS DISPONÍVEIS:${NC}"
+    echo ""
+    echo -e "${GREEN}📋 OPERAÇÕES PRINCIPAIS:${NC}"
+    echo "  start          Iniciar sistema completo (recomendado)"
+    echo "  stop           Parar todos os serviços"
+    echo "  restart        Reiniciar sistema completo"
+    echo "  status         Verificar status de todos os serviços"
+    echo ""
+}
+
+check_status() {
+    echo -e "${BLUE}📊 Status do Sistema MediApp${NC}"
+    echo "================================"
+    
+    # PostgreSQL
+    if docker ps | grep -q "mediapp-db"; then
+        local db_port=$(docker port mediapp-db 5432/tcp 2>/dev/null | cut -d: -f2 || echo "N/A")
+        echo -e "${GREEN}✅ PostgreSQL: RODANDO${NC} (porta: $db_port)"
+    else
+        echo -e "${RED}❌ PostgreSQL: PARADO${NC}"
+    fi
+    
+    # Servidor Node.js
+    local main_pid=""
+    if [ -f "/tmp/mediapp-main.pid" ]; then
+        main_pid=$(cat "/tmp/mediapp-main.pid" 2>/dev/null)
+    fi
+    
+    if [ -n "$main_pid" ] && kill -0 "$main_pid" 2>/dev/null; then
+        local port="N/A"
+        if [ -f "$SERVICES_CONFIG" ]; then
+            port=$(grep -o '"main": [0-9]*' "$SERVICES_CONFIG" 2>/dev/null | cut -d' ' -f2 || echo "N/A")
+        fi
+        echo -e "${GREEN}✅ Servidor Principal: RODANDO${NC} (PID: $main_pid, porta: $port)"
+    else
+        echo -e "${RED}❌ Servidor Principal: PARADO${NC}"
+    fi
+}
+
+cleanup_system() {
+    echo -e "${YELLOW}🧹 Limpando sistema...${NC}"
+    
+    # Parar processos Node.js
+    echo "Parando processos Node.js..."
+    pkill -f "node.*app" 2>/dev/null || true
+    pkill -f "node.*server" 2>/dev/null || true
+    
+    # Parar containers Docker
+    echo "Parando containers Docker..."
+    docker stop mediapp-db 2>/dev/null || true
+    docker rm mediapp-db 2>/dev/null || true
+    
+    # Remover arquivos temporários
+    echo "Removendo arquivos temporários..."
+    rm -f /tmp/mediapp-*.pid 2>/dev/null || true
+    rm -f /tmp/mediapp-*.log 2>/dev/null || true
+    
+    echo -e "${GREEN}✅ Limpeza concluída${NC}"
+}
+
+main() {
+    local command=${1:-"help"}
+    shift || true
+    
+    case $command in
+        "start")
+            echo -e "${CYAN}🚀 Iniciando MediApp v3.0.0...${NC}"
+            chmod +x "$SCRIPT_DIR/start-unified.sh"
+            "$SCRIPT_DIR/start-unified.sh" "$@"
+            ;;
+        "stop")
+            echo -e "${YELLOW}🛑 Parando sistema...${NC}"
+            cleanup_system
+            ;;
+        "restart")
+            echo -e "${CYAN}🔄 Reiniciando sistema...${NC}"
+            cleanup_system
+            sleep 2
+            chmod +x "$SCRIPT_DIR/start-unified.sh"
+            "$SCRIPT_DIR/start-unified.sh" "$@"
+            ;;
+        "status")
+            check_status
+            ;;
+        "cleanup")
+            cleanup_system
+            ;;
+        "help"|"-h"|"--help"|"")
+            show_help
+            ;;
+        *)
+            echo -e "${RED}❌ Comando não reconhecido: $command${NC}"
+            echo ""
+            show_help
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

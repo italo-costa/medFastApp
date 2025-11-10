@@ -1,0 +1,7 @@
+-- Inserir pacientes de teste
+INSERT INTO pacientes (id, nome, cpf, rg, data_nascimento, sexo, telefone, celular, email, endereco, cep, cidade, uf, ativo, criado_em, atualizado_em) VALUES
+('pac-001', 'Ana Maria Silva', '12345678901', '123456789', '1985-03-15', 'FEMININO', '(11) 3456-7890', '(11) 98765-4321', 'ana.maria@email.com', 'Rua das Flores, 123', '01234-567', 'São Paulo', 'SP', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('pac-002', 'Carlos Eduardo Santos', '23456789012', '234567890', '1978-07-22', 'MASCULINO', '(21) 3456-7891', '(21) 98765-4322', 'carlos.eduardo@email.com', 'Av. Copacabana, 456', '22071-900', 'Rio de Janeiro', 'RJ', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('pac-003', 'Mariana Costa Lima', '34567890123', '345678901', '1992-12-05', 'FEMININO', '(31) 3456-7892', '(31) 98765-4323', 'mariana.costa@email.com', 'Rua Bahia, 789', '30112-000', 'Belo Horizonte', 'MG', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('pac-004', 'José Roberto Oliveira', '45678901234', '456789012', '1965-09-10', 'MASCULINO', '(11) 3456-7893', '(11) 98765-4324', 'jose.roberto@email.com', 'Rua Augusta, 321', '01305-100', 'São Paulo', 'SP', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('pac-005', 'Lucia Helena Ferreira', '56789012345', '567890123', '1988-01-30', 'FEMININO', '(21) 3456-7894', '(21) 98765-4325', 'lucia.helena@email.com', 'Rua Ipanema, 654', '22421-030', 'Rio de Janeiro', 'RJ', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

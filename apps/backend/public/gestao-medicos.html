@@ -126,7 +126,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="modalTitle">Novo Médico</h3>
-                <button type="button" class="modal-close" onclick="MedicoApp.closeModal()">&times;</button>
+                <button type="button" class="modal-close" data-action="fechar-modal">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="medicoForm">
@@ -180,11 +180,11 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="MedicoApp.closeModal()">
+                <button type="button" class="btn btn-secondary" data-action="fechar-modal">
                     <i class="fas fa-times"></i>
                     Cancelar
                 </button>
-                <button type="button" class="btn btn-primary" onclick="MedicoApp.salvarMedico()">
+                <button type="button" class="btn btn-primary" data-action="salvar-medico">
                     <i class="fas fa-save"></i>
                     Salvar
                 </button>

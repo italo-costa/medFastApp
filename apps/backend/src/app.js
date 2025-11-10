@@ -270,7 +270,10 @@ async function startServer() {
 
 // Iniciar apenas se não estiver sendo importado
 if (require.main === module) {
-  startServer();
+  startServer().catch(error => {
+    console.error('❌ Falha crítica na inicialização:', error);
+    process.exit(1);
+  });
 }
 
 module.exports = app;

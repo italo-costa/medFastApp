@@ -1,1089 +1,359 @@
-<!DOCTYPE html><!DOCTYPE html><!DOCTYPE html>
-
+<!DOCTYPE html>
 <html lang="pt-BR">
-
-<head><html lang="pt-BR"><html lang="pt-BR">
-
+<head>
     <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"><head><head>
-
-    <title>MediApp - Sistema Linux</title>
-
-    <style>    <meta charset="UTF-8">    <meta charset="UTF-8">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏥 MediApp v3.0.0 - Sistema de Gestão Médica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
         * {
-
-            margin: 0;    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+            margin: 0;
             padding: 0;
-
-            box-sizing: border-box;    <title>MediApp - Sistema de Gestão Médica</title>    <tit                <h3>🏥 Acesso ao Sistema</h3>
-
+            box-sizing: border-box;
         }
-
-            <style>                <div class="welcome-message">
 
         body {
-
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;        * {                    <p>Bem-vindo ao MediApp, o sistema completo para gestão de prontuários médicos.</p>
-
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-            color: #333;            margin: 0;                    <br>
-
             min-height: 100vh;
-
-        }            padding: 0;                    <a href="/app.html" class="btn" style="text-decoration: none; background: #4299e1; color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600;">🏥 Acessar Sistema</a>
-
-        
-
-        .container {            box-sizing: border-box;                </div> - Dashboard</title>
-
-            max-width: 1200px;
-
-            margin: 0 auto;        }    <style>
-
-            padding: 20px;
-
-        }                * {
-
-        
-
-        .header {        body {            margin: 0;
-
-            text-align: center;
-
-            color: white;            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;            padding: 0;
-
-            margin-bottom: 40px;
-
-        }            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);            box-sizing: border-box;
-
-        
-
-        .header h1 {            color: #333;        }
-
-            font-size: 3rem;
-
-            margin-bottom: 10px;            min-height: 100vh;
-
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-                }        body {
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
 
         .header p {
-
-            font-size: 1.2rem;                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
+            font-size: 1.3rem;
             opacity: 0.9;
-
-        }        .container {            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-
-        
-
-        .status-card {            max-width: 1200px;            min-height: 100vh;
-
-            background: white;
-
-            padding: 30px;            margin: 0 auto;            color: #333;
-
-            border-radius: 15px;
-
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);            padding: 20px;        }
-
             margin-bottom: 30px;
-
-            text-align: center;        }
-
         }
 
-                        .container {
-
-        .status-online {
-
-            background: linear-gradient(135deg, #4CAF50, #45a049);        .header {            max-width: 1200px;
-
-            color: white;
-
-        }            text-align: center;            margin: 0 auto;
-
-        
-
-        .status-offline {            color: white;            padding: 20px;
-
-            background: linear-gradient(135deg, #f44336, #d32f2f);
-
-            color: white;            margin-bottom: 40px;        }
-
-        }
-
-                }
-
-        .status-icon {
-
-            font-size: 4rem;                .header {
-
-            margin-bottom: 20px;
-
-        }        .header h1 {            text-align: center;
-
-        
-
-        .dashboard {            font-size: 3rem;            margin-bottom: 40px;
-
-            display: grid;
-
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));            margin-bottom: 10px;            color: white;
-
-            gap: 20px;
-
-            margin-bottom: 30px;        }        }
-
-        }
-
-                
-
-        .card {
-
-            background: white;        .header p {        .header h1 {
-
-            padding: 25px;
-
-            border-radius: 15px;            font-size: 1.2rem;            font-size: 3rem;
-
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-
-            transition: transform 0.3s ease;            opacity: 0.9;            margin-bottom: 10px;
-
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             text-align: center;
+            margin-bottom: 30px;
+        }
 
-        }        }        }
+        .welcome-message {
+            margin-bottom: 30px;
+        }
 
-        
+        .welcome-message h3 {
+            color: #2d3748;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
 
-        .card:hover {        
-
-            transform: translateY(-5px);
-
-        }        .status-card {        .header p {
-
-        
-
-        .card h3 {            background: white;            font-size: 1.2rem;
-
-            color: #667eea;
-
-            margin-bottom: 15px;            padding: 30px;            opacity: 0.9;
-
+        .welcome-message p {
+            color: #718096;
             font-size: 1.1rem;
-
-        }            border-radius: 15px;        }
-
-        
-
-        .card-value {            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-
-            font-size: 2.5rem;
-
-            font-weight: bold;            margin-bottom: 30px;        .dashboard {
-
-            color: #333;
-
-            margin-bottom: 10px;            text-align: center;            display: grid;
-
+            line-height: 1.6;
         }
 
-                }            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-
-        .card-trend {
-
-            color: #4CAF50;                    gap: 20px;
-
-            font-size: 0.9rem;
-
-        }        .status-online {            margin-bottom: 40px;
-
-        
-
-        .actions {            background: linear-gradient(135deg, #4CAF50, #45a049);        }
-
+        .main-actions {
             display: grid;
-
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));            color: white;
-
-            gap: 15px;
-
-            margin-bottom: 30px;        }        .card {
-
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
         }
 
-                            background: white;
-
-        .btn {
-
-            padding: 15px 25px;        .status-offline {            border-radius: 15px;
-
-            background: linear-gradient(135deg, #667eea, #764ba2);
-
-            color: white;            background: linear-gradient(135deg, #f44336, #d32f2f);            padding: 30px;
-
+        .action-btn {
+            display: block;
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            padding: 20px 30px;
             text-decoration: none;
-
-            border-radius: 10px;            color: white;            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-
-            text-align: center;
-
-            font-weight: 600;        }            transition: transform 0.3s ease;
-
-            transition: all 0.3s ease;
-
-            border: none;                }
-
-            cursor: pointer;
-
-            display: block;        .status-icon {
-
-        }
-
-                    font-size: 4rem;        .card:hover {
-
-        .btn:hover {
-
-            transform: translateY(-2px);            margin-bottom: 20px;            transform: translateY(-5px);
-
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-
-        }        }        }
-
-        
-
-        .loading {        
-
-            text-align: center;
-
-            padding: 20px;        .dashboard {        .card h3 {
-
-            color: #666;
-
-        }            display: grid;            color: #2196F3;
-
-        
-
-        .error {            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));            margin-bottom: 15px;
-
-            background: #ffebee;
-
-            color: #c62828;            gap: 20px;            font-size: 1.5rem;
-
-            padding: 15px;
-
-            border-radius: 10px;            margin-bottom: 30px;        }
-
-            margin-bottom: 20px;
-
-        }        }
-
-        
-
-        .success {                .status {
-
-            background: #e8f5e8;
-
-            color: #2e7d32;        .card {            display: flex;
-
-            padding: 15px;
-
-            border-radius: 10px;            background: white;            align-items: center;
-
-            margin-bottom: 20px;
-
-        }            padding: 25px;            margin-bottom: 10px;
-
-        
-
-        .data-display {            border-radius: 15px;        }
-
-            background: white;
-
-            padding: 20px;            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-
             border-radius: 15px;
-
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);            transition: transform 0.3s ease;        .status-dot {
-
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
         }
 
-                }            width: 12px;
-
-        .item {
-
-            padding: 15px;                    height: 12px;
-
-            border-bottom: 1px solid #eee;
-
-            display: flex;        .card:hover {            border-radius: 50%;
-
-            justify-content: space-between;
-
-            align-items: center;            transform: translateY(-5px);            margin-right: 10px;
-
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(66, 153, 225, 0.4);
+            background: linear-gradient(135deg, #3182ce, #2c5aa0);
         }
 
-                }        }
-
-        .item:last-child {
-
-            border-bottom: none;        
-
+        .action-btn i {
+            margin-right: 10px;
+            font-size: 1.2rem;
         }
 
-                .card h3 {        .status-online {
-
-        .item-info h4 {
-
-            margin-bottom: 5px;            color: #667eea;            background-color: #4CAF50;
-
+        .quick-access {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
         }
 
-                    margin-bottom: 15px;        }
-
-        .item-info small {
-
-            color: #666;            font-size: 1.1rem;
-
+        .quick-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
         }
 
-    </style>        }        .welcome-message {
+        .quick-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
 
+        .quick-btn i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .features-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 40px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .main-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-access {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .features-preview {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-
-<body>                    background: #f8f9fa;
-
+<body>
     <div class="container">
-
-        <div class="header">        .card-value {            border-radius: 10px;
-
-            <h1>🏥 MediApp</h1>
-
-            <p>Sistema Linux Virtualizado v3.0.0</p>            font-size: 2.5rem;            padding: 20px;
-
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-heartbeat"></i> MediApp</h1>
+            <p>Sistema Completo de Gestão Médica</p>
         </div>
 
-                    font-weight: bold;            margin-top: 20px;
-
-        <div id="status" class="status-card">
-
-            <div class="status-icon">🔄</div>            color: #333;            text-align: center;
-
-            <h2>Verificando conectividade...</h2>
-
-        </div>            margin-bottom: 10px;        }
-
-        
-
-        <div id="dashboard" style="display: none;">        }
-
-            <div class="dashboard">
-
-                <div class="card">                .btn {
-
-                    <h3>👨‍⚕️ Médicos Ativos</h3>
-
-                    <div class="card-value" id="medicos-count">--</div>        .card-trend {            background: #2196F3;
-
-                    <div class="card-trend" id="medicos-trend">--</div>
-
-                </div>            color: #4CAF50;            color: white;
-
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+            <div class="welcome-message">
+                <h3><i class="fas fa-hand-holding-heart"></i> Bem-vindo ao MediApp</h3>
+                <p>Plataforma integrada para gestão de prontuários médicos, pacientes, consultas e muito mais. Desenvolvido especialmente para profissionais de saúde.</p>
                 
-
-                <div class="card">            font-size: 0.9rem;            border: none;
-
-                    <h3>👥 Pacientes Cadastrados</h3>
-
-                    <div class="card-value" id="pacientes-count">--</div>        }            padding: 12px 24px;
-
-                    <div class="card-trend" id="pacientes-trend">--</div>
-
-                </div>                    border-radius: 8px;
-
-                
-
-                <div class="card">        .actions {            cursor: pointer;
-
-                    <h3>📅 Consultas Hoje</h3>
-
-                    <div class="card-value" id="consultas-count">--</div>            display: grid;            font-size: 1rem;
-
-                    <div class="card-trend" id="consultas-trend">--</div>
-
-                </div>            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));            transition: background 0.3s ease;
-
-                
-
-                <div class="card">            gap: 15px;            margin: 5px;
-
-                    <h3>📋 Prontuários Ativos</h3>
-
-                    <div class="card-value" id="prontuarios-count">--</div>        }        }
-
-                    <div class="card-trend" id="prontuarios-trend">--</div>
-
-                </div>        
-
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Sistema Online e Funcionando</span>
+                </div>
             </div>
 
-                    .btn {        .btn:hover {
+            <!-- Main Actions -->
+            <div class="main-actions">
+                <a href="/app.html" class="action-btn">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Acessar Dashboard Principal
+                </a>
+                
+                <a href="/gestao-medicos.html" class="action-btn">
+                    <i class="fas fa-user-md"></i>
+                    Gestão de Médicos
+                </a>
+            </div>
 
-            <div class="actions">
-
-                <button class="btn" onclick="loadMedicos()">👨‍⚕️ Ver Médicos</button>            padding: 15px 25px;            background: #1976D2;
-
-                <button class="btn" onclick="loadPacientes()">👥 Ver Pacientes</button>
-
-                <button class="btn" onclick="testConnectivity()">🔧 Testar API</button>            background: linear-gradient(135deg, #667eea, #764ba2);        }
-
-                <button class="btn" onclick="refreshData()">🔄 Atualizar</button>
-
-            </div>            color: white;
-
+            <!-- Quick Access -->
+            <div class="quick-access">
+                <a href="/gestao-pacientes.html" class="quick-btn">
+                    <i class="fas fa-users"></i>
+                    <span>Pacientes</span>
+                </a>
+                
+                <a href="/prontuarios.html" class="quick-btn">
+                    <i class="fas fa-file-medical"></i>
+                    <span>Prontuários</span>
+                </a>
+                
+                <a href="/prescricao-medica.html" class="quick-btn">
+                    <i class="fas fa-prescription-bottle"></i>
+                    <span>Prescrições</span>
+                </a>
+                
+                <a href="/analytics-mapas.html" class="quick-btn">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+            </div>
         </div>
 
-                    text-decoration: none;        .response {
-
-        <div id="data-display" style="display: none;"></div>
-
-    </div>            border-radius: 10px;            background: #263238;
-
-    
-
-    <script>            text-align: center;            color: #00E676;
-
-        const API_BASE = 'http://localhost:3002';
-
-                    font-weight: 600;            padding: 15px;
-
-        async function apiRequest(endpoint) {
-
-            try {            transition: all 0.3s ease;            border-radius: 8px;
-
-                const response = await fetch(`${API_BASE}${endpoint}`);
-
-                if (!response.ok) {            border: none;            margin-top: 15px;
-
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-
-                }            cursor: pointer;            font-family: 'Courier New', monospace;
-
-                return await response.json();
-
-            } catch (error) {        }            white-space: pre-wrap;
-
-                console.error('Erro na requisição:', error);
-
-                throw error;                    max-height: 300px;
-
-            }
-
-        }        .btn:hover {            overflow-y: auto;
-
-        
-
-        async function checkConnectivity() {            transform: translateY(-2px);        }
-
-            const statusEl = document.getElementById('status');
-
-            const dashboardEl = document.getElementById('dashboard');            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-
+        <!-- Features Preview -->
+        <div class="features-preview">
+            <div class="feature-card">
+                <i class="fas fa-shield-alt feature-icon"></i>
+                <div class="feature-title">Segurança Total</div>
+                <div class="feature-desc">LGPD compliant com criptografia avançada</div>
+            </div>
             
-
-            try {        }        .features {
-
-                const response = await apiRequest('/health');
-
-                                    display: grid;
-
-                statusEl.className = 'status-card status-online';
-
-                statusEl.innerHTML = `        .loading {            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-
-                    <div class="status-icon">✅</div>
-
-                    <h2>Sistema Online</h2>            text-align: center;            gap: 15px;
-
-                    <p><strong>Servidor:</strong> ${response.data.server}</p>
-
-                    <p><strong>Versão:</strong> ${response.data.version}</p>            padding: 20px;        }
-
-                    <p><strong>Uptime:</strong> ${Math.floor(response.data.uptime)}s</p>
-
-                    <p><strong>Memória:</strong> ${response.data.memory.used}MB / ${response.data.memory.total}MB</p>            color: #666;
-
-                `;
-
-                        }        .feature {
-
-                dashboardEl.style.display = 'block';
-
-                loadDashboardStats();                    background: #f0f4f8;
-
-                
-
-            } catch (error) {        .error {            padding: 20px;
-
-                statusEl.className = 'status-card status-offline';
-
-                statusEl.innerHTML = `            background: #ffebee;            border-radius: 10px;
-
-                    <div class="status-icon">❌</div>
-
-                    <h2>Sistema Offline</h2>            color: #c62828;            text-align: center;
-
-                    <p><strong>Erro:</strong> ${error.message}</p>
-
-                    <button class="btn" onclick="checkConnectivity()" style="margin-top: 15px;">🔄 Tentar Novamente</button>            padding: 15px;        }
-
-                `;
-
-                            border-radius: 10px;
-
-                dashboardEl.style.display = 'none';
-
-            }            margin-bottom: 20px;        .feature-icon {
-
-        }
-
-                }            font-size: 2rem;
-
-        async function loadDashboardStats() {
-
-            try {    </style>            margin-bottom: 10px;
-
-                const response = await apiRequest('/api/dashboard/stats');
-
-                const stats = response.data;</head>        }
-
-                
-
-                document.getElementById('medicos-count').textContent = stats.medicosAtivos.value;<body>
-
-                document.getElementById('medicos-trend').textContent = stats.medicosAtivos.trend;
-
-                    <div class="container">        .footer {
-
-                document.getElementById('pacientes-count').textContent = stats.pacientesCadastrados.value;
-
-                document.getElementById('pacientes-trend').textContent = stats.pacientesCadastrados.trend;        <div class="header">            text-align: center;
-
-                
-
-                document.getElementById('consultas-count').textContent = stats.consultasHoje.value;            <h1>🏥 MediApp</h1>            color: white;
-
-                document.getElementById('consultas-trend').textContent = stats.consultasHoje.trend;
-
-                            <p>Sistema Integrado de Gestão Médica</p>            margin-top: 40px;
-
-                document.getElementById('prontuarios-count').textContent = stats.prontuariosAtivos.value;
-
-                document.getElementById('prontuarios-trend').textContent = stats.prontuariosAtivos.trend;        </div>            opacity: 0.8;
-
-                
-
-            } catch (error) {                }
-
-                console.error('Erro ao carregar estatísticas:', error);
-
-            }        <div id="status" class="status-card">    </style>
-
-        }
-
-                    <div class="status-icon">🔄</div></head>
-
-        async function loadMedicos() {
-
-            const dataDisplay = document.getElementById('data-display');            <h2>Verificando conectividade...</h2><body>
-
-            dataDisplay.style.display = 'block';
-
-            dataDisplay.innerHTML = '<div class="loading">🔄 Carregando médicos...</div>';        </div>    <div class="container">
-
+            <div class="feature-card">
+                <i class="fas fa-mobile-alt feature-icon"></i>
+                <div class="feature-title">Multi-Plataforma</div>
+                <div class="feature-desc">Web, mobile e desktop integrados</div>
+            </div>
             
-
-            try {                <div class="header">
-
-                const response = await apiRequest('/api/medicos');
-
-                const medicos = response.data;        <div id="dashboard" style="display: none;">            <h1>🏥 MediApp</h1>
-
-                
-
-                let html = '<div class="data-display"><h3>👨‍⚕️ Lista de Médicos</h3>';            <div class="dashboard">            <p>Sistema de Prontuários Médicos</p>
-
-                
-
-                medicos.forEach(medico => {                <div class="card">        </div>
-
-                    html += `
-
-                        <div class="item">                    <h3>👨‍⚕️ Médicos Ativos</h3>
-
-                            <div class="item-info">
-
-                                <h4>${medico.nome}</h4>                    <div class="card-value" id="medicos-count">--</div>        <div class="dashboard">
-
-                                <small>CRM: ${medico.crm} | ${medico.especialidade}</small><br>
-
-                                <small>📞 ${medico.telefone || 'Não informado'} | 📧 ${medico.email || 'Não informado'}</small>                    <div class="card-trend" id="medicos-trend">--</div>            <div class="card">
-
-                            </div>
-
-                            <div style="color: #4CAF50; font-weight: bold;">${medico.status}</div>                </div>                <h3>📊 Status do Sistema</h3>
-
-                        </div>
-
-                    `;                                <div class="status">
-
-                });
-
-                                <div class="card">                    <div class="status-dot" id="api-status"></div>
-
-                html += '</div>';
-
-                dataDisplay.innerHTML = html;                    <h3>👥 Pacientes Cadastrados</h3>                    <span id="api-status-text">Verificando...</span>
-
-                
-
-            } catch (error) {                    <div class="card-value" id="pacientes-count">--</div>                </div>
-
-                dataDisplay.innerHTML = `<div class="error">❌ Erro ao carregar médicos: ${error.message}</div>`;
-
-            }                    <div class="card-trend" id="pacientes-trend">--</div>                <div id="system-info"></div>
-
-        }
-
-                        </div>                
-
-        async function loadPacientes() {
-
-            const dataDisplay = document.getElementById('data-display');                                <div class="api-test">
-
-            dataDisplay.style.display = 'block';
-
-            dataDisplay.innerHTML = '<div class="loading">🔄 Carregando pacientes...</div>';                <div class="card">                    <h4>🏥 Acesso ao Sistema</h4>
-
+            <div class="feature-card">
+                <i class="fas fa-cloud feature-icon"></i>
+                <div class="feature-title">Backup Automático</div>
+                <div class="feature-desc">Dados sempre seguros e sincronizados</div>
+            </div>
             
+            <div class="feature-card">
+                <i class="fas fa-bolt feature-icon"></i>
+                <div class="feature-title">Super Rápido</div>
+                <div class="feature-desc">Performance otimizada para produtividade</div>
+            </div>
+        </div>
 
-            try {                    <h3>📅 Consultas Hoje</h3>                    <a href="/app.html" class="btn" style="text-decoration: none;">🏥 Acessar MediApp</a>
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2025 MediApp - Desenvolvido com ❤️ para profissionais de saúde</p>
+            <p>Versão 3.0.0 - Sistema Unificado</p>
+        </div>
+    </div>
 
-                const response = await apiRequest('/api/pacientes');
-
-                const pacientes = response.data;                    <div class="card-value" id="consultas-count">--</div>                    <button class="btn" data-action="test-api">🔍 Health Check</button>
-
+    <script>
+        // Animações suaves na entrada
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fade in dos elementos
+            const elements = document.querySelectorAll('.welcome-card, .feature-card');
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'all 0.6s ease';
                 
-
-                let html = '<div class="data-display"><h3>👥 Lista de Pacientes</h3>';                    <div class="card-trend" id="consultas-trend">--</div>                    <div class="response" id="api-response" style="display: none;"></div>
-
-                
-
-                pacientes.forEach(paciente => {                </div>                </div>
-
-                    html += `
-
-                        <div class="item">                            </div>
-
-                            <div class="item-info">
-
-                                <h4>${paciente.nome}</h4>                <div class="card">
-
-                                <small>CPF: ${paciente.cpf} | 📞 ${paciente.telefone}</small><br>
-
-                                <small>📧 ${paciente.email} | 🎂 ${new Date(paciente.data_nascimento).toLocaleDateString('pt-BR')}</small>                    <h3>📋 Prontuários Ativos</h3>            <div class="card">
-
-                            </div>
-
-                            <div style="color: #4CAF50; font-weight: bold;">${paciente.status}</div>                    <div class="card-value" id="prontuarios-count">--</div>                <h3>🚀 Funcionalidades</h3>
-
-                        </div>
-
-                    `;                    <div class="card-trend" id="prontuarios-trend">--</div>                <div class="features">
-
-                });
-
-                                </div>                    <div class="feature">
-
-                html += '</div>';
-
-                dataDisplay.innerHTML = html;            </div>                        <div class="feature-icon">👨‍⚕️</div>
-
-                
-
-            } catch (error) {                                    <h4>Médicos</h4>
-
-                dataDisplay.innerHTML = `<div class="error">❌ Erro ao carregar pacientes: ${error.message}</div>`;
-
-            }            <div class="actions">                        <p>Gestão de profissionais</p>
-
-        }
-
-                        <button class="btn" onclick="loadMedicos()">👨‍⚕️ Gestão de Médicos</button>                    </div>
-
-        async function testConnectivity() {
-
-            const dataDisplay = document.getElementById('data-display');                <button class="btn" onclick="loadPacientes()">👥 Gestão de Pacientes</button>                    <div class="feature">
-
-            dataDisplay.style.display = 'block';
-
-            dataDisplay.innerHTML = '<div class="loading">🔧 Testando conectividade...</div>';                <button class="btn" onclick="testConnectivity()">🔧 Testar Conectividade</button>                        <div class="feature-icon">👤</div>
-
-            
-
-            const tests = [                <button class="btn" onclick="refreshData()">🔄 Atualizar Dados</button>                        <h4>Pacientes</h4>
-
-                { name: 'Health Check', endpoint: '/health' },
-
-                { name: 'Status do Sistema', endpoint: '/status' },            </div>                        <p>Cadastro completo</p>
-
-                { name: 'API Médicos', endpoint: '/api/medicos' },
-
-                { name: 'API Pacientes', endpoint: '/api/pacientes' },        </div>                    </div>
-
-                { name: 'Dashboard Stats', endpoint: '/api/dashboard/stats' },
-
-                { name: 'Especialidades', endpoint: '/api/especialidades' }                            <div class="feature">
-
-            ];
-
-                    <div id="data-display" style="margin-top: 30px;"></div>                        <div class="feature-icon">📋</div>
-
-            let html = '<div class="data-display"><h3>🔧 Resultado dos Testes de Conectividade</h3>';
-
-                </div>                        <h4>Prontuários</h4>
-
-            for (const test of tests) {
-
-                try {                            <p>Histórico médico</p>
-
-                    const start = Date.now();
-
-                    const response = await apiRequest(test.endpoint);    <script>                    </div>
-
-                    const time = Date.now() - start;
-
-                            const API_BASE = 'http://localhost:3002';                    <div class="feature">
-
-                    html += `
-
-                        <div class="item">                                <div class="feature-icon">🔬</div>
-
-                            <div class="item-info">
-
-                                <h4><span style="color: #4CAF50;">✅</span> ${test.name}</h4>        async function apiRequest(endpoint) {                        <h4>Exames</h4>
-
-                                <small>Resposta em ${time}ms</small>
-
-                            </div>            try {                        <p>Upload de arquivos</p>
-
-                            <div style="color: #4CAF50; font-weight: bold;">OK</div>
-
-                        </div>                const response = await fetch(`${API_BASE}${endpoint}`);                    </div>
-
-                    `;
-
-                } catch (error) {                if (!response.ok) {                    <div class="feature">
-
-                    html += `
-
-                        <div class="item">                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);                        <div class="feature-icon">⚠️</div>
-
-                            <div class="item-info">
-
-                                <h4><span style="color: #f44336;">❌</span> ${test.name}</h4>                }                        <h4>Alergias</h4>
-
-                                <small style="color: #f44336;">${error.message}</small>
-
-                            </div>                return await response.json();                        <p>Contraindicações</p>
-
-                            <div style="color: #f44336; font-weight: bold;">ERRO</div>
-
-                        </div>            } catch (error) {                    </div>
-
-                    `;
-
-                }                console.error('Erro na requisição:', error);                    <div class="feature">
-
-            }
-
-                            throw error;                        <div class="feature-icon">🔒</div>
-
-            html += '</div>';
-
-            dataDisplay.innerHTML = html;            }                        <h4>Segurança</h4>
-
-        }
-
-                }                        <p>LGPD Compliance</p>
-
-        function refreshData() {
-
-            checkConnectivity();                            </div>
-
-            document.getElementById('data-display').style.display = 'none';
-
-        }        async function checkConnectivity() {                </div>
-
-        
-
-        // Inicializar ao carregar a página            const statusEl = document.getElementById('status');            </div>
-
-        document.addEventListener('DOMContentLoaded', () => {
-
-            checkConnectivity();            const dashboardEl = document.getElementById('dashboard');
-
-            
-
-            // Auto-refresh a cada 30 segundos                        <div class="card">
-
-            setInterval(() => {
-
-                if (document.getElementById('dashboard').style.display !== 'none') {            try {                <h3>� Segurança e Privacidade</h3>
-
-                    loadDashboardStats();
-
-                }                const response = await apiRequest('/health');                <div style="text-align: left;">
-
-            }, 30000);
-
-        });                                    <p>✅ <strong>LGPD Compliance:</strong> Conformidade total com a Lei Geral de Proteção de Dados</p>
-
-    </script>
-
-</body>                statusEl.className = 'status-card status-online';                    <p>🔐 <strong>Criptografia:</strong> Dados protegidos com tecnologia de ponta</p>
-
-</html>
-                statusEl.innerHTML = `                    <p>�️ <strong>Backup Seguro:</strong> Seus dados sempre protegidos</p>
-
-                    <div class="status-icon">✅</div>                    <p>� <strong>Controle de Acesso:</strong> Apenas profissionais autorizados</p>
-
-                    <h2>Sistema Online</h2>                </div>
-
-                    <p>Servidor: ${response.data.server}</p>            </div>
-
-                    <p>Uptime: ${Math.floor(response.data.uptime)}s</p>
-
-                `;            <div class="card">
-
-                                <h3>� Compatibilidade</h3>
-
-                dashboardEl.style.display = 'block';                <div style="text-align: left;">
-
-                loadDashboardStats();                    <p>🖥️ <strong>Web:</strong> Acesso via navegador em qualquer dispositivo</p>
-
-                                    <p>📱 <strong>Mobile:</strong> Compatível com iOS e Android</p>
-
-            } catch (error) {                    <p>⚡ <strong>Performance:</strong> Sistema rápido e responsivo</p>
-
-                statusEl.className = 'status-card status-offline';                    <p>🌐 <strong>Online/Offline:</strong> Funciona mesmo sem internet</p>
-
-                statusEl.innerHTML = `                </div>
-
-                    <div class="status-icon">❌</div>            </div>
-
-                    <h2>Sistema Offline</h2>        </div>
-
-                    <p>Erro: ${error.message}</p>
-
-                    <button class="btn" onclick="checkConnectivity()" style="margin-top: 15px;">🔄 Tentar Novamente</button>        <div class="footer">
-
-                `;            <p>© 2025 MediApp - Desenvolvido com ❤️ para profissionais de saúde</p>
-
-                        </div>
-
-                dashboardEl.style.display = 'none';    </div>
-
-            }
-
-        }    <script>
-
-                // Script simples para melhorar a experiência do usuário
-
-        async function loadDashboardStats() {        document.addEventListener('DOMContentLoaded', function() {
-
-            try {            // Adicionar animação suave aos cards
-
-                const response = await apiRequest('/api/dashboard/stats');            const cards = document.querySelectorAll('.card');
-
-                const stats = response.data;            cards.forEach((card, index) => {
-
-                                card.style.opacity = '0';
-
-                document.getElementById('medicos-count').textContent = stats.medicosAtivos.value;                card.style.transform = 'translateY(20px)';
-
-                document.getElementById('medicos-trend').textContent = stats.medicosAtivos.trend;                card.style.transition = 'all 0.6s ease';
-
-                                
-
-                document.getElementById('pacientes-count').textContent = stats.pacientesCadastrados.value;                setTimeout(() => {
-
-                document.getElementById('pacientes-trend').textContent = stats.pacientesCadastrados.trend;                    card.style.opacity = '1';
-
-                                    card.style.transform = 'translateY(0)';
-
-                document.getElementById('consultas-count').textContent = stats.consultasHoje.value;                }, index * 200);
-
-                document.getElementById('consultas-trend').textContent = stats.consultasHoje.trend;            });
-
-                
-
-                document.getElementById('prontuarios-count').textContent = stats.prontuariosAtivos.value;            // Initialize Event Listeners for CSP compliance
-
-                document.getElementById('prontuarios-trend').textContent = stats.prontuariosAtivos.trend;            initializeEventListeners();
-
-                        });
-
-            } catch (error) {
-
-                console.error('Erro ao carregar estatísticas:', error);        // Função para testar API
-
-            }        async function testAPI() {
-
-        }            const responseDiv = document.getElementById('api-response');
-
-                    responseDiv.style.display = 'block';
-
-        async function loadMedicos() {            responseDiv.innerHTML = '<p>🔄 Testando conexão...</p>';
-
-            const dataDisplay = document.getElementById('data-display');            
-
-            dataDisplay.innerHTML = '<div class="loading">🔄 Carregando médicos...</div>';            try {
-
-                            const response = await fetch('/api/health');
-
-            try {                const data = await response.json();
-
-                const response = await apiRequest('/api/medicos');                
-
-                const medicos = response.data;                if (response.ok) {
-
-                                    responseDiv.innerHTML = `
-
-                let html = '<div class="card"><h3>👨‍⚕️ Lista de Médicos</h3>';                        <p style="color: #28a745;">✅ API funcionando corretamente!</p>
-
-                                        <p><strong>Status:</strong> ${data.status}</p>
-
-                medicos.forEach(medico => {                        <p><strong>Servidor:</strong> ${data.timestamp}</p>
-
-                    html += `                    `;
-
-                        <div style="padding: 10px; border-bottom: 1px solid #eee;">                } else {
-
-                            <strong>${medico.nome}</strong><br>                    throw new Error('API retornou erro');
-
-                            <small>CRM: ${medico.crm} | Especialidade: ${medico.especialidade}</small>                }
-
-                        </div>            } catch (error) {
-
-                    `;                responseDiv.innerHTML = `
-
-                });                    <p style="color: #dc3545;">❌ Erro na conexão</p>
-
-                                    <p>${error.message}</p>
-
-                html += '</div>';                `;
-
-                dataDisplay.innerHTML = html;            }
-
-                        }
-
-            } catch (error) {
-
-                dataDisplay.innerHTML = `<div class="error">❌ Erro ao carregar médicos: ${error.message}</div>`;        // Initialize Event Listeners for CSP compliance
-
-            }        function initializeEventListeners() {
-
-        }            // Test API button
-
-                    document.querySelectorAll('[data-action="test-api"]').forEach(btn => {
-
-        async function loadPacientes() {                btn.addEventListener('click', testAPI);
-
-            const dataDisplay = document.getElementById('data-display');            });
-
-            dataDisplay.innerHTML = '<div class="loading">🔄 Carregando pacientes...</div>';        }
-
-                </script>
-
-            try {</body>
-
-                const response = await apiRequest('/api/pacientes');</html>
-                const pacientes = response.data;
-                
-                let html = '<div class="card"><h3>👥 Lista de Pacientes</h3>';
-                
-                pacientes.forEach(paciente => {
-                    html += `
-                        <div style="padding: 10px; border-bottom: 1px solid #eee;">
-                            <strong>${paciente.nome}</strong><br>
-                            <small>CPF: ${paciente.cpf} | Telefone: ${paciente.telefone}</small>
-                        </div>
-                    `;
-                });
-                
-                html += '</div>';
-                dataDisplay.innerHTML = html;
-                
-            } catch (error) {
-                dataDisplay.innerHTML = `<div class="error">❌ Erro ao carregar pacientes: ${error.message}</div>`;
-            }
-        }
-        
-        async function testConnectivity() {
-            const dataDisplay = document.getElementById('data-display');
-            dataDisplay.innerHTML = '<div class="loading">🔧 Testando conectividade...</div>';
-            
-            const tests = [
-                { name: 'Health Check', endpoint: '/health' },
-                { name: 'API Médicos', endpoint: '/api/medicos' },
-                { name: 'API Pacientes', endpoint: '/api/pacientes' },
-                { name: 'Dashboard Stats', endpoint: '/api/dashboard/stats' }
-            ];
-            
-            let html = '<div class="card"><h3>🔧 Resultado dos Testes</h3>';
-            
-            for (const test of tests) {
-                try {
-                    const start = Date.now();
-                    await apiRequest(test.endpoint);
-                    const time = Date.now() - start;
-                    
-                    html += `
-                        <div style="padding: 10px; border-bottom: 1px solid #eee;">
-                            <span style="color: #4CAF50;">✅</span> <strong>${test.name}</strong>
-                            <small style="float: right;">${time}ms</small>
-                        </div>
-                    `;
-                } catch (error) {
-                    html += `
-                        <div style="padding: 10px; border-bottom: 1px solid #eee;">
-                            <span style="color: #f44336;">❌</span> <strong>${test.name}</strong>
-                            <small style="color: #f44336; float: right;">${error.message}</small>
-                        </div>
-                    `;
-                }
-            }
-            
-            html += '</div>';
-            dataDisplay.innerHTML = html;
-        }
-        
-        function refreshData() {
-            checkConnectivity();
-            document.getElementById('data-display').innerHTML = '';
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            checkConnectivity();
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // Teste de conectividade com o backend
+            testBackendConnection();
         });
+
+        // Função para testar conectividade
+        async function testBackendConnection() {
+            try {
+                const response = await fetch('/health');
+                if (response.ok) {
+                    console.log('✅ Backend conectado com sucesso!');
+                } else {
+                    console.warn('⚠️ Backend respondeu com status:', response.status);
+                }
+            } catch (error) {
+                console.warn('⚠️ Erro ao conectar com backend:', error.message);
+            }
+        }
     </script>
 </body>
 </html>
