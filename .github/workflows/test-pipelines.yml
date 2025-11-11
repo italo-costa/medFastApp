@@ -1,0 +1,290 @@
+name: 🧪 Test Individual Pipelines
+
+on:
+  workflow_dispatch:
+    inputs:
+      pipeline:
+        description: 'Which pipeline to test'
+        required: true
+        type: choice
+        options:
+          - backend
+          - frontend
+          - mobile
+          - database
+          - all
+
+env:
+  NODE_VERSION: '18.x'
+
+jobs:
+  test-backend:
+    name: 🧪 Test Backend Pipeline
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.pipeline == 'backend' || github.event.inputs.pipeline == 'all' }}
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🧪 Test Backend Structure
+        working-directory: apps/backend
+        run: |
+          echo "🔍 Testing backend structure..."
+          
+          # Verify package.json exists
+          if [ -f "package.json" ]; then
+            echo "✅ package.json found"
+          else
+            echo "❌ package.json not found"
+            exit 1
+          fi
+          
+          # Verify key dependencies
+          deps=("express" "prisma" "@prisma/client")
+          for dep in "${deps[@]}"; do
+            if grep -q "\"$dep\"" package.json; then
+              echo "✅ Dependency $dep found"
+            else
+              echo "❌ Dependency $dep not found"
+            fi
+          done
+          
+          # Install dependencies
+          npm ci --silent
+          echo "✅ Dependencies installed"
+          
+          # Verify Prisma schema
+          if [ -f "prisma/schema.prisma" ]; then
+            echo "✅ Prisma schema found"
+            npx prisma validate
+            echo "✅ Prisma schema valid"
+          fi
+
+  test-frontend:
+    name: 🌐 Test Frontend Pipeline
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.pipeline == 'frontend' || github.event.inputs.pipeline == 'all' }}
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🧪 Test Frontend Structure
+        working-directory: apps/backend/public
+        run: |
+          echo "🔍 Testing frontend structure..."
+          
+          # Verify HTML files
+          html_files=("index.html" "agenda-medica.html" "gestao-medicos.html" "gestao-pacientes.html")
+          for file in "${html_files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✅ $file found"
+              
+              # Basic HTML validation
+              if grep -q "<!DOCTYPE html>" "$file"; then
+                echo "✅ $file has valid DOCTYPE"
+              else
+                echo "⚠️ $file missing DOCTYPE"
+              fi
+            else
+              echo "⚠️ $file not found"
+            fi
+          done
+          
+          # Verify CSS/JS assets
+          css_count=$(find . -name "*.css" | wc -l)
+          js_count=$(find . -name "*.js" | wc -l)
+          
+          echo "✅ Found $css_count CSS files"
+          echo "✅ Found $js_count JS files"
+
+  test-mobile:
+    name: 📱 Test Mobile Pipeline
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.pipeline == 'mobile' || github.event.inputs.pipeline == 'all' }}
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🧪 Test Mobile Structure
+        working-directory: apps/mobile
+        run: |
+          echo "🔍 Testing mobile structure..."
+          
+          # Verify package.json exists
+          if [ -f "package.json" ]; then
+            echo "✅ package.json found"
+          else
+            echo "❌ package.json not found"
+            exit 1
+          fi
+          
+          # Verify React Native dependencies
+          rn_deps=("react" "react-native" "@reduxjs/toolkit")
+          for dep in "${rn_deps[@]}"; do
+            if grep -q "\"$dep\"" package.json; then
+              echo "✅ RN Dependency $dep found"
+            else
+              echo "⚠️ RN Dependency $dep not found"
+            fi
+          done
+          
+          # Verify Android configuration
+          if [ -d "android" ]; then
+            echo "✅ Android configuration found"
+          else
+            echo "⚠️ Android configuration not found"
+          fi
+          
+          # Verify src structure
+          if [ -d "src" ]; then
+            echo "✅ Source directory found"
+            
+            # Count React Native components
+            components=$(find src -name "*.tsx" -o -name "*.jsx" | wc -l)
+            echo "✅ Found $components React Native components"
+          fi
+
+  test-database:
+    name: 🗄️ Test Database Pipeline
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.pipeline == 'database' || github.event.inputs.pipeline == 'all' }}
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 🧪 Test Database Structure
+        working-directory: apps/backend
+        env:
+          DATABASE_URL: "postgresql://test_user:test_pass@localhost:5432/test_db"
+        run: |
+          echo "🔍 Testing database structure..."
+          
+          # Install Prisma
+          npm install prisma @prisma/client --silent
+          
+          # Verify schema
+          if [ -f "prisma/schema.prisma" ]; then
+            echo "✅ Prisma schema found"
+            
+            # Validate schema
+            npx prisma validate
+            echo "✅ Schema validation passed"
+            
+            # Generate client
+            npx prisma generate
+            echo "✅ Prisma client generated"
+            
+            # Test database connection
+            npx prisma db push --accept-data-loss
+            echo "✅ Database schema applied"
+            
+            # Verify models
+            models=("Usuario" "Medico" "Paciente" "Agendamento")
+            for model in "${models[@]}"; do
+              if grep -q "model $model" prisma/schema.prisma; then
+                echo "✅ Model $model found"
+              else
+                echo "⚠️ Model $model not found"
+              fi
+            done
+          else
+            echo "❌ Prisma schema not found"
+            exit 1
+          fi
+
+  report:
+    name: 📊 Test Report
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend, test-mobile, test-database]
+    if: always()
+    
+    steps:
+      - name: 📊 Generate Test Report
+        run: |
+          echo "# 🧪 Pipeline Test Report" > test-report.md
+          echo "" >> test-report.md
+          echo "**Date:** $(date)" >> test-report.md
+          echo "**Pipeline Tested:** ${{ github.event.inputs.pipeline }}" >> test-report.md
+          echo "" >> test-report.md
+          
+          # Check job results
+          echo "## Job Results" >> test-report.md
+          echo "" >> test-report.md
+          
+          if [ "${{ needs.test-backend.result }}" = "success" ]; then
+            echo "- ✅ Backend Pipeline: PASSED" >> test-report.md
+          elif [ "${{ needs.test-backend.result }}" = "skipped" ]; then
+            echo "- ⏭️ Backend Pipeline: SKIPPED" >> test-report.md
+          else
+            echo "- ❌ Backend Pipeline: FAILED" >> test-report.md
+          fi
+          
+          if [ "${{ needs.test-frontend.result }}" = "success" ]; then
+            echo "- ✅ Frontend Pipeline: PASSED" >> test-report.md
+          elif [ "${{ needs.test-frontend.result }}" = "skipped" ]; then
+            echo "- ⏭️ Frontend Pipeline: SKIPPED" >> test-report.md
+          else
+            echo "- ❌ Frontend Pipeline: FAILED" >> test-report.md
+          fi
+          
+          if [ "${{ needs.test-mobile.result }}" = "success" ]; then
+            echo "- ✅ Mobile Pipeline: PASSED" >> test-report.md
+          elif [ "${{ needs.test-mobile.result }}" = "skipped" ]; then
+            echo "- ⏭️ Mobile Pipeline: SKIPPED" >> test-report.md
+          else
+            echo "- ❌ Mobile Pipeline: FAILED" >> test-report.md
+          fi
+          
+          if [ "${{ needs.test-database.result }}" = "success" ]; then
+            echo "- ✅ Database Pipeline: PASSED" >> test-report.md
+          elif [ "${{ needs.test-database.result }}" = "skipped" ]; then
+            echo "- ⏭️ Database Pipeline: SKIPPED" >> test-report.md
+          else
+            echo "- ❌ Database Pipeline: FAILED" >> test-report.md
+          fi
+          
+          echo "" >> test-report.md
+          echo "## Summary" >> test-report.md
+          echo "Pipeline testing completed for: ${{ github.event.inputs.pipeline }}" >> test-report.md
+          
+          cat test-report.md
+
+      - name: 📤 Upload Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-test-report
+          path: test-report.md

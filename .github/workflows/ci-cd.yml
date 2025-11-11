@@ -20,9 +20,9 @@ on:
         default: 'development'
         type: choice
         options:
-        - development
-        - staging
-        - production
+          - development
+          - staging  
+          - production
 
 env:
   NODE_VERSION: '18.20.8'

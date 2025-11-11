@@ -110,9 +110,6 @@ jobs:
 
       - name: 🤖 Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          api-level: 33
-          build-tools: 33.0.0
 
       - name: 📦 Install Dependencies
         working-directory: ${{ env.MOBILE_PATH }}
@@ -232,8 +229,8 @@ jobs:
     needs: [android-build, e2e-testing]
     if: github.ref == 'refs/heads/master' && success()
     
-    environment:
-      name: mobile-production
+    # environment:
+    #   name: production
     
     steps:
       - name: 📥 Checkout Repository
