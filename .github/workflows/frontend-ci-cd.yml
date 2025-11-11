@@ -15,7 +15,7 @@ on:
 
 env:
   NODE_VERSION: '18.x'
-  FRONTEND_PATH: 'apps/frontend'
+  FRONTEND_PATH: 'apps/backend/public'
   PUBLIC_PATH: 'apps/backend/public'
   REGISTRY: ghcr.io
   IMAGE_NAME: mediapp-frontend
