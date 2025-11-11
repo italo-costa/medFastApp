@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Calendário MediApp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .error {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+        .success {
+            border-left-color: #28a745;
+            background: #f8fff9;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        h2 {
+            color: #666;
+            margin-top: 30px;
+        }
+        pre {
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 MediApp - Teste de APIs de Calendário</h1>
+        <p>Esta página testa as implementações da <strong>Prioridade 1: Calendário e Agendamento</strong></p>
+
+        <h2>📊 Testes de Conectividade</h2>
+        <button class="btn" onclick="testarHealthCheck()">🔍 Health Check</button>
+        <button class="btn" onclick="testarEstatisticas()">📊 Estatísticas Dashboard</button>
+        
+        <h2>📅 APIs de Agenda</h2>
+        <button class="btn" onclick="testarDashboardAgenda()">📈 Dashboard Agenda</button>
+        <button class="btn" onclick="testarListaAgendamentos()">📋 Listar Agendamentos</button>
+        <button class="btn" onclick="testarPacientes()">👥 Listar Pacientes</button>
+        <button class="btn" onclick="testarMedicos()">👨‍⚕️ Listar Médicos</button>
+        
+        <h2>🆕 Criar Agendamento Teste</h2>
+        <button class="btn" onclick="criarAgendamentoTeste()">➕ Criar Agendamento</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002';
+        
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `
+                <strong>[${new Date().toLocaleTimeString()}]</strong> ${message}
+            `;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        async function makeRequest(url, options = {}) {
+            try {
+                log(`🚀 Fazendo requisição para: ${url}`);
+                const response = await fetch(url, options);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Sucesso (${response.status}): ${url}`, 'success');
+                    log(`📄 Resposta: <pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                    return data;
+                } else {
+                    log(`❌ Erro (${response.status}): ${url}`, 'error');
+                    log(`📄 Resposta: <pre>${JSON.stringify(data, null, 2)}</pre>`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`🔥 Erro de conexão: ${error.message}`, 'error');
+                return null;
+            }
+        }
+        
+        async function testarHealthCheck() {
+            await makeRequest(`${API_BASE}/health`);
+        }
+        
+        async function testarEstatisticas() {
+            await makeRequest(`${API_BASE}/api/statistics/dashboard`);
+        }
+        
+        async function testarDashboardAgenda() {
+            await makeRequest(`${API_BASE}/api/agenda/dashboard`);
+        }
+        
+        async function testarListaAgendamentos() {
+            await makeRequest(`${API_BASE}/api/agenda/agendamentos`);
+        }
+        
+        async function testarPacientes() {
+            await makeRequest(`${API_BASE}/api/agenda/pacientes`);
+        }
+        
+        async function testarMedicos() {
+            await makeRequest(`${API_BASE}/api/agenda/medicos`);
+        }
+        
+        async function criarAgendamentoTeste() {
+            const agendamento = {
+                pacienteId: "1", // ID do primeiro paciente
+                medicoId: "1",   // ID do primeiro médico
+                data: new Date().toISOString().split('T')[0], // Hoje
+                hora: "14:00",
+                tipo: "consulta",
+                duracao: 60,
+                observacoes: "Agendamento de teste criado automaticamente"
+            };
+            
+            log(`📝 Criando agendamento: <pre>${JSON.stringify(agendamento, null, 2)}</pre>`);
+            
+            await makeRequest(`${API_BASE}/api/agenda/agendamentos`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(agendamento)
+            });
+        }
+        
+        // Auto-executar teste básico ao carregar
+        window.addEventListener('DOMContentLoaded', () => {
+            log('🏥 Página de testes carregada - MediApp Calendário v3.0.0');
+            log('📋 Execute os testes clicando nos botões acima');
+            
+            // Teste automático de conectividade
+            setTimeout(() => {
+                log('🔄 Executando teste automático de conectividade...');
+                testarHealthCheck();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

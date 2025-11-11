@@ -23,6 +23,7 @@ const validacaoRoutes = require('./routes/validacaoRoutes');
 const historicoRoutes = require('./routes/historicoRoutes');
 const analyticsRoutes = require('./routes/analytics');
 const statisticsRoutes = require('./routes/statistics');
+const agendaMedicaRoutes = require('./routes/agenda-medica');
 
 // Criar aplicação Express
 const app = express();
@@ -119,6 +120,7 @@ app.use('/api/validacao', validacaoRoutes);
 app.use('/api/historico', historicoRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/statistics', statisticsRoutes);
+app.use('/api/agenda', agendaMedicaRoutes);
 
 // Rota para estatísticas do dashboard  
 app.get('/api/statistics/dashboard', centralMiddleware.asyncHandler(async (req, res) => {

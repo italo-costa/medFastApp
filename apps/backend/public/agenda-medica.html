@@ -491,6 +491,87 @@
             color: #ccc;
         }
 
+        /* Estilos para notificações */
+        .notification-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: slideInRight 0.3s ease;
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .notification-success .notification-content {
+            border-left-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .notification-error .notification-content {
+            border-left-color: #dc3545;
+            background: #fff8f8;
+        }
+
+        .notification-warning .notification-content {
+            border-left-color: #ffc107;
+            background: #fffef8;
+        }
+
+        .notification-info .notification-content {
+            border-left-color: #17a2b8;
+            background: #f8feff;
+        }
+
+        .notification-icon {
+            font-size: 1.2em;
+        }
+
+        .notification-text {
+            flex: 1;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #999;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-close:hover {
+            color: #666;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
         @media (max-width: 768px) {
             .calendar-controls {
                 flex-direction: column;
@@ -780,74 +861,100 @@
         // Carregar dados
         async function carregarPacientes() {
             try {
+                console.log('👥 Carregando pacientes da API...');
                 const response = await fetch('/api/agenda/pacientes');
+                
                 if (response.ok) {
                     pacientes = await response.json();
+                    console.log(`✅ ${pacientes.length} pacientes carregados da API`);
                 } else {
-                    // Dados mock para fallback
-                    pacientes = [
-                        { id: 1, nome: 'Maria Silva', telefone: '(11) 99999-1111' },
-                        { id: 2, nome: 'João Santos', telefone: '(11) 99999-2222' },
-                        { id: 3, nome: 'Ana Costa', telefone: '(11) 99999-3333' },
-                        { id: 4, nome: 'Pedro Lima', telefone: '(11) 99999-4444' },
-                        { id: 5, nome: 'Carlos Oliveira', telefone: '(11) 99999-5555' }
-                    ];
+                    console.warn('⚠️ API pacientes não disponível, carregando da API principal...');
+                    // Tentar carregar da API principal de pacientes
+                    const fallbackResponse = await fetch('/api/patients');
+                    if (fallbackResponse.ok) {
+                        const patientsData = await fallbackResponse.json();
+                        pacientes = patientsData.patients || patientsData || [];
+                        console.log(`✅ ${pacientes.length} pacientes carregados da API principal`);
+                    } else {
+                        throw new Error('APIs não disponíveis');
+                    }
                 }
                 
                 preencherSelectPacientes();
             } catch (error) {
-                console.error('Erro ao carregar pacientes:', error);
-                // Fallback com dados mock
+                console.error('❌ Erro ao carregar pacientes:', error);
+                // Fallback com dados mock apenas se todas as APIs falharem
                 pacientes = [
-                    { id: 1, nome: 'Maria Silva', telefone: '(11) 99999-1111' },
-                    { id: 2, nome: 'João Santos', telefone: '(11) 99999-2222' },
-                    { id: 3, nome: 'Ana Costa', telefone: '(11) 99999-3333' }
+                    { id: 1, nome: 'Maria Silva Santos', telefone: '(11) 99999-1111', email: 'maria@teste.com' },
+                    { id: 2, nome: 'João Pedro Oliveira', telefone: '(11) 99999-2222', email: 'joao@teste.com' },
+                    { id: 3, nome: 'Ana Costa Lima', telefone: '(11) 99999-3333', email: 'ana@teste.com' },
+                    { id: 4, nome: 'Carlos Eduardo Santos', telefone: '(11) 99999-4444', email: 'carlos@teste.com' },
+                    { id: 5, nome: 'Patricia Rodrigues', telefone: '(11) 99999-5555', email: 'patricia@teste.com' }
                 ];
                 preencherSelectPacientes();
+                mostrarMensagem('Pacientes: usando dados de demonstração', 'warning');
             }
         }
 
         async function carregarMedicos() {
             try {
+                console.log('👨‍⚕️ Carregando médicos da API...');
                 const response = await fetch('/api/agenda/medicos');
+                
                 if (response.ok) {
                     medicos = await response.json();
+                    console.log(`✅ ${medicos.length} médicos carregados da API`);
                 } else {
-                    // Dados mock para fallback
-                    medicos = [
-                        { id: 1, nome: 'Dr. Roberto Silva', especialidade: 'Cardiologia', crm: '12345' },
-                        { id: 2, nome: 'Dra. Fernanda Costa', especialidade: 'Pediatria', crm: '67890' },
-                        { id: 3, nome: 'Dr. Carlos Mendes', especialidade: 'Ortopedia', crm: '11111' },
-                        { id: 4, nome: 'Dra. Lucia Santos', especialidade: 'Dermatologia', crm: '22222' }
-                    ];
+                    console.warn('⚠️ API médicos não disponível, carregando da API principal...');
+                    // Tentar carregar da API principal de médicos
+                    const fallbackResponse = await fetch('/api/medicos');
+                    if (fallbackResponse.ok) {
+                        const medicosData = await fallbackResponse.json();
+                        // Adaptar formato se necessário
+                        medicos = medicosData.medicos || medicosData || [];
+                        console.log(`✅ ${medicos.length} médicos carregados da API principal`);
+                    } else {
+                        throw new Error('APIs não disponíveis');
+                    }
                 }
                 
                 preencherSelectMedicos();
             } catch (error) {
-                console.error('Erro ao carregar médicos:', error);
-                // Fallback com dados mock
+                console.error('❌ Erro ao carregar médicos:', error);
+                // Fallback com dados mock apenas se todas as APIs falharem
                 medicos = [
-                    { id: 1, nome: 'Dr. Roberto Silva', especialidade: 'Cardiologia', crm: '12345' },
-                    { id: 2, nome: 'Dra. Fernanda Costa', especialidade: 'Pediatria', crm: '67890' }
+                    { id: 1, nome: 'Dr. João Silva', especialidade: 'Cardiologia', crm: '123456-SP' },
+                    { id: 2, nome: 'Dra. Maria Santos', especialidade: 'Pediatria', crm: '234567-SP' },
+                    { id: 3, nome: 'Dr. Carlos Mendes', especialidade: 'Ortopedia', crm: '345678-SP' },
+                    { id: 4, nome: 'Dra. Ana Costa', especialidade: 'Dermatologia', crm: '456789-SP' },
+                    { id: 5, nome: 'Dr. Pedro Lima', especialidade: 'Neurologia', crm: '567890-SP' }
                 ];
                 preencherSelectMedicos();
+                mostrarMensagem('Médicos: usando dados de demonstração', 'warning');
             }
         }
 
         async function carregarAgendamentos() {
             try {
+                console.log('📅 Carregando agendamentos da API...');
+                mostrarMensagem('Carregando agendamentos...', 'info');
+                
                 const response = await fetch('/api/agenda/agendamentos');
                 if (response.ok) {
                     agendamentos = await response.json();
+                    console.log(`✅ ${agendamentos.length} agendamentos carregados da API`);
+                    mostrarMensagem(`${agendamentos.length} agendamentos carregados com sucesso!`, 'success');
                 } else {
-                    // Dados mock para fallback
+                    console.warn('⚠️ API não disponível, usando dados mock');
                     agendamentos = gerarAgendamentosMock();
+                    mostrarMensagem('Usando dados de demonstração (API offline)', 'warning');
                 }
             } catch (error) {
-                console.error('Erro ao carregar agendamentos:', error);
-                // Fallback com dados mock
+                console.error('❌ Erro ao carregar agendamentos:', error);
                 agendamentos = gerarAgendamentosMock();
+                mostrarMensagem('Erro na conexão - usando dados de demonstração', 'error');
             }
+        }
         }
 
         function gerarAgendamentosMock() {
@@ -1031,8 +1138,32 @@
             return dayElement;
         }
 
-        // Estatísticas
-        function atualizarEstatisticas() {
+        // Estatísticas - Carrega do servidor e fallback local
+        async function atualizarEstatisticas() {
+            try {
+                console.log('📊 Atualizando estatísticas...');
+                
+                // Tentar carregar estatísticas da API
+                const response = await fetch('/api/agenda/dashboard');
+                if (response.ok) {
+                    const stats = await response.json();
+                    console.log('✅ Estatísticas carregadas da API:', stats);
+                    
+                    document.getElementById('agendamentosHoje').textContent = stats.agendamentosHoje || 0;
+                    document.getElementById('agendamentosAmanha').textContent = stats.agendamentosAmanha || 0;
+                    document.getElementById('agendamentosSemana').textContent = stats.agendamentosSemana || 0;
+                    document.getElementById('agendamentosMes').textContent = stats.agendamentosMes || 0;
+                } else {
+                    console.warn('⚠️ API de estatísticas não disponível, calculando localmente...');
+                    calcularEstatisticasLocal();
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar estatísticas:', error);
+                calcularEstatisticasLocal();
+            }
+        }
+        
+        function calcularEstatisticasLocal() {
             const hoje = new Date().toISOString().split('T')[0];
             const amanha = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
             
@@ -1353,18 +1484,41 @@
             }
         }
 
-        // Mensagens
-        function mostrarMensagem(texto, tipo) {
+        // Sistema de mensagens melhorado
+        function mostrarMensagem(texto, tipo = 'info', duracao = 5000) {
+            // Remover mensagem anterior se existir
+            const mensagemExistente = document.querySelector('.notification-message');
+            if (mensagemExistente) {
+                mensagemExistente.remove();
+            }
+            
             const container = document.querySelector('.container');
             const mensagem = document.createElement('div');
-            mensagem.className = `${tipo}-message`;
-            mensagem.textContent = texto;
+            mensagem.className = `notification-message notification-${tipo}`;
+            
+            const icones = {
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️',
+                'info': 'ℹ️'
+            };
+            
+            mensagem.innerHTML = `
+                <div class="notification-content">
+                    <span class="notification-icon">${icones[tipo] || 'ℹ️'}</span>
+                    <span class="notification-text">${texto}</span>
+                    <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                </div>
+            `;
             
             container.insertBefore(mensagem, container.firstChild);
             
+            // Auto-remover após duração especificada
             setTimeout(() => {
-                mensagem.remove();
-            }, 5000);
+                if (mensagem.parentNode) {
+                    mensagem.remove();
+                }
+            }, duracao);
         }
 
         // Fechar modal ao clicar fora

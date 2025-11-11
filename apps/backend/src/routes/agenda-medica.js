@@ -130,31 +130,35 @@ router.get('/agendamentos', async (req, res) => {
                 medico: {
                     select: {
                         id: true,
-                        nome: true,
+                        usuario: {
+                            select: {
+                                nome: true
+                            }
+                        },
                         especialidade: true,
                         crm: true
                     }
                 }
             },
             orderBy: {
-                dataHora: 'asc'
+                data_hora: 'asc'
             }
         });
 
         // Formatar dados para o frontend
         const agendamentosFormatados = agendamentos.map(agendamento => {
-            const dataHora = new Date(agendamento.dataHora);
+            const dataHora = new Date(agendamento.data_hora);
             return {
                 id: agendamento.id,
-                pacienteId: agendamento.pacienteId,
+                pacienteId: agendamento.paciente_id,
                 pacienteNome: agendamento.paciente.nome,
-                medicoId: agendamento.medicoId,
-                medicoNome: agendamento.medico.nome,
+                medicoId: agendamento.medico_id,
+                medicoNome: agendamento.medico.usuario?.nome || 'Médico',
                 data: dataHora.toISOString().split('T')[0],
                 hora: dataHora.toTimeString().slice(0, 5),
-                tipo: agendamento.tipo,
+                tipo: agendamento.tipo_consulta,
                 status: agendamento.status,
-                duracao: agendamento.duracao || 60,
+                duracao: agendamento.duracao_minutos || 60,
                 observacoes: agendamento.observacoes
             };
         });
@@ -182,8 +186,8 @@ router.post('/agendamentos', async (req, res) => {
         // Verificar se o horário está disponível
         const agendamentoExistente = await prisma.agendamento.findFirst({
             where: {
-                medicoId: parseInt(medicoId),
-                dataHora: dataHora
+                medico_id: medicoId,
+                data_hora: dataHora
             }
         });
         
@@ -193,13 +197,13 @@ router.post('/agendamentos', async (req, res) => {
 
         const novoAgendamento = await prisma.agendamento.create({
             data: {
-                pacienteId: parseInt(pacienteId),
-                medicoId: parseInt(medicoId),
-                dataHora: dataHora,
-                tipo: tipo,
-                duracao: parseInt(duracao) || 60,
+                paciente_id: pacienteId,
+                medico_id: medicoId,
+                data_hora: dataHora,
+                tipo_consulta: tipo,
+                duracao_minutos: parseInt(duracao) || 60,
                 observacoes: observacoes || null,
-                status: 'agendado'
+                status: 'AGENDADO'
             },
             include: {
                 paciente: {
@@ -222,15 +226,15 @@ router.post('/agendamentos', async (req, res) => {
         // Formatar resposta
         const agendamentoFormatado = {
             id: novoAgendamento.id,
-            pacienteId: novoAgendamento.pacienteId,
+            pacienteId: novoAgendamento.paciente_id,
             pacienteNome: novoAgendamento.paciente.nome,
-            medicoId: novoAgendamento.medicoId,
-            medicoNome: novoAgendamento.medico.nome,
-            data: novoAgendamento.dataHora.toISOString().split('T')[0],
-            hora: novoAgendamento.dataHora.toTimeString().slice(0, 5),
-            tipo: novoAgendamento.tipo,
+            medicoId: novoAgendamento.medico_id,
+            medicoNome: novoAgendamento.medico.usuario?.nome || 'Médico',
+            data: novoAgendamento.data_hora.toISOString().split('T')[0],
+            hora: novoAgendamento.data_hora.toTimeString().slice(0, 5),
+            tipo: novoAgendamento.tipo_consulta,
             status: novoAgendamento.status,
-            duracao: novoAgendamento.duracao,
+            duracao: novoAgendamento.duracao_minutos,
             observacoes: novoAgendamento.observacoes
         };
 
