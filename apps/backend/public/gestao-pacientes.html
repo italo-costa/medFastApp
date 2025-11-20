@@ -1843,7 +1843,7 @@
         async function iniciarAnamnese(id) {
             try {
                 // Verificar se já existe anamnese completa
-                const response = await fetch(`/api/patients/${id}/anamnesis/check/complete`);
+                const response = await fetch(`/api/pacientes/${id}/anamnesis/check/complete`);
                 const data = await response.json();
 
                 if (data.success && data.hasCompleteAnamnesis) {

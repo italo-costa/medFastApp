@@ -83,7 +83,7 @@ class PacientesApp extends MediAppCore {
     async loadPacientes() {
         try {
             this.showTableLoading();
-            const response = await this.request('/api/pacientes');
+            const response = await this.request('/pacientes');
             this.pacientes = response.pacientes || [];
             this.filteredPacientes = [...this.pacientes];
             this.renderPacientesTable();
@@ -97,7 +97,7 @@ class PacientesApp extends MediAppCore {
 
     async loadStatsData() {
         try {
-            const response = await this.request('/api/pacientes/stats');
+            const response = await this.request('/pacientes/stats');
             
             document.getElementById('totalPacientes').textContent = response.total || 0;
             document.getElementById('pacientesAtivos').textContent = response.ativos || 0;
