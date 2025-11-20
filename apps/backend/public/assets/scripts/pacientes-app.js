@@ -84,7 +84,7 @@ class PacientesApp extends MediAppCore {
         try {
             this.showTableLoading();
             const response = await this.request('/pacientes');
-            this.pacientes = response.pacientes || [];
+            this.pacientes = response.data || [];
             this.filteredPacientes = [...this.pacientes];
             this.renderPacientesTable();
             this.hideTableLoading();
@@ -97,12 +97,13 @@ class PacientesApp extends MediAppCore {
 
     async loadStatsData() {
         try {
-            const response = await this.request('/pacientes/stats');
+            const response = await this.request('/statistics/dashboard');
+            const stats = response.data || {};
             
-            document.getElementById('totalPacientes').textContent = response.total || 0;
-            document.getElementById('pacientesAtivos').textContent = response.ativos || 0;
-            document.getElementById('pacientesInativos').textContent = response.inativos || 0;
-            document.getElementById('consultasHoje').textContent = response.consultasHoje || 0;
+            document.getElementById('totalPacientes').textContent = stats.pacientesCadastrados?.value || 0;
+            document.getElementById('pacientesAtivos').textContent = stats.pacientesCadastrados?.value || 0;
+            document.getElementById('pacientesInativos').textContent = 0; // Calculado do total
+            document.getElementById('consultasHoje').textContent = stats.consultasHoje?.value || 0;
         } catch (error) {
             console.error('Erro ao carregar estatísticas:', error);
         }
