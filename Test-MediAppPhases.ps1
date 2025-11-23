@@ -445,6 +445,72 @@ function Start-TestExecution {
         Start-Sleep -Seconds 2
     }
     
+    # NOVA FASE: Teste de carregamento de dados
+    Write-Host ""
+    Write-Phase "FASE 19 - TESTE DE CARREGAMENTO DE DADOS" "Magenta"
+    $phaseStartTime = Get-Date
+    
+    try {
+        $dataTests = @()
+        
+        # Testar API de médicos
+        try {
+            $medicosResponse = Invoke-WebRequest -Uri "http://localhost:3002/api/medicos" -UseBasicParsing -TimeoutSec 10
+            $medicosData = ($medicosResponse.Content | ConvertFrom-Json).data
+            $dataTests += "API Médicos: $($medicosData.Count) registros encontrados"
+        }
+        catch {
+            $dataTests += "API Médicos falhou: $($_.Exception.Message)"
+        }
+        
+        # Testar API de pacientes  
+        try {
+            $pacientesResponse = Invoke-WebRequest -Uri "http://localhost:3002/api/pacientes" -UseBasicParsing -TimeoutSec 10
+            $pacientesData = ($pacientesResponse.Content | ConvertFrom-Json).data
+            $dataTests += "API Pacientes: $($pacientesData.Count) registros encontrados"
+        }
+        catch {
+            $dataTests += "API Pacientes falhou: $($_.Exception.Message)"
+        }
+        
+        # Testar API de estatísticas
+        try {
+            $statsResponse = Invoke-WebRequest -Uri "http://localhost:3002/api/statistics/dashboard" -UseBasicParsing -TimeoutSec 10
+            $statsData = ($statsResponse.Content | ConvertFrom-Json).data
+            $dataTests += "API Estatísticas: Médicos=$($statsData.medicosAtivos.value), Pacientes=$($statsData.pacientesCadastrados.value)"
+        }
+        catch {
+            $dataTests += "API Estatísticas falhou: $($_.Exception.Message)"
+        }
+        
+        $phaseEndTime = Get-Date
+        $phaseDuration = $phaseEndTime - $phaseStartTime
+        
+        # Determinar se a fase passou
+        $criticalTests = $dataTests | Where-Object { $_ -match "registros encontrados" }
+        $phaseStatus = $criticalTests.Count -ge 2
+        
+        $PhaseResults["Phase19"] = @{
+            Name = "Teste de Carregamento de Dados"
+            Status = $phaseStatus
+            Duration = $phaseDuration
+            Details = $dataTests
+        }
+        
+        if ($phaseStatus) {
+            Write-Success "Fase 19 concluída: Dados carregando corretamente"
+        } else {
+            Write-Error "Fase 19 falhou: Problemas no carregamento de dados"
+        }
+        
+        foreach ($test in $dataTests) {
+            Write-Host "    ✓ $test" -ForegroundColor Green
+        }
+    }
+    catch {
+        Write-Error "Fase 19 falhou: $($_.Exception.Message)"
+    }
+    
     # Relatório final
     Write-Host ""
     Write-Host "📊 RELATÓRIO FINAL DE TESTES" -ForegroundColor Cyan
